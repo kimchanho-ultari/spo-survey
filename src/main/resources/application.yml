@@ -23,7 +23,7 @@ spring:
     to:
       datasource:
         driver-class-name: com.mysql.jdbc.Driver
-        jdbc-url: jdbc:mysql://127.0.0.1:3306/jeju?useUnicode=true&characterEncoding=UTF8&serverTimezone=UTC
+        jdbc-url: jdbc:mysql://10.0.0.91:3306/jeju?useUnicode=true&characterEncoding=UTF8&serverTimezone=UTC
         username: msger
         password: msger
   datasource:
