@@ -1,0 +1,11 @@
+﻿@charset "utf-8";
+/* CSS Document */
+.dialog{display:none}
+
+ul.holizontal{display:table}
+li.holizontal{box-sizing:border-box;float:left}
+
+ul.gnb{font-size:16px;font-weight:400;cursor:pointer;border:1px solid #c0c0c0;border-bottom:none}
+li.gnb{text-align:center;cursor:pointer;border-right:1px solid #c0c0c0;;padding:8px 41px}
+li.gnb:last-child{border-right:none}
+li.active{color:#fff;font-weight:900;background:#0c4da1}

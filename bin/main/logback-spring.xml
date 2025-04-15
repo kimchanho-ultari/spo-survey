@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<property name="LOG_PATH" value="./logs"/>
+	<property name="LOG_NAME" value="${LOG_PATH}/additional.log"/>
+	
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss} %highlight(%-5level) %logger{36}.%M \(%F:%line\) - %msg%n</pattern>
+		</encoder>
+	</appender>
+	<springProfile name="prod">
+		<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+			<file>${LOG_NAME}</file>
+			<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+				<fileNamePattern>${LOG_NAME}.%d{yyyyMMdd}</fileNamePattern>
+				<maxHistory>14</maxHistory>
+			</rollingPolicy>
+			<encoder>
+				<pattern>%d{yyyy-MM-dd HH:mm:ss} %highlight(%-5level) %logger{36}.%M \(%F:%line\) - %msg%n</pattern>
+			</encoder>
+		</appender>
+	</springProfile>
+	
+	<root level="info">
+		<appender-ref ref="STDOUT"/>
+		<springProfile name="prod">
+			<appender-ref ref="FILE"/>
+		</springProfile>
+	</root>
+</configuration>

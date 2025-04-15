@@ -1,0 +1,49 @@
+plugins {
+	id 'org.springframework.boot' version '2.2.6.RELEASE'
+	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+	id 'java'
+}
+
+group = 'com.ultari.additional'
+sourceCompatibility = '1.8'
+
+bootJar {
+    archiveBaseName = 'at-additional-jeju'
+    archiveVersion = '1.0.8.RELEASE'
+}
+
+configurations {
+	developmentOnly
+	runtimeClasspath {
+		extendsFrom developmentOnly
+	}
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.1.2'
+	implementation 'commons-io:commons-io:2.6'
+	implementation 'org.apache.httpcomponents:httpclient:4.5'
+	compileOnly 'org.projectlombok:lombok'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}
+	compile group: 'commons-codec', name: 'commons-codec', version: '1.9'
+	compile fileTree (dir: 'lib', include:['**/*.jar'])
+	compile('org.apache.poi:poi-ooxml:3.16')
+	compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
+}
+
+test {
+	useJUnitPlatform()
+}

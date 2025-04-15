@@ -1,0 +1,4 @@
+@charset "utf-8";
+
+.survey_area{margin-top:20px}
+.survey_area:first-child{margin-top:0}

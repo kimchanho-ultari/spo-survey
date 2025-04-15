@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<link rel="shortcut icon" th:href="@{/images/favicon.ico}"/>
+<link rel="stylesheet" th:href="@{/css/password/password.css}">
+<script type="text/javascript" th:src="@{/js/jquery/jquery-3.1.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/common.js}"></script>
+<script type="text/javascript" th:src="@{/js/password/regist.js}"></script>
+<script type="text/javascript" th:src="@{/js/password/passwordValidator.js}"></script>
+<title>제주도청</title>
+<script th:inline="javascript">
+var key = [[${session.account.decKey}]];
+</script>
+</head>
+<body>
+
+<div id="center_box">
+	<div id="title">비밀번호 변경</div>
+	<div id="pw_area">
+		<div>
+			현재 비밀번호:
+		</div>
+		<div>
+			<input id="password" type="password" class="input_pw"/>
+		</div>
+		<div style="margin-top:10px">
+			변경할 비밀번호:
+		</div>
+		<div>
+			<input id="newPassword" type="password" class="input_pw"/>
+		</div>
+		<div style="margin-top:10px">
+			변경할 비밀번호 확인:
+		</div>
+		<div>
+			<input id="confirm_password" type="password" class="input_pw"/>
+		</div>
+	</div>
+	<div id="btns">
+		<button id="btnRegist" class="btn_blue" style="width:112px">확인</button>&nbsp;
+		<button id="btnCancel" class="btn_gray" style="width:112px">취소</button>
+	</div>
+	<ul class="desc">
+		<li>영문, 숫자, 특수문자 혼용 9자 이상 15자 이하</li>
+		<li>아이디와 동일한 비밀번호 사용 불가</li>
+		<li>동일문자 3자 이상 연속 사용 불가</li>
+		<li>사용 불가 문자열 체크(script,alert,/script,cookie,document)</li>
+		<li>한글, 공백 사용 불가</li>
+	</ul>
+</div>
+
+</body>
+</html>

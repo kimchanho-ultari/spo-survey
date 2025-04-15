@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ultari.additional.mapper.migration.from.FromMapper">
+	<resultMap type="Group" id="dept">
+		<id property="key" column="DEPT_ID"/>
+		<result property="title" column="DEPT_NAME"/>
+		<result property="pKey" column="P_DEPT_ID"/>
+		<result property="sort" column="SORT"/>
+	</resultMap>
+	<resultMap type="Member" id="member">
+		<id property="key" column="USER_ID"/>
+		<result property="title" column="USER_NAME"/>
+		<result property="deptId" column="DEPT_ID"/>
+		<result property="phone" column="PHONE"/>
+		<result property="posName" column="POS_NAME"/>
+		<result property="job" column="DUTY"/>
+		<result property="mobile" column="MOBILE"/>
+		<result property="email" column="EMAIL"/>
+		<result property="sort" column="SORT"/>
+	</resultMap>
+
+	<select id="deptList" resultMap="dept">
+SELECT 
+		  PART_ID AS DEPT_ID
+		, PART_HIGH AS P_DEPT_ID
+		, PART_NAME AS DEPT_NAME
+		, PART_ORDER AS SORT
+FROM MSG_PART
+	</select>
+	<select id="memberList" resultMap="member">
+SELECT 
+		  USER_ID AS USER_ID
+		, USER_NAME AS USER_NAME
+		, USER_HIGH AS DEPT_ID
+		, POS_NAME AS POS_NAME
+		, PHONE AS PHONE
+		, MOBILE AS MOBILE
+		, EMAIL
+		, USER_ORDER AS SORT
+		, JOB
+FROM MSG_USER
+	</select>
+<!-- 
+	 <select id="deptList" resultMap="dept">
+SELECT 
+		  DEPT_ID
+		, P_DEPT_ID
+		, DEPT_NAME
+		, SORT
+FROM MSG_DEPT_VW 
+	</select>
+	<select id="memberList" resultMap="member">
+SELECT 
+		  USER_ID
+		, USER_NAME
+		, DEPT_ID
+		, POS_NAME
+		, PHONE
+		, MOBILE
+		, EMAIL
+		, SORT
+		, '담당업무' AS DUTY
+FROM MSG_USER_VW
+	</select>
+ -->
+</mapper>

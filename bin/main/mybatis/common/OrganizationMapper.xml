@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ultari.additional.mapper.common.OrganizationMapper">
+	<resultMap type="Dept" id="dept">
+		<id property="key" column="DEPT_ID"/>
+		<result property="title" column="DEPT_NAME"/>
+		<result property="pId" column="P_DEPT_ID"/>
+		<result property="sort" column="SORT"/>
+	</resultMap>
+	<resultMap type="User" id="user">
+		<id property="userId" column="USER_ID"/>
+		<result property="userName" column="USER_NAME"/>
+		<result property="deptId" column="DEPT_ID"/>
+		<result property="deptName" column="DEPT_NAME"/>
+		<result property="posName" column="POS_NAME"/>
+		<result property="phone" column="PHONE"/>
+		<result property="mobile" column="MOBILE"/>
+		<result property="email" column="EMAIL"/>
+		<result property="password" column="PASSWORD"/>
+		<result property="sort" column="SORT"/>
+		<result property="type" column="USER_TYPE"/>
+	</resultMap>
+	<select id="totalCntForMemberByDeptId" resultType="int">
+SELECT
+		COUNT(*)
+FROM MSG_USER_VW
+WHERE
+		DEPT_ID=#{deptId}
+	</select>
+	<select id="totalCntForMemberByKeyword" resultType="int">
+SELECT
+		COUNT(*)
+FROM MSG_USER_VW
+<trim prefix="WHERE" prefixOverrides="AND|OR">
+	<if test="keyword != ''">
+		<bind name="pattern" value="'%' + keyword + '%'"/>
+			(
+			USER_NAME LIKE #{pattern}
+			<!-- 
+			OR DEPT_NAME LIKE #{pattern}
+			OR POS_NAME LIKE #{pattern}
+			OR PHONE LIKE #{pattern}
+			OR MOBILE LIKE #{pattern}
+			OR EMAIL LIKE #{pattern}
+			-->
+			)
+	</if>
+</trim>
+	</select>
+	<select id="deptListAll" resultMap="dept">
+SELECT
+		*
+FROM MSG_DEPT_VW
+ORDER BY
+			SORT
+	</select>
+	<select id="deptListByPid" resultMap="dept">
+SELECT
+		*
+FROM MSG_DEPT_VW
+WHERE
+		P_DEPT_ID=#{key}
+ORDER BY
+			SORT
+	</select>
+	<select id="memberById" resultMap="user">
+SELECT
+		*
+FROM MSG_USER_VW
+WHERE
+		USER_ID=#{userId}
+	</select>
+	<select id="memberByDeptIdPaging" resultMap="user">
+SELECT
+		*
+FROM MSG_USER_VW
+<trim prefix="WHERE" prefixOverrides="AND | OR">
+	DEPT_ID=#{deptId}
+</trim>
+ORDER BY 
+			USER_TYPE DESC, SORT
+LIMIT #{startRowNo}, #{pageSize}
+	</select>
+	<select id="memberByDeptId" resultMap="user">
+SELECT
+		*
+FROM MSG_USER_VW
+<trim prefix="WHERE" prefixOverrides="AND | OR">
+	DEPT_ID=#{deptId}
+</trim>
+ORDER BY 
+			USER_TYPE DESC, SORT
+	</select>
+	<select id="memberByDeptIdList" resultMap="user">
+SELECT
+		*
+FROM MSG_USER_VW
+<trim prefix="WHERE" prefixOverrides="AND|OR">
+	<if test="list.size != 0">
+		<foreach collection="list" item="item" open="" close="" separator="OR">
+			(DEPT_ID=#{item})
+		</foreach>
+	</if>
+</trim>
+	</select>
+	<select id="memberByKeywordPaging" resultMap="user">
+SELECT
+		*
+FROM MSG_USER_VW
+<trim prefix="WHERE" prefixOverrides="AND | OR">
+	<if test="keyword != ''">
+		<bind name="pattern" value="'%' + keyword + '%'"/>
+			(
+			USER_NAME LIKE #{pattern}
+			<!-- 
+			OR DEPT_NAME LIKE #{pattern}
+			OR POS_NAME LIKE #{pattern}
+			OR PHONE LIKE #{pattern}
+			OR MOBILE LIKE #{pattern}
+			OR EMAIL LIKE #{pattern}
+			-->
+			)
+	</if>
+</trim>
+ORDER BY 
+			USER_TYPE DESC, SORT
+LIMIT #{startRowNo}, #{pageSize}	
+	</select>
+	<select id="memberByKeyword" resultMap="user">
+SELECT
+		*
+FROM MSG_USER_VW
+<trim prefix="WHERE" prefixOverrides="AND | OR">
+	<if test="keyword != ''">
+		<bind name="pattern" value="'%' + keyword + '%'"/>
+			(
+			USER_NAME LIKE #{pattern}
+			<!-- 
+			OR DEPT_NAME LIKE #{pattern}
+			OR POS_NAME LIKE #{pattern}
+			OR PHONE LIKE #{pattern}
+			OR MOBILE LIKE #{pattern}
+			OR EMAIL LIKE #{pattern}
+			-->
+			)
+	</if>
+</trim>
+ORDER BY 
+			USER_TYPE DESC, SORT
+	</select>
+	<select id="memberAll" resultMap="user">
+SELECT
+		*
+FROM MSG_USER_VW
+ORDER BY 
+			USER_TYPE DESC, SORT
+	</select>
+	<insert id="registMember">
+INSERT INTO MSG_USER(USER_ID, USER_NAME, DEPT_ID, POS_NAME, PHONE, MOBILE, EMAIL, PASSWORD, SORT, USER_TYPE) 
+SELECT
+		  #{userId}
+		, #{userName}
+		, #{deptId}
+		, #{posName}
+		, #{phone}
+		, #{mobile}
+		, #{email}
+		, #{password}
+		<choose>
+			<when test="sort != null">
+				, #{sort}
+			</when>
+			<otherwise>
+				, IFNULL(MAX(SORT), 0) + 1
+			</otherwise>
+		</choose>
+		, 'APD'
+FROM MSG_USER
+WHERE
+		DEPT_ID=#{deptId}
+	</insert>
+	<update id="modifyMember">
+UPDATE MSG_USER
+SET
+		  USER_NAME=#{userName}
+		, POS_NAME=#{posName}
+		, PHONE=#{phone}
+		, MOBILE=#{mobile}
+		, EMAIL=#{email}
+WHERE
+		USER_ID=#{userId}
+	</update>
+	<delete id="removeMember" parameterType="java.util.Map">
+DELETE FROM MSG_USER
+WHERE
+	<foreach collection="list" item="item" open="" close="" separator="OR">
+		(USER_ID=#{item.key})
+	</foreach>
+	</delete>
+	<update id="moveMember" parameterType="java.util.Map">
+UPDATE MSG_USER
+SET
+	DEPT_ID=#{deptId}
+WHERE
+	<foreach collection="list" item="item" open="" close="" separator="OR">
+		(USER_ID=#{item.key})
+	</foreach>
+	</update>
+	<update id="resetFailedPasswordCount">
+UPDATE MSG_PASSWORD_MANAGE SET COUNT=0
+WHERE
+		USER_ID=#{key}
+	</update>
+</mapper>

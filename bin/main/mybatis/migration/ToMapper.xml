@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ultari.additional.mapper.migration.to.ToMapper">
+	<delete id="removeDept">
+DELETE FROM MSG_DEPT
+	</delete>
+	<insert id="registDept">
+INSERT INTO MSG_DEPT(DEPT_ID, DEPT_NAME, P_DEPT_ID, SORT) VALUES
+<foreach collection="list" item="item" index="index" separator=",">
+(
+	  #{item.key}
+	, #{item.title}
+	, #{item.pKey}
+	, #{item.sort}
+)
+</foreach>
+	</insert>
+	<delete id="removeMember">
+DELETE FROM MSG_USER WHERE USER_TYPE='ORG'
+	</delete>
+	<insert id="registMember">
+INSERT INTO MSG_USER(USER_ID, USER_NAME, DEPT_ID, PHONE, MOBILE, EMAIL, POS_NAME, JOB, PASSWORD, SORT, USER_TYPE) VALUES
+(
+	  #{key}
+	, #{title}
+	, #{deptId}
+	, #{phone}
+	, #{mobile}
+	, #{email}
+	, #{posName}
+	, #{job}
+	, #{password}
+	, #{sort}
+	, 'ORG'
+) ON DUPLICATE KEY UPDATE
+	  USER_NAME=#{title}
+	, DEPT_ID=#{deptId}
+	, PHONE=#{phone}
+	, MOBILE=#{mobile}
+	, EMAIL=#{email}
+	, POS_NAME=#{posName}
+	, JOB=#{job}
+	, SORT=#{sort}
+	, USER_TYPE='ORG'
+	</insert>
+</mapper>

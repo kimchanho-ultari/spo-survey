@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>제주도청</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<link rel="shortcut icon" th:href="@{/images/favicon.ico}"/>
+<link rel="stylesheet" th:href="@{/css/survey/survey.css}">
+<script type="text/javascript" th:src="@{/js/jquery/jquery-3.1.1.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/common.js}"></script>
+<script type="text/javascript" th:src="@{/js/survey/list.js}"></script>
+</head>
+<body>
+<div th:include="survey/header :: header"></div>
+
+<div id="contents">
+	<div id="search">
+		<table style="width:100%">
+			<tr>
+				<td width="310px">
+					<div class="select1">
+						<input type="text" id="keyword" placeholder="제목을 입력하세요." th:value="${keyword}" autocomplete="off"/>
+					</div>
+				</td>
+				<td width="50px">
+					<img id="btnSearch" src="/images/btn_search_icon.png" style="width:40px;height:34px;cursor:pointer"/>
+				</td>
+				<td align="right">
+					<a href="/survey/regist" class="button button_blue">등록</a>
+					<!--&nbsp;<a href="#" class="button_gray">삭제</a-->
+				</td>
+			</tr>
+		</table> 
+	</div>
+  
+	<div id="list">
+		<table style="width:100%">
+			<thead>
+				<tr>
+					<th width="60"></th>
+					<th width="80">상태</th>
+					<th>제목</th>
+					<th width="130">참여자</th>
+					<th width="130">시작일</th>
+					<th width="130">마감일</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="item : ${list}" class="listItem" th:attr="data-survey-code=${item.getSurveyCode()}, data-is-open=${item.getIsOpen()}, data-status=${item.getStatus()}, data-is-writer=${item.getIsWriter()}">
+					<td style="font-weight:bold">Q
+					</td>
+					<td th:switch="${item.status}">
+						<span th:case="P" class="progressing">진행중</span>
+						<span th:case="C" class="complete">종료</span>
+						<span th:case="W" class="waiting">대기중</span>
+					</td>
+					<td class="td_align_left">
+						<span th:text="${item.surveyTitle}"></span>
+						<img th:if="${item.getIsOpen()} == 'N'" src="/images/icon_lock.png" style="width:11px;height:20px;vertical-align:middle"/>
+					</td>
+					<td>
+						<span th:text="${#lists.size(item.memberList)}"></span>명 대상 / 
+						<span th:if="${item.getIsMember()} == 'Y' and ${item.getIsDone()} == 'Y'" th:text="${item.totalComplete} + '명 참여'"></span>
+						<span th:if="${item.getIsMember()} == 'Y' and ${item.getIsDone()} == 'N'" th:text="미참여"></span>
+						<span th:if="${item.getIsMember()} == 'N'" th:text="${item.totalComplete} + '명 참여'"></span>
+					</td>
+					<td th:text="${#dates.format(item.startDatetime, 'yyyy-MM-dd HH:mm')}"></td>
+					<td th:text="${#dates.format(item.endDatetime, 'yyyy-MM-dd HH:mm')}"></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<div id="count">
+		<span th:if="${paging.startPageNo > 1}" class="paging" th:attr="data-page-no=${paging.getFirstPageNo()}">
+			<img src="/images/btn_count_prev2.png" style="width:35px;height:35px;vertical-align:top"/>
+		</span>
+		<span th:if="${paging.prevPageNo < paging.startPageNo}" class="paging" th:attr="data-page-no=${paging.getPrevPageNo()}">
+			<img src="/images/btn_count_prev.png" style="width:35px;height:35px;vertical-align:top"/>
+		</span>
+		
+		<span th:each="pageNo: ${#numbers.sequence(paging.startPageNo, paging.endPageNo)}" th:class="${pageNo == paging.pageNo} ? 'count_active' : 'count_normal'" th:text="${pageNo}" th:classappend="paging" th:attr="data-page-no=${pageNo}"></span>
+		
+		<span th:if="${paging.nextPageNo < paging.finalPageNo}" class="paging" th:attr="data-page-no=${paging.getNextPageNo()}">
+			<img src="/images/btn_count_next.png" style="width:35px;height:35px;vertical-align:top"/>
+		</span>
+		<span th:if="${paging.endPageNo < paging.finalPageNo}" class="paging" th:attr="data-page-no=${paging.getFinalPageNo()}">
+			<img src="/images/btn_count_next2.png" style="width:35px;height:35px;vertical-align:top"/>
+		</span>
+	</div>
+</div>
+
+<div th:include="survey/footer :: footer"></div>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ultari.additional.mapper.migration.from.FromMapper">
+	<resultMap type="Group" id="dept">
+		<id property="key" column="DEPT_ID"/>
+		<result property="title" column="DEPT_NAME"/>
+		<result property="pKey" column="P_DEPT_ID"/>
+		<result property="sort" column="SORT"/>
+	</resultMap>
+	<resultMap type="Member" id="member">
+		<id property="key" column="USER_ID"/>
+		<result property="title" column="USER_NAME"/>
+		<result property="deptId" column="DEPT_ID"/>
+		<result property="phone" column="PHONE"/>
+		<result property="posName" column="POS_NAME"/>
+		<result property="job" column="DUTY"/>
+		<result property="mobile" column="MOBILE"/>
+		<result property="email" column="EMAIL"/>
+		<result property="sort" column="SORT"/>
+	</resultMap>
+
+	<select id="deptList" resultMap="dept">
+SELECT 
+		  ORGID AS DEPT_ID
+		, PARENTORGID AS P_DEPT_ID
+		, ORGNAME AS DEPT_NAME
+		, ORGORDER AS SORT
+FROM COM_ORGANIZATIONINFO 
+WHERE 
+		NVL(TRIM(WHENDELETED),'ACTORG') = 'ACTORG' and 
+		isdeleted='0' 
+order by PARENTORGID, ORGORDER, ORGID
+	</select>
+	<select id="memberList" resultMap="member">
+SELECT 
+		  A.LOGINID AS USER_ID
+		, A.USERNAME AS USER_NAME
+		, A.DEPTID AS DEPT_ID
+		, A.POSITIONDETAIL AS POS_NAME
+		, C.OFFICEPHONE AS PHONE
+		, C.MOBILEPHONE AS MOBILE
+		, C.EMAIL
+		, A.USERORDER AS SORT
+		, C.DUTY
+FROM COM_USERINFO A 
+left outer join COM_USERINFO_DETAIL C on A.USERID = C.USERID 
+left outer join COM_GRADE B on A.GRADE=B.GRADE 
+left outer join COM_JOBGUBUN D on A.POSITION=D.CODE  
+where A.isdeleted='0' and A.ISCONCURRENT='0' 
+ORDER BY A.USERORDER
+	</select>
+<!-- 
+	 <select id="deptList" resultMap="dept">
+SELECT 
+		  DEPT_ID
+		, P_DEPT_ID
+		, DEPT_NAME
+		, SORT
+FROM MSG_DEPT_VW 
+	</select>
+	<select id="memberList" resultMap="member">
+SELECT 
+		  USER_ID
+		, USER_NAME
+		, DEPT_ID
+		, POS_NAME
+		, PHONE
+		, MOBILE
+		, EMAIL
+		, SORT
+		, '담당업무' AS DUTY
+FROM MSG_USER_VW
+	</select>
+ -->
+</mapper>

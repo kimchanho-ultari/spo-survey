@@ -1,0 +1,10 @@
+@charset "utf-8";
+/* CSS Document */
+@import "../fonts.css";/* css파일 내에서 css파일 호출 */
+
+body, div, h1, ol, li, form, fieldset, legend, input {font-family: '나눔고딕','Nanum Gothic', '돋움', Arial, sans-serif}
+
+body{font-family: '나눔고딕','Nanum Gothic', '돋움', Arial, sans-serif;color:#525252}
+
+table{font-size:13px}
+.form-group label{font-size:13px;font-weight:bold}

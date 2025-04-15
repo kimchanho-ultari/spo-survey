@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ultari.additional.mapper.common.SurveyMapper">
+	<resultMap type="Survey" id="surveySummary">
+		<id property="surveyCode" column="SURVEY_CODE"/>
+		<result property="surveyTitle" column="SURVEY_TITLE"/>
+		<result property="surveyContents" column="SURVEY_CONTENTS"/>
+		<result property="userId" column="USER_ID"/>
+		<result property="userName" column="USER_NAME"/>
+		<result property="regDatetime" column="REG_DATETIME"/>
+		<result property="startDatetime" column="START_DATETIME"/>
+		<result property="endDatetime" column="END_DATETIME"/>
+		<result property="status" column="STATUS"/>
+		<result property="isOpen" column="IS_OPEN"/>
+		<collection property="memberList" ofType="SurveyMember" column="SURVEY_CODE" select="surveyMemberList"/>
+		<collection property="totalComplete" ofType="int" column="SURVEY_CODE" select="totalComplete"/>
+	</resultMap>
+	<resultMap type="Survey" id="survey">
+		<id property="surveyCode" column="SURVEY_CODE"/>
+		<result property="surveyTitle" column="SURVEY_TITLE"/>
+		<result property="surveyContents" column="SURVEY_CONTENTS"/>
+		<result property="userId" column="USER_ID"/>
+		<result property="userName" column="USER_NAME"/>
+		<result property="regDatetime" column="REG_DATETIME"/>
+		<result property="startDatetime" column="START_DATETIME"/>
+		<result property="endDatetime" column="END_DATETIME"/>
+		<result property="status" column="STATUS"/>
+		<result property="isOpen" column="IS_OPEN"/>
+		<collection property="memberList" ofType="SurveyMember" column="SURVEY_CODE" select="surveyMemberList"/>
+	</resultMap>
+	<resultMap type="SurveyMember" id="surveyMember">
+		<id property="key" column="USER_ID"/>
+		<result property="title" column="USER_NAME"/>
+		<result property="deptName" column="DEPT_NAME"/>
+		<result property="isComplete" column="IS_COMPLETE"/>
+		<result property="surveyCode" column="SURVEY_CODE"/>
+	</resultMap>
+	<resultMap type="SurveyQuestion" id="surveyQuestion">
+		<id property="questionCode" column="QUESTION_CODE"/>
+		<result property="questionContents" column="QUESTION_CONTENTS"/>
+		<result property="isMulti" column="IS_MULTI"/>
+		<result property="isAnonymous" column="IS_ANONYMOUS"/>
+		<result property="surveyCode" column="SURVEY_CODE"/>
+		<result property="questionNumber" column="SORT"/>
+		<collection property="itemList" ofType="SurveyItem" column="QUESTION_CODE" select="surveyItemList"/>
+	</resultMap>
+	<resultMap type="SurveyQuestion" id="surveyQuestionWithoutItems">
+		<id property="questionCode" column="QUESTION_CODE"/>
+		<result property="questionContents" column="QUESTION_CONTENTS"/>
+		<result property="isMulti" column="IS_MULTI"/>
+		<result property="isAnonymous" column="IS_ANONYMOUS"/>
+		<result property="questionNumber" column="SORT"/>
+		<result property="surveyCode" column="SURVEY_CODE"/>
+	</resultMap>
+	<resultMap type="SurveyItem" id="surveyItem">
+		<id property="itemCode" column="ITEM_CODE"/>
+		<result property="itemContents" column="ITEM_CONTENTS"/>
+		<result property="itemType" column="ITEM_TYPE"/>
+		<result property="questionCode" column="QUESTION_CODE"/>
+		<result property="itemNumber" column="SORT"/>
+	</resultMap>
+	<resultMap type="SurveyResult" id="surveyResult">
+		<id property="itemCode" column="ITEM_CODE"/>
+		<result property="userId" column="USER_ID"/>
+		<result property="userName" column="USER_NAME"/>
+		<result property="deptName" column="DEPT_NAME"/>
+		<result property="desc" column="ITEM_DESC"/>
+		<result property="itemType" column="ITEM_TYPE"/>
+		<result property="itemNumber" column="SORT"/>
+		<result property="questionCode" column="QUESTION_CODE"/>
+		<result property="datetime" column="DATETIME"/>
+	</resultMap>
+	<resultMap type="Aggregate" id="aggregate">
+		<id property="key" column="CODE"/>
+		<result property="val" column="VAL"/>
+	</resultMap>
+	<resultMap type="SurveyResultDesc" id="surveyResultDesc">
+		<id property="questionContents" column="QUESTION_CONTENTS"/>
+		<result property="itemCode" column="ITEM_CODE"/>
+		<result property="itemContents" column="ITEM_CONTENTS"/>
+		<result property="desc" column="ITEM_DESC"/>
+		<result property="userId" column="USER_ID"/>
+		<result property="userName" column="USER_NAME"/>
+		<result property="deptName" column="DEPT_NAME"/>
+	</resultMap>
+	<insert id="registSurvey">
+INSERT INTO SURVEY(SURVEY_CODE, SURVEY_TITLE, SURVEY_CONTENTS, USER_ID, START_DATETIME, END_DATETIME, IS_OPEN)
+VALUES (
+	  #{surveyCode}
+	, #{surveyTitle}
+	, #{surveyContents}
+	, #{userId}
+	, STR_TO_DATE(#{startDatetime}, '%Y-%m-%d %H:%i:%s')
+	<choose>
+		<when test="endDatetime != null">
+			, STR_TO_DATE(#{endDatetime}, '%Y-%m-%d %H:%i:%s')
+		</when>
+		<otherwise>
+			, null
+		</otherwise>
+	</choose>
+	, #{isOpen}
+)
+ON DUPLICATE KEY UPDATE
+	  SURVEY_TITLE=#{surveyTitle}
+	, SURVEY_CONTENTS=#{surveyContents}
+	, START_DATETIME=STR_TO_DATE(#{startDatetime}, '%Y-%m-%d %H:%i:%s')
+	, END_DATETIME=STR_TO_DATE(#{endDatetime}, '%Y-%m-%d %H:%i:%s')
+	, IS_OPEN=#{isOpen}
+	</insert>
+	<insert id="registParticipants" parameterType="map">
+INSERT INTO SURVEY_MEMBER(USER_ID, SURVEY_CODE) 
+VALUES 
+<foreach collection="participantsList" item="item" index="index" separator=",">
+(
+	  #{item.key}
+	, #{surveyCode}
+)
+</foreach>
+ON DUPLICATE KEY UPDATE
+	USER_ID=VALUES(USER_ID)
+	</insert>
+	<insert id="registQuestions" parameterType="map">
+INSERT INTO SURVEY_QUESTION (
+	  QUESTION_CODE
+	, QUESTION_CONTENTS
+	, IS_MULTI
+	, IS_ANONYMOUS
+	, SURVEY_CODE
+	, SORT
+) VALUES
+<foreach collection="questionList" item="item" index="index" separator=",">
+(
+	  #{item.questionCode}
+	, #{item.questionContents}
+	, #{item.isMulti}
+	, #{item.isAnonymous}
+	, #{item.surveyCode}
+	, (#{index} + 1)
+)
+</foreach>
+	</insert>
+	<insert id="registQuestionsItems" parameterType="map">
+INSERT INTO SURVEY_ITEM (
+	  ITEM_CODE
+	, ITEM_CONTENTS
+	, ITEM_TYPE
+	, QUESTION_CODE
+	, SURVEY_CODE
+	, SORT
+) VALUES
+<foreach collection="questionItemList" item="item" index="index" separator=",">
+(
+	  #{item.itemCode}
+	, #{item.itemContents}
+	, #{item.itemType}
+	, #{item.questionCode}
+	, #{surveyCode}
+	, #{item.num}
+)
+</foreach>
+	</insert>
+	<select id="numberOfList" resultType="int">
+SELECT COUNT(*) FROM SURVEY_VW A
+<include refid="search"></include>
+	</select>
+	<select id="surveyList" resultMap="surveySummary">
+SELECT
+		  A.*
+		, B.USER_NAME
+FROM SURVEY_VW A
+LEFT OUTER JOIN MSG_USER_VW B ON A.USER_ID=B.USER_ID
+<include refid="search"></include>
+ORDER BY
+		  A.SORT
+		, A.REG_DATETIME DESC
+LIMIT #{startRowNo}, #{pageSize}
+	</select>
+	<sql id="search">
+		<bind name="pattern" value="'%' + keyword + '%'"/>
+		<trim prefix="WHERE" prefixOverrides="AND|OR">
+			(
+				A.USER_ID=#{userId}
+				OR SURVEY_CODE IN (
+					SELECT 
+							SURVEY_CODE
+					FROM SURVEY_MEMBER 
+					WHERE
+							USER_ID=#{userId}
+				)		
+			)
+			<if test="keyword != ''">
+				AND SURVEY_TITLE LIKE #{pattern}
+			</if>
+		</trim>
+	</sql>
+	<select id="surveyMemberList" resultMap="surveyMember">
+SELECT
+		  A.*
+		, B.USER_NAME
+		, B.DEPT_NAME
+FROM SURVEY_MEMBER A
+LEFT OUTER JOIN MSG_USER_VW B ON A.USER_ID=B.USER_ID
+WHERE
+		A.SURVEY_CODE=#{surveyCode}
+	</select>
+	<select id="totalComplete" resultType="int">
+SELECT
+		COUNT(*)
+FROM SURVEY_MEMBER
+WHERE
+		SURVEY_CODE=#{surveyCode}
+		AND IS_COMPLETE='Y'
+	</select>
+	<select id="survey" resultMap="survey">
+SELECT
+		A.*, B.USER_NAME
+FROM SURVEY_VW A
+LEFT OUTER JOIN MSG_USER_VW B ON A.USER_ID=B.USER_ID
+WHERE
+		SURVEY_CODE=#{surveyCode}
+	</select>
+	<select id="surveyQuestionList" resultMap="surveyQuestion">
+SELECT
+		*
+FROM SURVEY_QUESTION
+WHERE
+		SURVEY_CODE=#{surveyCode}
+ORDER BY 
+			SORT
+	</select>
+	<select id="surveyQuestionListWithoutItems" resultMap="surveyQuestionWithoutItems">
+SELECT
+		*
+FROM SURVEY_QUESTION
+WHERE
+		SURVEY_CODE=#{surveyCode}
+ORDER BY 
+			SORT
+	</select>
+	<select id="surveyItemList" resultMap="surveyItem">
+SELECT
+		*
+FROM SURVEY_ITEM
+WHERE
+		QUESTION_CODE=#{questionCode}
+ORDER BY 
+			SORT
+	</select>
+	<select id="surveyItemListBySurveyCode" resultMap="surveyItem">
+SELECT
+		*
+FROM SURVEY_ITEM
+WHERE
+		SURVEY_CODE=#{surveyCode}
+ORDER BY 
+			SORT
+	</select>
+	<select id="surveyResult" resultMap="surveyResult">
+SELECT
+		  A.*
+		, B.ITEM_DESC
+		, C.ITEM_TYPE
+		, C.SORT
+FROM SURVEY_RESULT A
+LEFT OUTER JOIN SURVEY_RESULT_DESC B ON A.ITEM_CODE=B.ITEM_CODE AND A.USER_ID=B.USER_ID
+LEFT OUTER JOIN SURVEY_ITEM C ON A.ITEM_CODE=C.ITEM_CODE
+WHERE
+			A.SURVEY_CODE=#{surveyCode}
+		AND A.USER_ID=#{userId}
+	</select>
+	<select id="surveyResultBySurveyCode" resultMap="surveyResult">
+SELECT
+		  A.*
+		, B.ITEM_DESC
+		, C.ITEM_TYPE
+		, C.SORT
+FROM SURVEY_RESULT A
+LEFT OUTER JOIN SURVEY_RESULT_DESC B ON A.ITEM_CODE=B.ITEM_CODE AND A.USER_ID=B.USER_ID
+LEFT OUTER JOIN SURVEY_ITEM C ON A.ITEM_CODE=C.ITEM_CODE
+WHERE
+		A.SURVEY_CODE=#{surveyCode}
+		
+ORDER BY C.SORT
+	</select>
+	<select id="surveyItemAggregate" resultMap="aggregate">
+SELECT
+		A.ITEM_CODE AS CODE
+		, COUNT(B.USER_ID) AS VAL
+FROM SURVEY_ITEM A
+LEFT OUTER JOIN SURVEY_RESULT B ON A.ITEM_CODE=B.ITEM_CODE
+WHERE
+		A.SURVEY_CODE=#{surveyCode}
+GROUP BY
+		A.ITEM_CODE
+ORDER BY A.ITEM_CODE
+	</select>
+	<update id="saveSurvey">
+UPDATE SURVEY
+SET
+		  SURVEY_TITLE=#{surveyTitle}
+		, SURVEY_CONTENTS=#{surveyContents}
+		, END_DATETIME=STR_TO_DATE(#{endDatetime}, '%Y-%m-%d %H:%i:%s')
+		, IS_OPEN=#{isOpen}
+WHERE
+		SURVEY_CODE=#{surveyCode}
+	</update>
+	<update id="removeSurvey">
+UPDATE SURVEY
+SET
+		IS_USE='N'
+WHERE
+		SURVEY_CODE=#{surveyCode}
+	</update>
+	<delete id="removeQuestions">
+DELETE FROM SURVEY_QUESTION
+WHERE
+		SURVEY_CODE=#{surveyCode}
+	</delete>
+	<delete id="removeItems">
+DELETE FROM SURVEY_ITEM
+WHERE
+		SURVEY_CODE=#{surveyCode}
+	</delete>
+	<insert id="submitSurvey" parameterType="map">
+INSERT INTO SURVEY_RESULT (
+	  ITEM_CODE
+	, USER_ID
+	, QUESTION_CODE
+	, SURVEY_CODE
+) VALUES 
+<foreach collection="itemList" item="item" index="index" separator=",">
+(
+	  #{item.itemCode}
+	, #{userId}
+	, #{item.questionCode}
+	, #{surveyCode}
+)
+</foreach>
+	</insert>
+	<insert id="submitSurveyDesc" parameterType="map">
+INSERT INTO SURVEY_RESULT_DESC (
+	  ITEM_CODE
+	, USER_ID
+	, ITEM_DESC
+	, QUESTION_CODE
+	, SURVEY_CODE
+) VALUES 
+<foreach collection="descList" item="item" index="index" separator=",">
+(
+	  #{item.itemCode}
+	, #{userId}
+	, #{item.desc}
+	, #{item.questionCode}
+	, #{surveyCode}
+)
+</foreach>
+	</insert>
+	<update id="submitSurveyMember">
+UPDATE SURVEY_MEMBER
+SET
+		IS_COMPLETE='Y'
+WHERE
+		USER_ID=#{userId}
+		AND SURVEY_CODE=#{surveyCode}
+	</update>
+	<select id="surveyItemResultMember" resultMap="surveyResult">
+SELECT
+		  A.*
+		, B.USER_NAME
+		, B.DEPT_NAME
+		, C.ITEM_DESC
+FROM SURVEY_RESULT A
+LEFT OUTER JOIN MSG_USER_VW B ON A.USER_ID=B.USER_ID
+LEFT OUTER JOIN SURVEY_RESULT_DESC C ON A.ITEM_CODE=C.ITEM_CODE AND A.USER_ID=C.USER_ID
+WHERE
+			A.SURVEY_CODE=#{surveyCode}
+		AND A.ITEM_CODE=#{itemCode}
+ORDER BY 
+			A.DATETIME
+	</select>
+	<select id="surveyResultDesc" resultMap="surveyResultDesc">
+SELECT
+		  C.QUESTION_CONTENTS
+		, B.ITEM_CODE
+		, B.ITEM_CONTENTS
+		, A.ITEM_DESC
+		, CASE WHEN C.IS_ANONYMOUS='Y' THEN '-' ELSE D.USER_NAME END AS USER_NAME
+		, CASE WHEN C.IS_ANONYMOUS='Y' THEN '-' ELSE D.DEPT_NAME END AS DEPT_NAME
+FROM SURVEY_RESULT_DESC A
+LEFT OUTER JOIN SURVEY_ITEM B ON A.ITEM_CODE=B.ITEM_CODE
+LEFT OUTER JOIN SURVEY_QUESTION C ON B.QUESTION_CODE=C.QUESTION_CODE
+LEFT OUTER JOIN MSG_USER_VW D ON A.USER_ID=D.USER_ID
+WHERE
+		A.SURVEY_CODE=#{surveyCode}
+ORDER BY
+			  C.SORT
+			, B.SORT
+			, A.DATETIME
+	</select>
+	<select id="surveyMemberIdUncompleteBySurveyCode" resultType="string">
+SELECT
+		USER_ID
+FROM SURVEY_MEMBER
+WHERE
+		SURVEY_CODE=#{surveyCode}
+		AND IS_COMPLETE='N'
+	</select>
+</mapper>

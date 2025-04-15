@@ -1,0 +1,69 @@
+server:
+  port: 8080
+  servlet:
+    session:
+      tracking-modes: cookie
+
+spring:
+  profiles:
+    active: local
+  common:
+    datasource:
+      driver-class-name: com.mysql.jdbc.Driver
+      jdbc-url: jdbc:mysql://10.0.0.91:3306/jeju?useUnicode=true&characterEncoding=UTF8&serverTimezone=UTC
+      username: msger
+      password: msger
+  migration:
+    from:
+      datasource:
+        driver-class-name: com.mysql.jdbc.Driver
+        jdbc-url: jdbc:mysql://10.0.0.91:3306/MSGADM?useUnicode=true&characterEncoding=UTF8&serverTimezone=UTC
+        username: msger
+        password: msger
+    to:
+      datasource:
+        driver-class-name: com.mysql.jdbc.Driver
+        jdbc-url: jdbc:mysql://127.0.0.1:3306/jeju?useUnicode=true&characterEncoding=UTF8&serverTimezone=UTC
+        username: msger
+        password: msger
+  datasource:
+    tomcat:
+      test-while-idle: true
+      time-between-eviction-runs-millis: 3600000
+      min-evictable-idle-time-millis: 7200000
+      test-on-borrow: true
+      validation-query: SELECT 1 from dual
+
+mybatis:
+  type-aliases-package: com.ultari
+
+logging.level.com.ultari.additional: debug
+
+common:
+  account:
+    encrypt:
+      driver: kr.co.ultari.cryptor.seed.Codec
+      method: encrypt
+      use: false
+      use-wrapping-base64: true
+    decrypt:
+      method: decrypt
+  api:
+    ip: 127.0.0.1
+    port: 1234
+    timeout: 3
+    survey-noti-domain: http://127.0.0.1:8080/
+  organization:
+    top-dept-id: ultari1
+    
+
+rest-template:
+  factory:
+    read-timeout: 5000
+    connect-timeout: 3000
+  http-client:
+    max-conn-total: 100
+    max-conn-per-route: 5
+  org-sync-url: http://127.0.0.1:18002/O/?M=orgSync
+
+
