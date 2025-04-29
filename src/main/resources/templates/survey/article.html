@@ -1,305 +1,481 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-<title>제주도청</title>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<link rel="shortcut icon" th:href="@{/images/favicon.ico}"/>
-<link rel="stylesheet" th:href="@{/js/jquery/jquery-ui.min.css}">
-<link rel="stylesheet" th:href="@{/js/jquery/skin/ui.dynatree.css}">
-<link rel="stylesheet" th:href="@{/css/survey/survey.css}">
-<link rel="stylesheet" th:href="@{/css/survey/dialog.css}">
-<script type="text/javascript" th:src="@{/js/jquery/jquery-3.1.1.min.js}"></script>
-<script type="text/javascript" th:src="@{/js/jquery/jquery-ui.min.js}"></script>
-<script type="text/javascript" th:src="@{/js/jquery/jquery.dynatree.js}"></script>
-<script type="text/javascript" th:src="@{/js/jquery/jquery.ultari.survey.js}"></script>
-<script type="text/javascript" th:src="@{/js/jquery/jquery.ultari.chkbox.js}"></script>
-<script type="text/javascript" th:src="@{/js/common.js}"></script>
-<script type="text/javascript" th:src="@{/js/survey/article.js}"></script>
-<script type="text/javascript" th:src="@{/js/tree.js}"></script>
-<script th:inline="javascript">
-var userId = [[${session.account.key}]];
-var surveyCode = [[${survey.surveyCode}]];
-var status = [[${survey.status}]];
-var isWriter = [[${survey.isWriter}]];
-var isOpen = [[${survey.isOpen}]];
-var participantsList = [[${survey.memberList}]];
-var surveyResult = [[${surveyResult}]];
-var surveyItemAggregate = [[${surveyItemAggregate}]];
-var surveyQuestionList = [[${surveyQuestionList}]];
+	<title>제주도청</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-var sHour = [[${#dates.format(survey.startDatetime, 'HH')}]];
-var sMinute = [[${#dates.format(survey.startDatetime, 'mm')}]];
-var eHour = [[${#dates.format(survey.endDatetime, 'HH')}]];
-var eMinute = [[${#dates.format(survey.endDatetime, 'mm')}]];
-</script>
+	<link rel="shortcut icon" th:href="@{/images/favicon.ico}" />
+	<link rel="stylesheet" th:href="@{/js/jquery/jquery-ui.min.css}">
+	<link rel="stylesheet" th:href="@{/js/jquery/skin/ui.dynatree.css}">
+	<link rel="stylesheet" th:href="@{/css/survey/survey.css}">
+	<link rel="stylesheet" th:href="@{/css/survey/survey-mobile.css}">
+	<link rel="stylesheet" th:href="@{/css/survey/dialog.css}">
+
+	<script type="text/javascript" th:src="@{/js/jquery/jquery-3.1.1.min.js}"></script>
+	<script type="text/javascript" th:src="@{/js/jquery/jquery-ui.min.js}"></script>
+	<script type="text/javascript" th:src="@{/js/jquery/jquery.dynatree.js}"></script>
+	<script type="text/javascript" th:src="@{/js/jquery/jquery.ultari.survey.js}"></script>
+	<script type="text/javascript" th:src="@{/js/jquery/jquery.ultari.chkbox.js}"></script>
+
+	<script type="text/javascript" th:src="@{/js/common.js}"></script>
+	<script type="text/javascript" th:src="@{/js/survey/article.js}"></script>
+	<script type="text/javascript" th:src="@{/js/tree.js}"></script>
+	<script th:inline="javascript">
+		var userId = [[${ session.account.key }]];
+		var surveyCode = [[${ survey.surveyCode }]];
+		var status = [[${ survey.status }]];
+		var isWriter = [[${ survey.isWriter }]];
+		var isOpen = [[${ survey.isOpen }]];
+		var participantsList = [[${ survey.memberList }]];
+		var surveyResult = [[${ surveyResult }]];
+		var surveyItemAggregate = [[${ surveyItemAggregate }]];
+		var surveyQuestionList = [[${ surveyQuestionList }]];
+
+		var sHour = [[${ #dates.format(survey.startDatetime, 'HH') }]];
+		var sMinute = [[${ #dates.format(survey.startDatetime, 'mm') }]];
+		var eHour = [[${ #dates.format(survey.endDatetime, 'HH') }]];
+		var eMinute = [[${ #dates.format(survey.endDatetime, 'mm') }]];
+	</script>
 </head>
+
 <body>
-<div th:include="survey/header :: header"></div>
+	<div class="survey-list-pc">
+		<div th:include="survey/header :: header"></div>
 
-<div id="contents">
-	<div id="view">
-		<table style="width:100%">
-			<tr>
-				<th width="150">제목</th>
-				<td width="850" colspan="3" class="th_subject">
-					<input type="text" id="survey_title" th:if="${survey.getIsWriter()} == 'Y'" th:value="${survey.getSurveyTitle()}" style="width:760px"/>
-					<span th:if="${survey.getIsWriter()} == 'N'" th:text="${survey.getSurveyTitle()}"></span>
-					
-					<span th:switch="${survey.status}" style="float:right">
-						<label th:case="P" class="progressing">진행중</label>
-						<label th:case="C" class="complete">종료</label>
-						<label th:case="W" class="waiting">대기중</label>
-					</span>
-				</td>
-			</tr>
-			<tr>
-				<th width="150" class="th_0px_gray">참여자</th>
-				<td width="850" colspan="3" >
-					<table style="width:100%">
-						<tr>
-							<td width="88%" class="td_none">
-								<span id="participants_title"></span>
-							</td>
-							<td width="12%" class="td_none" style="text-align:right">
-								<span class="button button_gray2" id="btnParticipants" th:if="${survey.getIsWriter()} == 'Y'">참여자 <img src="/images/icon_plus.png" style="width:10px;height:10px" /></span>
-								<span class="button button_gray2" id="btnParticipantsView" th:if="${survey.getIsWriter()} == 'N'">참여자 <img src="/images/icon_plus.png" style="width:10px;height:10px" /></span>
-							</td>
-						</tr>
-					</table>
-				</td>
-			</tr>
-			<tr>
-				<th class="th_0px_gray">작성자</th>
-				<td><span id="writer" th:text="${survey.getUserName()}"></span></td>
-				<th class="th_0px_gray">작성일</th>
-				<td><span th:text="${#dates.format(survey.regDatetime, 'yyyy-MM-dd HH:mm')}"></span></td>
-			</tr>
-			<tr>
-				<th width="150" class="th_0px_gray">시작일시</th>
-				<td width="425">
-					<table style="width:100%" th:if="${survey.getIsWriter()} == 'Y' and ${survey.getStatus()} == 'W'">
-						<tr>
-							<td class="td_none" style="width:140px">
-								<input type="text" id="sDate" class="datetime" th:value="${#dates.format(survey.startDatetime, 'yyyy-MM-dd')}" style="border:1px solid #ddd;width:80px;padding-left:8px" readonly/>
-							</td>
-							<td class="td_none">
-								<select id="sHour" class="datetime"></select> 시
-								<select id="sMinute" class="datetime"></select> 분
-							</td>
-						</tr>
-					</table>
-					<span th:if="${survey.getIsWriter()} == 'N' or ${survey.getStatus()} != 'W'" th:text="${#dates.format(survey.startDatetime, 'yyyy-MM-dd HH:mm')}"></span>
-				</td>
-				<th width="150" class="th_0px_gray">마감일시</th>
-				<td width="425">
-					<table style="width:100%" th:if="${survey.getIsWriter()} == 'Y'">
-						<tr>
-							<td class="td_none" style="width:140px">
-								<input type="text" id="eDate" class="datetime" th:value="${#dates.format(survey.endDatetime, 'yyyy-MM-dd')}" style="border:1px solid #ddd;width:80px;padding-left:8px" readonly/>
-							</td>
-							<td class="td_none">
-								<select id="eHour" class="datetime"></select> 시
-								<select id="eMinute" class="datetime"></select> 분
-							</td>
-						</tr>
-					</table>
-					<span th:if="${survey.getIsWriter()} == 'N'" th:text="${#dates.format(survey.endDatetime, 'yyyy-MM-dd HH:mm')}"></span>
-				</td>
-			</tr>
-			<tr>
-				<th class="th_0px_gray">현황 공개 여부</th>
-				<td colspan="2">
-					<div th:if="${survey.getIsWriter()} == 'Y' and ${survey.getStatus()} == 'W'">
-						<label style=""><input type="radio" name="isOpen" value="Y" style="width:15px;height:15px;vertical-align:bottom" checked="checked"> 공개</label>
-						<label style="margin-left:20px"><input type="radio" name="isOpen" value="N" style="width:15px;height:15px;vertical-align:bottom"> 비공개</label>
-					</div>
-					<div th:if="${survey.getStatus()} != 'W'">
-						<span th:if="${survey.getIsOpen()} == 'Y'">공개</span>
-						<span th:if="${survey.getIsOpen()} == 'N'">비공개</span>
-					</div>
-				</td>
-				<td>
-					<span id="btnNotiForm" th:if="${survey.getIsWriter()} == 'Y' and ${survey.getStatus()} == 'P'" class="button button_blue" style="float:right;height:22px;line-height:22px;font-size:12px">알림</span>
-				</td>
-			</tr>
-			<tr>
-				<td colspan="4" class="td_contents">
-					<textarea name="" class="input_contents_qna" id="survey_contents" placeholder="내용을 입력하세요." th:if="${survey.getIsWriter()} == 'Y'" th:text="${survey.getSurveyContents()}"></textarea>
-					<p class="q2" th:if="${survey.getIsWriter()} == 'N'" th:utext="*{#strings.replace(survey.getSurveyContents(), '&#10;', '&lt;br /&gt;')}"></p>
-				</td>
-			</tr>
-			<tr th:each="question : ${surveyQuestionList}" class="question" th:if="${survey.getIsWriter()} == 'N' or ${survey.getStatus()} != 'W'">
-				<td class="td_addfile" colspan="4">
-					<p class="q" th:text="${question.questionContents}"></p>
-					<span class="" th:if="${question.isMulti == 'Y'}" th:text="복수선택"></span>
-					<span class="" th:if="${question.isMulti == 'Y' && question.isAnonymous == 'Y'}">|</span>
-					<span class="" th:if="${question.isAnonymous == 'Y'}" th:text="익명"></span>
-					
-					<table style="width:100%;margin-top:20px" th:each="item : ${question.itemList}">
-						<tr>
-							<td style="width:20px;vertical-align:top" class="td_none">
-								<input type="checkbox" th:name="${question.questionCode}" th:id="${item.itemCode}" th:value="${item.itemCode}" th:attr="data-item-type=${item.itemType}" class="item" style="width:15px" th:if="${question.isMulti == 'Y'}" />
-								<input type="radio" th:name="${question.questionCode}" th:id="${item.itemCode}" th:value="${item.itemCode}" th:attr="data-item-type=${item.itemType}" class="item"style="width:15px" th:if="${question.isMulti != 'Y'}" />
-							</td>
-							<td class="td_none">
-								<table style="width:100%">
-									<tr>
-										<td class="td_none">
-											<span class="" th:text="${item.itemContents}"></span>
-										</td>
-										<td style="wdith:40px;text-align:right;vertical-align:top" class="td_none">
-											<span class="iconSurveyItemResultMember" th:attr="data-item-code=${item.itemCode}, data-survey-code=${surveyCode}, data-item-type=${item.itemType}, data-is-anonymous=${question.isAnonymous}, data-is-multi=${question.isMulti}" style="cursor:default">
-												<img src="/images/icon_user.png" style="width:11px;height:12px"/> <span th:id="${'aggregate_' + item.itemCode}"></span>
-											</span>
-										</td>
-									</tr>
-									<tr th:if="${item.itemType == 'DESC'}">
-										<td colspan="2" class="td_none">
-											<input type="text" class="form_input_description desc" th:id="${'desc_' + item.itemCode}"/>
-										</td>
-									</tr>
-								</table>
-								<table style="width:100%;margin-top:5px" class="chart">
-									<tr th:id="${'chart_' + item.itemCode}"></tr>
-								</table>
-							</td>
-						</tr>
-					</table>
-				</td>
-			</tr>
-			<tr th:if="${survey.getIsWriter()} == 'Y' and ${survey.getStatus()} == 'W'">
-				<td colspan="4" class="td_contents">
-					<div id="question_area"></div>
-					
-					<br/>
-					<table style="width:100%">
-						<tr>
-							<td class="td_none">&nbsp;</td>
-							<td width="90" class="td_none td_align_right">
-								<span id="btnAddSurvey" class="button button_gray2">문항 추가 <img src="/images/icon_plus.png" width="10" height="10" /></span>
-							</td>
-						</tr>
-					</table>
-				</td>
-			</tr>
-			<tr  th:if="${survey.getStatus()} != 'W'">
-				<td colspan="4" class="td_contents">
-					<button id="btnSubmitSurvey" class="button button_survey">제출하기</button>
-				</td>
-			</tr>
-		</table>
-	</div>
-	<div id="search" style="margin-top:20px">
-		<table style="width:100%">
-			<tr>
-				<td width="460px">
-					<span id="btnSaveSurvey" class="button button_blue" th:if="${survey.getIsWriter()} == 'Y'">저장</span>
-					<span id="btnRemoveSurvey" class="button button_blue" th:if="${survey.getIsWriter()} == 'Y'">삭제</span>
-				</td>
-				<td width="50px">&nbsp;</td>
-				<td align="right">
-					<span id="exportStatistics" class="button button_gray" style="width:140px" th:if="${survey.getIsWriter()} == 'Y' and ${survey.getStatus()} == 'C'">투표결과 다운로드</span>
-					<a href="/survey/" class="button button_gray">목록</a>
-				</td>
-			</tr>
-		</table>   
-	</div>
-</div>
-
-<div id="participants_form" class="dialog" title="참여자 리스트">
-	<table style="width:100%">
-		<tr>
-			<td class="selectuser_lt">
-				<span class="t_13px t_bold t_black" style="vertical-align:middle">- 검색  : </span>
-				<input type="text" name="" id="searchKeyword" class="selectuser_input" style="vertical-align:top" placeholder="이름, 부서영"/>
-				<img id="btnMemberByKeyword" src="/images/btn_search2.png" alt="찾기" style="width:47px;height:22px;vertical-align:top"/>
-			</td>
-			<td rowspan="5" class="selectuser_padding">
-				<img id="btnAppendParticipantsList" src="/images/btn_selectuser_add.png" style="width:48px;height:23px;cursor:pointer" title="추가"/>
-				<img id="btnRemoveParticipantsList" src="/images/btn_selectuser_del.png" style="width:48px;height:23px;cursor:pointer;margin-top:10px" title="삭제"/>
-			</td>
-			<td class="selectuser_rt">
+		<div id="contents">
+			<div id="view">
 				<table style="width:100%">
 					<tr>
-						<td class="t_12px t_bold t_black">참여인원 <span id="participantsCnt">0</span>명</td>
-						<td align="right">&nbsp;</td>
+						<th width="150">제목</th>
+						<td width="850" colspan="3" class="th_subject">
+							<input type="text" id="survey_title" th:if="${survey.getIsWriter()} == 'Y'"
+								th:value="${survey.getSurveyTitle()}" style="width:760px" />
+							<span th:if="${survey.getIsWriter()} == 'N'" th:text="${survey.getSurveyTitle()}"></span>
+
+							<span th:switch="${survey.status}" style="float:right">
+								<label th:case="P" class="progressing">진행중</label>
+								<label th:case="C" class="complete">종료</label>
+								<label th:case="W" class="waiting">대기중</label>
+							</span>
+						</td>
+					</tr>
+					<tr>
+						<th width="150" class="th_0px_gray">참여자</th>
+						<td width="850" colspan="3">
+							<table style="width:100%">
+								<tr>
+									<td width="88%" class="td_none">
+										<span id="participants_title"></span>
+									</td>
+									<td width="12%" class="td_none" style="text-align:right">
+										<span class="button button_gray2" id="btnParticipants"
+											th:if="${survey.getIsWriter()} == 'Y'">참여자 <img src="/images/icon_plus.png"
+												style="width:10px;height:10px" /></span>
+										<span class="button button_gray2" id="btnParticipantsView"
+											th:if="${survey.getIsWriter()} == 'N'">참여자 <img src="/images/icon_plus.png"
+												style="width:10px;height:10px" /></span>
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<th class="th_0px_gray">작성자</th>
+						<td><span id="writer" th:text="${survey.getUserName()}"></span></td>
+						<th class="th_0px_gray">작성일</th>
+						<td><span th:text="${#dates.format(survey.regDatetime, 'yyyy-MM-dd HH:mm')}"></span></td>
+					</tr>
+					<tr>
+						<th width="150" class="th_0px_gray">시작일시</th>
+						<td width="425">
+							<table style="width:100%"
+								th:if="${survey.getIsWriter()} == 'Y' and ${survey.getStatus()} == 'W'">
+								<tr>
+									<td class="td_none" style="width:140px">
+										<input type="text" id="sDate" class="datetime"
+											th:value="${#dates.format(survey.startDatetime, 'yyyy-MM-dd')}"
+											style="border:1px solid #ddd;width:80px;padding-left:8px" readonly />
+									</td>
+									<td class="td_none">
+										<select id="sHour" class="datetime"></select> 시
+										<select id="sMinute" class="datetime"></select> 분
+									</td>
+								</tr>
+							</table>
+							<span th:if="${survey.getIsWriter()} == 'N' or ${survey.getStatus()} != 'W'"
+								th:text="${#dates.format(survey.startDatetime, 'yyyy-MM-dd HH:mm')}"></span>
+						</td>
+						<th width="150" class="th_0px_gray">마감일시</th>
+						<td width="425">
+							<table style="width:100%" th:if="${survey.getIsWriter()} == 'Y'">
+								<tr>
+									<td class="td_none" style="width:140px">
+										<input type="text" id="eDate" class="datetime"
+											th:value="${#dates.format(survey.endDatetime, 'yyyy-MM-dd')}"
+											style="border:1px solid #ddd;width:80px;padding-left:8px" readonly />
+									</td>
+									<td class="td_none">
+										<select id="eHour" class="datetime"></select> 시
+										<select id="eMinute" class="datetime"></select> 분
+									</td>
+								</tr>
+							</table>
+							<span th:if="${survey.getIsWriter()} == 'N'"
+								th:text="${#dates.format(survey.endDatetime, 'yyyy-MM-dd HH:mm')}"></span>
+						</td>
+					</tr>
+					<tr>
+						<th class="th_0px_gray">현황 공개 여부</th>
+						<td colspan="2">
+							<div th:if="${survey.getIsWriter()} == 'Y' and ${survey.getStatus()} == 'W'">
+								<label style=""><input type="radio" name="isOpen" value="Y"
+										style="width:15px;height:15px;vertical-align:bottom" checked="checked">
+									공개</label>
+								<label style="margin-left:20px"><input type="radio" name="isOpen" value="N"
+										style="width:15px;height:15px;vertical-align:bottom"> 비공개</label>
+							</div>
+							<div th:if="${survey.getStatus()} != 'W'">
+								<span th:if="${survey.getIsOpen()} == 'Y'">공개</span>
+								<span th:if="${survey.getIsOpen()} == 'N'">비공개</span>
+							</div>
+						</td>
+						<td>
+							<span id="btnNotiForm"
+								th:if="${survey.getIsWriter()} == 'Y' and ${survey.getStatus()} == 'P'"
+								class="button button_blue"
+								style="float:right;height:22px;line-height:22px;font-size:12px">알림</span>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="4" class="td_contents">
+							<textarea name="" class="input_contents_qna" id="survey_contents" placeholder="내용을 입력하세요."
+								th:if="${survey.getIsWriter()} == 'Y'"
+								th:text="${survey.getSurveyContents()}"></textarea>
+							<p class="q2" th:if="${survey.getIsWriter()} == 'N'"
+								th:utext="*{#strings.replace(survey.getSurveyContents(), '&#10;', '&lt;br /&gt;')}"></p>
+						</td>
+					</tr>
+					<tr th:each="question : ${surveyQuestionList}" class="question"
+						th:if="${survey.getIsWriter()} == 'N' or ${survey.getStatus()} != 'W'">
+						<td class="td_addfile" colspan="4">
+							<p class="q" th:text="${question.questionContents}"></p>
+							<span class="" th:if="${question.isMulti == 'Y'}" th:text="복수선택"></span>
+							<span class="" th:if="${question.isMulti == 'Y' && question.isAnonymous == 'Y'}">|</span>
+							<span class="" th:if="${question.isAnonymous == 'Y'}" th:text="익명"></span>
+
+							<table style="width:100%;margin-top:20px" th:each="item : ${question.itemList}">
+								<tr>
+									<td style="width:20px;vertical-align:top" class="td_none">
+										<input type="checkbox" th:name="${question.questionCode}"
+											th:id="${item.itemCode}" th:value="${item.itemCode}"
+											th:attr="data-item-type=${item.itemType}" class="item" style="width:15px"
+											th:if="${question.isMulti == 'Y'}" />
+										<input type="radio" th:name="${question.questionCode}" th:id="${item.itemCode}"
+											th:value="${item.itemCode}" th:attr="data-item-type=${item.itemType}"
+											class="item" style="width:15px" th:if="${question.isMulti != 'Y'}" />
+									</td>
+									<td class="td_none">
+										<table style="width:100%">
+											<tr>
+												<td class="td_none">
+													<span class="" th:text="${item.itemContents}"></span>
+												</td>
+												<td style="wdith:40px;text-align:right;vertical-align:top"
+													class="td_none">
+													<span class="iconSurveyItemResultMember"
+														th:attr="data-item-code=${item.itemCode}, data-survey-code=${surveyCode}, data-item-type=${item.itemType}, data-is-anonymous=${question.isAnonymous}, data-is-multi=${question.isMulti}"
+														style="cursor:default">
+														<img src="/images/icon_user.png"
+															style="width:11px;height:12px" /> <span
+															th:id="${'aggregate_' + item.itemCode}"></span>
+													</span>
+												</td>
+											</tr>
+											<tr th:if="${item.itemType == 'DESC'}">
+												<td colspan="2" class="td_none">
+													<input type="text" class="form_input_description desc"
+														th:id="${'desc_' + item.itemCode}" />
+												</td>
+											</tr>
+										</table>
+										<table style="width:100%;margin-top:5px" class="chart">
+											<tr th:id="${'chart_' + item.itemCode}"></tr>
+										</table>
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+					<tr th:if="${survey.getIsWriter()} == 'Y' and ${survey.getStatus()} == 'W'">
+						<td colspan="4" class="td_contents">
+							<div id="question_area"></div>
+
+							<br />
+							<table style="width:100%">
+								<tr>
+									<td class="td_none">&nbsp;</td>
+									<td width="90" class="td_none td_align_right">
+										<span id="btnAddSurvey" class="button button_gray2">문항 추가 <img
+												src="/images/icon_plus.png" width="10" height="10" /></span>
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+					<tr th:if="${survey.getStatus()} != 'W'">
+						<td colspan="4" class="td_contents">
+							<button id="btnSubmitSurvey" class="button button_survey">제출하기</button>
+						</td>
 					</tr>
 				</table>
-			</td>
-		</tr>
-		<tr>
-			<td class="selectuser_subtitle">조직도</td>
-			<td class="selectuser_subtitle">받는 사람</td>
-		</tr>
-		<tr>
-			<td class="selectuser_group adress_group">
-				<div id="tree" style="height:200px"></div>
-			</td>
-			<td rowspan="3" class="selectuser_user_notop address_list">
-				<div class="table-box-wrap">
-					<div class="table-box" style="height:542px">
-					<table id="participants_list" style="width:100%">
-						<colgroup><col class="col1"><col class="col2"><col class="col3"></colgroup>
-							<thead>
-								<tr>
-									<th style="width:30px"><input name="input" type="checkbox" value="" class="chkAll"/></th>
-									<th>이름</th>
-									<th>부서</th>
-								</tr>
-							</thead>
-							<tbody></tbody>
-					</table>
-					</div>
-				</div>
-				
-			</td>
-		</tr>
-		<tr>
-			<td class="selectuser_subtitle">검색결과 - <span id="memberCnt">0</span>명</td>
-		</tr>
-		<tr>
-			<td class="selectuser_user_notop address_list">
-				<div class="table-box-wrap">
-					<div class="table-box">
-						<table id="member_list" style="width:100%">
-							<colgroup><col class="col1"><col class="col2"><col class="col3"></colgroup>
-							<thead>
-								<tr>
-									<th style="width:30px"><input name="input" type="checkbox" value="" class="chkAll"/></th>
-									<th>이름</th>
-									<th>부서</th>
-								</tr>
-							</thead>
-							<tbody></tbody>					
+			</div>
+			<div id="search" style="margin-top:20px">
+				<table style="width:100%">
+					<tr>
+						<td width="460px">
+							<span id="btnSaveSurvey" class="button button_blue"
+								th:if="${survey.getIsWriter()} == 'Y'">저장</span>
+							<span id="btnRemoveSurvey" class="button button_blue"
+								th:if="${survey.getIsWriter()} == 'Y'">삭제</span>
+						</td>
+						<td width="50px">&nbsp;</td>
+						<td align="right">
+							<span id="exportStatistics" class="button button_gray" style="width:140px"
+								th:if="${survey.getIsWriter()} == 'Y' and ${survey.getStatus()} == 'C'">투표결과 다운로드</span>
+							<a href="/survey/" class="button button_gray">목록</a>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+
+		<div id="participants_form" class="dialog" title="참여자 리스트">
+			<table style="width:100%">
+				<tr>
+					<td class="selectuser_lt">
+						<span class="t_13px t_bold t_black" style="vertical-align:middle">- 검색 : </span>
+						<input type="text" name="" id="searchKeyword" class="selectuser_input"
+							style="vertical-align:top" placeholder="이름, 부서영" />
+						<img id="btnMemberByKeyword" src="/images/btn_search2.png" alt="찾기"
+							style="width:47px;height:22px;vertical-align:top" />
+					</td>
+					<td rowspan="5" class="selectuser_padding">
+						<img id="btnAppendParticipantsList" src="/images/btn_selectuser_add.png"
+							style="width:48px;height:23px;cursor:pointer" title="추가" />
+						<img id="btnRemoveParticipantsList" src="/images/btn_selectuser_del.png"
+							style="width:48px;height:23px;cursor:pointer;margin-top:10px" title="삭제" />
+					</td>
+					<td class="selectuser_rt">
+						<table style="width:100%">
+							<tr>
+								<td class="t_12px t_bold t_black">참여인원 <span id="participantsCnt">0</span>명</td>
+								<td align="right">&nbsp;</td>
+							</tr>
 						</table>
-					</div>
-				</div>
-			</td>
-		</tr>
-	</table>
-</div>
-<div id="participants_view" class="dialog" title="참여자 리스트">
-	<div class="table-box-wrap" style="border:1px solid #ddd">
-		<div class="table-box address_list">
-			<table id="member_list_view" style="width:100%">
-				<thead></thead>
-				<tbody></tbody>					
+					</td>
+				</tr>
+				<tr>
+					<td class="selectuser_subtitle">조직도</td>
+					<td class="selectuser_subtitle">받는 사람</td>
+				</tr>
+				<tr>
+					<td class="selectuser_group adress_group">
+						<div id="tree" style="height:200px"></div>
+					</td>
+					<td rowspan="3" class="selectuser_user_notop address_list">
+						<div class="table-box-wrap">
+							<div class="table-box" style="height:542px">
+								<table id="participants_list" style="width:100%">
+									<colgroup>
+										<col class="col1">
+										<col class="col2">
+										<col class="col3">
+									</colgroup>
+									<thead>
+										<tr>
+											<th style="width:30px"><input name="input" type="checkbox" value=""
+													class="chkAll" /></th>
+											<th>이름</th>
+											<th>부서</th>
+										</tr>
+									</thead>
+									<tbody></tbody>
+								</table>
+							</div>
+						</div>
+
+					</td>
+				</tr>
+				<tr>
+					<td class="selectuser_subtitle">검색결과 - <span id="memberCnt">0</span>명</td>
+				</tr>
+				<tr>
+					<td class="selectuser_user_notop address_list">
+						<div class="table-box-wrap">
+							<div class="table-box">
+								<table id="member_list" style="width:100%">
+									<colgroup>
+										<col class="col1">
+										<col class="col2">
+										<col class="col3">
+									</colgroup>
+									<thead>
+										<tr>
+											<th style="width:30px"><input name="input" type="checkbox" value=""
+													class="chkAll" /></th>
+											<th>이름</th>
+											<th>부서</th>
+										</tr>
+									</thead>
+									<tbody></tbody>
+								</table>
+							</div>
+						</div>
+					</td>
+				</tr>
 			</table>
 		</div>
-	</div>
-</div>
-<form id="exportDescForm" action="/survey/exportDesc" method="post">
-	<input type="hidden" name="surveyCode" th:value="${surveyCode}"/>
-</form>
-<form id="exportResult" action="/survey/export" method="post">
-	<input type="hidden" name="surveyCode" th:value="${surveyCode}"/>
-</form>
-<div id="noti_form" class="dialog" title="알림">
-	<h1 style="font-weight:bold;color:#000;margin-bottom:5px">내용</h1>
-	<textarea name="" id="noti_contents" placeholder="알림 내용을 입력하세요." style="padding:8px"></textarea>
-</div>
+		<div id="participants_view" class="dialog" title="참여자 리스트">
+			<div class="table-box-wrap" style="border:1px solid #ddd">
+				<div class="table-box address_list">
+					<table id="member_list_view" style="width:100%">
+						<thead></thead>
+						<tbody></tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<form id="exportDescForm" action="/survey/exportDesc" method="post">
+			<input type="hidden" name="surveyCode" th:value="${surveyCode}" />
+		</form>
+		<form id="exportResult" action="/survey/export" method="post">
+			<input type="hidden" name="surveyCode" th:value="${surveyCode}" />
+		</form>
+		<div id="noti_form" class="dialog" title="알림">
+			<h1 style="font-weight:bold;color:#000;margin-bottom:5px">내용</h1>
+			<textarea name="" id="noti_contents" placeholder="알림 내용을 입력하세요." style="padding:8px"></textarea>
+		</div>
 
-<div th:include="survey/footer :: footer"></div>
+		<div th:include="survey/footer :: footer"></div>
+	</div>
+
+	<!-- 모바일 전용 상세 화면 -->
+	<div class="survey-list-mobile">
+
+		<div class="mobile-header">
+			<div class="mobile-header-left">
+				<span class="logo"><img src="/images/survey/ic_title_back_w.svg" alt="이전"
+						onclick="history.back(-1)" /></span>
+			</div>
+			<div class="mobile-header-center">
+				<span>상세보기</span>
+			</div>
+			<div class="mobile-header-right">
+				<span class="menu-icon" onclick="history.back(-1)">글목록</span>
+			</div>
+		</div>
+
+		<section class="mobile-meta">
+			<img src="" class="profile-icon" />
+
+			<div class="meta-text">
+				<div class="meta-top">
+					<div class="meta-info">
+						<span class="username" th:text="${survey.getUserName()}">사용자</span>
+						<span class="title-span" th:text="${#dates.format(survey.regDatetime,'yyyy-MM-dd HH:mm')}">
+							2025-04-14 15:26
+						</span>
+					</div>
+					<div class="meta-more">
+						<img src="/images/survey/ic_list_message_more.svg" alt="더보기"
+							class="more-icon profile-icon-more" />
+					</div>
+				</div>
+
+				<span class="title-span">
+					읽음 <span>3명</span>		<!-- ** 하드코딩 -->
+				</span>
+			</div>
+		</section>
+
+		<div class="article">
+			<section class="mobile-title">
+				<h2 th:text="${survey.getSurveyTitle()}"></h2>
+			</section>
+
+			<section class="mobile-content">
+				<p th:utext="*{#strings.replace(survey.getSurveyContents(),'&#10;','<br/>')}"></p>
+			</section>
+
+			<section class="mobile-section">
+				<div class="mobile-notice">
+					<p><img src="/images/survey/ic_survey_time2.svg" />투표가 <strong th:text="${remainingTime}"></strong>
+						시간 후에 종료됩니다.</p>
+				</div>
+			</section>
+
+			<div class="mobile-questions" th:each="question : ${surveyQuestionList}">
+				<div class="question-card">
+
+					<div class="card-header">
+						<span class="q-title" th:text="${question.questionContents}"></span>
+						<span class="q-tags">
+							<span th:if="${question.isMulti=='Y'}">복수 선택 가능</span>
+							<span th:if="${question.isMulti=='N'}">복수 선택 불가능</span>
+							<span th:if="${question.isAnonymous=='Y'}"> · 익명</span>
+						</span>
+					</div>
+
+					<ul class="option-list">
+						<li class="option-item" th:each="item : ${question.itemList}">
+							<label>
+								<input type="checkbox" th:if="${question.isMulti=='Y'}"
+									th:name="${question.questionCode}" th:value="${item.itemCode}" />
+								<input type="radio" th:if="${question.isMulti!='Y'}" th:name="${question.questionCode}"
+									th:value="${item.itemCode}" />
+								<span th:text="${item.itemContents}"></span>
+								<img th:if="${item.itemType=='IMG'}" th:src="@{${item.itemImageUrl}}" alt=""
+									class="option-thumb" />
+							</label>
+						</li>
+					</ul>
+
+					<!-- 전체선택 (작성자·대기중일 때) -->
+					<div class="card-footer" th:if="${question.isMulti=='Y'}">
+						<div>
+							<input type="checkbox" class="select-all chk-hidden" th:id="'allCheck_' + ${question.questionCode}"
+								th:name="'allCheck_' + ${question.questionCode}" />
+							<label class="all-label" th:for="'allCheck_' + ${question.questionCode}">
+								전체 선택
+							</label>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<footer class="mobile-actions">
+				<button id="btnEndSurvey" class="btn-end">투표 종료</button>
+				<button id="btnSubmitSurvey" class="btn-submit">투표하기</button>
+				<div class="participation-div">
+					<div><span class="participation" th:text="${participantCount} + '명 참여'"></span></div>
+					<div><img src="/images/survey/btn_component_next_bk.svg" /></div>
+				</div>
+			</footer>
+		</div>
+
+		<section class="mobile-interact">
+			<button class="btn-like">+ 공감</button>
+			<button class="btn-comment-toggle">댓글</button>
+			<div class="comment-box">
+				<input type="text" placeholder="댓글을 남겨주세요." />
+				<button class="btn-comment-submit">등록</button>
+			</div>
+		</section>
+	</div>
+
 </body>
+
 </html>

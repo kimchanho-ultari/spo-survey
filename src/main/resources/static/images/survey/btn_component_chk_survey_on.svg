@@ -1,0 +1,7 @@
+<svg id="btn_component_chk_survey_on" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <rect id="Layer_2263_copy_3" data-name="Layer 2263 copy 3" width="24" height="24" fill="none" opacity="0.5"/>
+  <g id="icon-setting-check-box-active" transform="translate(4 4)">
+    <rect id="사각형_1805" data-name="사각형 1805" width="16" height="16" rx="4" fill="#0072ff"/>
+    <path id="패스_926" data-name="패스 926" d="M12.81,6.332l.694.694a.49.49,0,0,1,0,.694L8.6,12.628a.49.49,0,0,1-.694,0L4.956,9.683a.49.49,0,0,1,0-.694l.694-.694a.491.491,0,0,1,.694,0l1.9,1.9,3.868-3.866A.491.491,0,0,1,12.81,6.332Z" transform="translate(-1.377 -1.77)" fill="#fff" fill-rule="evenodd"/>
+  </g>
+</svg>

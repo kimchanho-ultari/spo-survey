@@ -1,9 +1,22 @@
-var tmpParticipants = [];
+let tmpParticipants = [];
+let questionCode = "";
 
 $(function(){
 	init();
 	initEvent();
+
+	surveyQuestionList.forEach(item => {
+		let code = item.questionCode
+		questionCode = code;
+	})
+
+	$(document).on('change', '#allCheck_' + questionCode, function () {
+		const $card = $(this).closest('.question-card');
+		const $inputs = $card.find("input[name='" + questionCode + "']");
+		$inputs.prop('checked', this.checked);
+	})
 });
+
 function init() {
 	initDatepicker();
 	initTime();
@@ -15,6 +28,7 @@ function init() {
 	$('#member_list').chkbox();
 	$('#participants_list').chkbox();
 }
+
 function initEvent() {
 	$('#btnAddSurvey').on('click', appendSurvey);
 	$('#btnSaveSurvey').on('click', modifySurvey);

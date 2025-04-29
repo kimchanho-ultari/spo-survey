@@ -1,213 +1,323 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-<title>제주도청</title>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<link rel="shortcut icon" th:href="@{/images/favicon.ico}"/>
-<link rel="stylesheet" th:href="@{/css/survey/survey.css}">
-<link rel="stylesheet" th:href="@{/css/survey/dialog.css}">
-<link rel="stylesheet" th:href="@{/js/jquery/jquery-ui.min.css}">
-<link rel="stylesheet" th:href="@{/js/jquery/skin/ui.dynatree.css}">
-<link rel="stylesheet" th:href="@{/js/jquery/jquery.ultari.survey.css}">
-<script type="text/javascript" th:src="@{/js/jquery/jquery-3.1.1.min.js}"></script>
-<script type="text/javascript" th:src="@{/js/jquery/jquery-ui.min.js}"></script>
-<script type="text/javascript" th:src="@{/js/jquery/jquery.dynatree.js}"></script>
-<script type="text/javascript" th:src="@{/js/jquery/jquery.ultari.survey.js}"></script>
-<script type="text/javascript" th:src="@{/js/jquery/jquery.ultari.chkbox.js}"></script>
-<script type="text/javascript" th:src="@{/js/tree.js}"></script>
-<script type="text/javascript" th:src="@{/js/common.js}"></script>
-<script type="text/javascript" th:src="@{/js/survey/regist.js}"></script>
-<script type="text/javascript">
-var participantsList = [];
-</script>
+	<title>제주도청</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+	<link rel="shortcut icon" th:href="@{/images/favicon.ico}" />
+	<link rel="stylesheet" th:href="@{/css/survey/dialog.css}">
+	<link rel="stylesheet" th:href="@{/css/survey/survey.css}">
+	<link rel="stylesheet" th:href="@{/css/survey/survey-mobile.css}">
+
+	<link rel="stylesheet" th:href="@{/js/jquery/jquery-ui.min.css}">
+	<link rel="stylesheet" th:href="@{/js/jquery/skin/ui.dynatree.css}">
+	<link rel="stylesheet" th:href="@{/js/jquery/jquery.ultari.survey.css}">
+
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+
+	<script type="text/javascript" th:src="@{/js/jquery/jquery-3.1.1.min.js}"></script>
+	<script type="text/javascript" th:src="@{/js/jquery/jquery-ui.min.js}"></script>
+	<script type="text/javascript" th:src="@{/js/jquery/jquery.dynatree.js}"></script>
+	<script type="text/javascript" th:src="@{/js/jquery/jquery.ultari.survey.js}"></script>
+	<script type="text/javascript" th:src="@{/js/jquery/jquery.ultari.chkbox.js}"></script>
+
+	<script type="text/javascript" th:src="@{/js/tree.js}"></script>
+	<script type="text/javascript" th:src="@{/js/common.js}"></script>
+	<script type="text/javascript" th:src="@{/js/survey/regist.js}"></script>
+	<script type="text/javascript" th:src="@{/js/survey/popup.js}"></script>
+
+	<script type="text/javascript">
+		var participantsList = [];
+	</script>
 </head>
+
 <body>
-<div th:include="survey/header :: header"></div>
+	<!-- 공통 팝업 -->
+	<div th:replace="fragments/popup :: popup"></div>
+	<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.js"></script>
 
-<div id="contents">
-	<div id="view">
-		<table style="width:100%">
-			<tr>
-				<th width="150">제목</th>
-				<td width="850" colspan="3" class="th_subject">
-					<input name="survey_title" type="text" id="survey_title" value="" placeholder="제목을 입력하세요." autocomplete="off"/>
-				</td>
-			</tr>
-			<tr>
-				<th width="150" class="th_0px_gray">참여자</th>
-				<td width="850" colspan="3" >
-					<table style="width:100%">
-						<tr>
-							<td width="88%" class="td_none">
-								<span class="t_gray" id="participants_title"></span>
-							</td>
-							<td width="12%" class="td_none">
-								<span class="button button_gray2" id="btnParticipants">참여자 추가 <img src="/images/icon_plus.png" width="10" height="10" /></span>
-							</td>
-						</tr>
-					</table>
-				</td>
-			</tr>
-			<!-- 
-			<tr>
-				<th class="th_0px_gray">작성자</th>
-				<td><span class="t_gray" th:text="${session.account.title}"></span></td>
-				<th class="th_0px_gray">작성일시</th>
-				<td><span class="t_gray">2019-10-11 21:00</span></td>
-			</tr>
-			 -->
-			<tr>
-				<th class="th_0px_gray">시작일시</th>
-				<td>
-					<table style="width:100%">
-						<tr>
-							<td class="td_none" style="width:140px">
-								<input type="text" id="sDate" class="datetime" style="border:1px solid #ddd;width:80px;padding-left:8px" readonly/>
-							</td>
-							<td class="td_none">
-								<select id="sHour" class="datetime">
-								</select> 시
-								<select id="sMinute" class="datetime"></select> 분
-							</td>
-						</tr>
-					</table>
-				</td>
-				<th class="th_0px_gray">마감일시</th>
-				<td>
-					<table style="width:100%">
-						<tr>
-							<td class="td_none" style="width:140px">
-								<input type="text" id="eDate" class="datetime" style="border:1px solid #ddd;width:80px;padding-left:8px" readonly/>
-							</td>
-							<td class="td_none">
-								<select id="eHour" class="datetime">
-									<option value=""></option>
-								</select> 시
-								<select id="eMinute" class="datetime"></select> 분
-							</td>
-						</tr>
-					</table>
-				</td>
-			</tr>
-			<tr>
-				<th class="th_0px_gray">현황 공개 여부</th>
-				<td colspan="3">
-					<label style=""><input type="radio" name="isOpen" value="Y" style="width:15px;height:15px;vertical-align:bottom" checked="checked"> 공개</label>
-					<label style="margin-left:20px"><input type="radio" name="isOpen" value="N" style="width:15px;height:15px;vertical-align:bottom"> 비공개</label>
-				</td>
-			</tr>
-			<tr>
-				<td colspan="4" class="td_contents">
-					<textarea name="survey_contents" class="input_contents_qna" id="survey_contents" placeholder="내용을 입력하세요."></textarea>
-				</td>
-			</tr>
-			<tr>
-				<td colspan="4" class="td_contents">
-					<div id="question_area"></div>
-					
-					<br/>
-					<table style="width:100%">
-						<tr>
-							<td class="td_none">&nbsp;</td>
-							<td width="90" class="td_none td_align_right">
-								<span id="btnAddSurvey" class="button button_gray2">문항 추가 <img src="/images/icon_plus.png" width="10" height="10" /></span>
-							</td>
-						</tr>
-					</table>
-				</td>
-			</tr>
-		</table>
-	</div>
-	<img src="/images/a.png" width="20" height="20" />
-	<div>
-		<table style="width:100%">
-			<tr>
-				<td width="460px">&nbsp;</td>
-				<td width="50px">&nbsp;</td>
-				<td align="right">
-					<a href="/survey/" class="button button_gray">취소</a>&nbsp;
-					<span id="btnRegistSurvey" class="button button_blue">저장</span>
-				</td>
-			</tr>
-		</table>   
-	</div>
-</div>
+	<!-- PC 전용 -->
+	<div class="survey-list-pc">
+		<div th:include="survey/header :: header"></div>
 
-<div th:include="survey/footer :: footer"></div>
-
-<div id="participants_form" class="dialog" title="참여자 리스트">
-	<ul class="holizontal gnb">
-		<li class="holizontal gnb active" data-type="organization">조직도</li>
-	</ul>
-	<table style="width:100%">
-		<tr>
-			<td class="selectuser_lt">
-				<div style="position:relative;width:100%;border:1px solid #afafaf;background:#fff">
-					<input type="text" name="" id="searchKeyword" class="selectuser_input" style="width:360px;height:28px;background:#fff;border:none;outline:none;padding-left:2px" placeholder="이름" autocomplete="off"/>
-					<img id="btnSearchParticipantsList" src="/images/btn_search_normal.png" alt="찾기" style="position:absolute;width:37px;height:27px;top:1px;right:1px"/>
-				</div>
-			</td>
-			<td rowspan="5" class="selectuser_padding">
-				<img id="btnAppendParticipantsList" src="/images/btn_selectuser_add.png" style="width:48px;height:23px;cursor:pointer" title="추가"/>
-				<img id="btnRemoveParticipantsList" src="/images/btn_selectuser_del.png" style="width:48px;height:23px;cursor:pointer;margin-top:10px" title="삭제"/>
-			</td>
-			<td class="selectuser_rt" style="border-bottom:none">
+		<div id="contents">
+			<div id="view">
 				<table style="width:100%">
 					<tr>
-						<td class="t_12px t_bold t_black">참여인원 <span id="participantsCnt">0</span>명</td>
-						<td align="right">&nbsp;</td>
+						<th width="150">제목</th>
+						<td width="850" colspan="3" class="th_subject">
+							<input name="survey_title" type="text" id="survey_title" value="" placeholder="제목을 입력하세요."
+								autocomplete="off" />
+						</td>
+					</tr>
+					<tr>
+						<th width="150" class="th_0px_gray">참여자</th>
+						<td width="850" colspan="3">
+							<table style="width:100%">
+								<tr>
+									<td width="88%" class="td_none">
+										<span class="t_gray" id="participants_title"></span>
+									</td>
+									<td width="12%" class="td_none">
+										<span class="button button_gray2" id="btnParticipants">참여자 추가 <img
+												src="/images/icon_plus.png" width="10" height="10" /></span>
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+					<!-- 
+				<tr>
+					<th class="th_0px_gray">작성자</th>
+					<td><span class="t_gray" th:text="${session.account.title}"></span></td>
+					<th class="th_0px_gray">작성일시</th>
+					<td><span class="t_gray">2019-10-11 21:00</span></td>
+				</tr>
+				-->
+					<tr>
+						<th class="th_0px_gray">시작일시</th>
+						<td>
+							<table style="width:100%">
+								<tr>
+									<td class="td_none" style="width:140px">
+										<input type="text" id="sDate" class="datetime"
+											style="border:1px solid #ddd;width:80px;padding-left:8px" readonly />
+									</td>
+									<td class="td_none">
+										<select id="sHour" class="datetime">
+										</select> 시
+										<select id="sMinute" class="datetime"></select> 분
+									</td>
+								</tr>
+							</table>
+						</td>
+						<th class="th_0px_gray">마감일시</th>
+						<td>
+							<table style="width:100%">
+								<tr>
+									<td class="td_none" style="width:140px">
+										<input type="text" id="eDate" class="datetime"
+											style="border:1px solid #ddd;width:80px;padding-left:8px" readonly />
+									</td>
+									<td class="td_none">
+										<select id="eHour" class="datetime">
+											<option value=""></option>
+										</select> 시
+										<select id="eMinute" class="datetime"></select> 분
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<th class="th_0px_gray">현황 공개 여부</th>
+						<td colspan="3">
+							<label><input type="radio" name="isOpen" value="Y"
+									style="width:15px;height:15px;vertical-align:bottom" checked="checked"> 공개</label>
+							<label style="margin-left:20px"><input type="radio" name="isOpen" value="N"
+									style="width:15px;height:15px;vertical-align:bottom"> 비공개</label>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="4" class="td_contents">
+							<textarea name="survey_contents" class="input_contents_qna" id="survey_contents"
+								placeholder="내용을 입력하세요."></textarea>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="4" class="td_contents">
+							<div id="question_area"></div>
+
+							<br />
+							<table style="width:100%">
+								<tr>
+									<td class="td_none">&nbsp;</td>
+									<td width="90" class="td_none td_align_right">
+										<span id="btnAddSurvey" class="button button_gray2">문항 추가 <img
+												src="/images/icon_plus.png" width="10" height="10" /></span>
+									</td>
+								</tr>
+							</table>
+						</td>
 					</tr>
 				</table>
-			</td>
-		</tr>
-		<tr>
-			<td class="selectuser_group adress_group">
-				<div id="tree" style="height:200px"></div>
-			</td>
-			<td rowspan="3" class="selectuser_user_notop address_list">
-				<div class="table-box-wrap">
-					<div class="table-box" style="height:542px">
-						<table id="participants_list" style="width:100%">
-							<colgroup><col class="col1"><col class="col2"><col class="col3"></colgroup>
-								<thead>
-									<tr>
-										<th style="width:30px"><input name="input" type="checkbox" value="" class="chkAll"/></th>
-										<th>이름</th>
-										<th>부서</th>
-										<th>직위</th>
-									</tr>
-								</thead>
-								<tbody></tbody>
+			</div>
+			<img src="/images/a.png" width="20" height="20" />
+			<div>
+				<table style="width:100%">
+					<tr>
+						<td width="460px">&nbsp;</td>
+						<td width="50px">&nbsp;</td>
+						<td align="right">
+							<a href="/survey/" class="button button_gray">취소</a>&nbsp;
+							<span id="btnRegistSurvey" class="button button_blue">저장</span>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+
+		<div th:include="survey/footer :: footer"></div>
+
+		<div id="participants_form" class="dialog" title="참여자 리스트">
+			<ul class="holizontal gnb">
+				<li class="holizontal gnb active" data-type="organization">조직도</li>
+			</ul>
+			<table style="width:100%">
+				<tr>
+					<td class="selectuser_lt">
+						<div style="position:relative;width:100%;border:1px solid #afafaf;background:#fff">
+							<input type="text" name="" id="searchKeyword" class="selectuser_input"
+								style="width:360px;height:28px;background:#fff;border:none;outline:none;padding-left:2px"
+								placeholder="이름" autocomplete="off" />
+							<img id="btnSearchParticipantsList" src="/images/btn_search_normal.png" alt="찾기"
+								style="position:absolute;width:37px;height:27px;top:1px;right:1px" />
+						</div>
+					</td>
+					<td rowspan="5" class="selectuser_padding">
+						<img id="btnAppendParticipantsList" src="/images/btn_selectuser_add.png"
+							style="width:48px;height:23px;cursor:pointer" title="추가" />
+						<img id="btnRemoveParticipantsList" src="/images/btn_selectuser_del.png"
+							style="width:48px;height:23px;cursor:pointer;margin-top:10px" title="삭제" />
+					</td>
+					<td class="selectuser_rt" style="border-bottom:none">
+						<table style="width:100%">
+							<tr>
+								<td class="t_12px t_bold t_black">참여인원 <span id="participantsCnt">0</span>명</td>
+								<td align="right">&nbsp;</td>
+							</tr>
 						</table>
-					</div>
+					</td>
+				</tr>
+				<tr>
+					<td class="selectuser_group adress_group">
+						<div id="tree" style="height:200px"></div>
+					</td>
+					<td rowspan="3" class="selectuser_user_notop address_list">
+						<div class="table-box-wrap">
+							<div class="table-box" style="height:542px">
+								<table id="participants_list" style="width:100%">
+									<colgroup>
+										<col class="col1">
+										<col class="col2">
+										<col class="col3">
+									</colgroup>
+									<thead>
+										<tr>
+											<th style="width:30px"><input name="input" type="checkbox" value=""
+													class="chkAll" /></th>
+											<th>이름</th>
+											<th>부서</th>
+											<th>직위</th>
+										</tr>
+									</thead>
+									<tbody></tbody>
+								</table>
+							</div>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td class="selectuser_subtitle">검색결과 <span id="memberCnt">0</span>명</td>
+				</tr>
+				<tr>
+					<td class="selectuser_user_notop address_list">
+						<div class="table-box-wrap">
+							<div class="table-box">
+								<table id="member_list" style="width:100%">
+									<colgroup>
+										<col class="col1">
+										<col class="col2">
+										<col class="col3">
+									</colgroup>
+									<thead>
+										<tr>
+											<th style="width:30px"><input name="input" type="checkbox" value=""
+													class="chkAll" /></th>
+											<th>이름</th>
+											<th>부서</th>
+											<th>직위</th>
+										</tr>
+									</thead>
+									<tbody></tbody>
+								</table>
+							</div>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+
+	<!-- 모바일 전용 -->
+	<div class="survey-list-mobile add-page">
+		<div class="mobile-header">
+			<div class="mobile-header-left">
+				<span class="logo"><img src="/images/survey/ic_title_back_w.svg" alt="이전" /></span>
+			</div>
+			<div class="mobile-header-center">
+				<span>글쓰기</span>
+			</div>
+			<div class="mobile-header-right">
+				<span class="menu-icon" onclick="javascript:addVote();">등록</span>
+			</div>
+		</div>
+
+		<div class="receiver-box">
+			<span class="receiver-placeholder">참여자</span>
+			<div id="recipient-chips"></div>
+			<button type="button" class="add-receiver"><img src="/images/survey/btn_message_people_add.svg"
+					alt="추가" /></button>
+		</div>
+
+		<div class="add">
+			<div class="section">
+				<span>제목</span>
+				<input type="text" id="surveyTitle" name="surveyTitle" />
+			</div>
+
+			<div class="section">
+				<textarea id="surveyContents" name="surveyContents" placeholder="내용"></textarea>
+			</div>
+
+			<div class="section">
+				<input id="isOpen" name="isOpen" type="checkbox" class="chk-hidden" />
+				<label for="isOpen" class="chk-label">투표 현황 비공개</label>
+			</div>
+
+			<!-- 투표 박스 -->
+			<div class="vote-box-list">
+				<div class="question_area"></div>
+			</div>
+		</div>
+
+		<div class="add-btn">
+			<button class="add-vote" id="add-vote">투표 추가하기</button>
+		</div>
+
+		<div class="section date">
+			<div class="vote-date">
+				<div class="date1">
+					<span>투표 종료시간 설정</span></br>
 				</div>
-			</td>
-		</tr>
-		<tr>
-			<td class="selectuser_subtitle">검색결과 <span id="memberCnt">0</span>명</td>
-		</tr>
-		<tr>
-			<td class="selectuser_user_notop address_list">
-				<div class="table-box-wrap">
-					<div class="table-box">
-						<table id="member_list" style="width:100%">
-							<colgroup><col class="col1"><col class="col2"><col class="col3"></colgroup>
-							<thead>
-								<tr>
-									<th style="width:30px"><input name="input" type="checkbox" value="" class="chkAll"/></th>
-									<th>이름</th>
-									<th>부서</th>
-									<th>직위</th>
-								</tr>
-							</thead>
-							<tbody></tbody>					
-						</table>
-					</div>
+				<div class="date2">
+					<img src="/images/survey/ic_survey_time.svg" /><span>시간 설정</span></br>
 				</div>
-			</td>
-		</tr>
-	</table>
-</div>
+				<div class="date3">
+					<img src="/images/survey/ic_survey_alarm.svg" /><span class="note">투표 종료 알림 여부</span>
+				</div>
+			</div>
+		</div>
+	</div>
+	</div>
 </body>
+
+<!-- 받는 사람 리스트-->
+<div id="contact-select-container" style="display:none">
+	<div id="contact-popup"></div>
+</div>
+
 </html>

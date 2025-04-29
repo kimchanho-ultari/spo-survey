@@ -1,17 +1,502 @@
-var tree;
+let tree;
+let selectedUsers = [];
 
-$(function(){
+$(function () {
 	init();
 	initEvent();
+
+	initVoteBox();
+
+	// 투표 추가하기 버튼
+	$(document).on("click", "#add-vote", function () {
+		const $newBox = createVoteBox();
+		$(".vote-box-list").append($newBox);
+	});
+
+	// 탭 클릭 시 텍스트/날짜 전환
+	$(document).on("click", ".vote-type-tabs .tab", function () {
+		const $tab = $(this);
+		const $box = $tab.closest(".vote-box");
+		const type = $tab.data("type");
+
+		$box.find(".tab").removeClass("active");
+		$tab.addClass("active");
+
+		const $options = $box.find(".vote-options");
+
+		// 해당 vote-box 안에서만 이미지 숨기거나 표시
+		const $imgs = $options.find(".option-inputs img");
+		if (type === "date") {
+			$imgs.hide();
+		} else {
+			$imgs.show();
+		}
+
+		$options.find(".option-input").each(function () {
+			const $input = $(this);
+			const isDescriptive = $input.hasClass("descriptive");
+
+			if (!isDescriptive) {
+				const newInput = $(`<input type="${type === "text" ? "text" : "date"}" class="option-input" placeholder="항목 입력" />`);
+				$input.replaceWith(newInput);
+			}
+		});
+	});
+
+	// + 항목 추가 버튼
+	$(document).on("click", ".add-option", function () {
+		const $box = $(this).closest(".vote-box");
+		const $options = $box.find(".vote-options");
+		const type = $box.find(".tab.active").data("type");
+
+		const input = `
+		<div class="option-inputs">
+		  <input type="${type === "text" ? "text" : "date"}" placeholder="항목 입력" class="option-input" />
+		  <img src="/images/survey/ic_survey_album.svg" />
+		</div>
+	  `;
+		$options.append(input);
+
+		// 해당 박스 안에서만 이미지 조절
+		const $imgs = $options.find(".option-inputs img");
+		if (type === "date") {
+			$imgs.hide();
+		} else {
+			$imgs.show();
+		}
+	});
+
+	// - 항목 삭제 버튼
+	$(document).on("click", ".del-option", function () {
+		const $box = $(this).closest(".vote-box"); // 현재 투표 박스
+		const $options = $box.find(".vote-options .option-inputs"); // 모든 항목들
+
+		if ($options.length > 3) {
+			$options.last().remove(); // 마지막 항목만 삭제
+		} else {
+			showAlert({
+				message: "항목은 최소 3개 이상 있어야 합니다."
+			})
+			return;
+		}
+	});
+
+	// + 서술형 항목 추가 버튼
+	$(document).on("click", ".add-descriptive-option", function () {
+		const $box = $(this).closest(".vote-box");
+		const $options = $box.find(".vote-options");
+
+		if ($options.find(".descriptive").length > 0) {
+			showAlert({
+				message: "서술형 항목은 문항당 1개만 추가 가능합니다."
+			})
+			return;
+		}
+
+		const descriptiveInput = `
+		<div class="option-inputs">
+		  <input type="text" value="기타의견" class="option-input descriptive" readonly />
+		</div>`;
+
+		$options.append(descriptiveInput);
+	});
+
+	// 투표 박스 삭제 버튼
+	$(document).on("click", ".close", function () {
+		const $box = $(this).closest(".vote-box");
+		const Boxes = document.getElementsByClassName("vote-box");
+		const totalBoxes = Boxes.length;
+
+		if (totalBoxes <= 1) {
+			showAlert({
+				message: "투표는 최소 1개 이상 있어야 합니다."
+			})
+			return;
+		}
+
+		$box.remove();
+	});
+
+	$(document).on("click", ".note", function () {
+		showPopup({
+			title: "투표 종료 전 알림",
+			message: "종료 30분 전에 알림을 보내드립니다.",
+			optionsHTML: `
+			<label><input type="radio" name="alarm" value="on" checked> 알림 받음</label><br>
+			<label><input type="radio" name="alarm" value="off"> 알림 받지 않음</label>
+			`,
+			onConfirm: () => {
+				const val = $("input[name='alarm']:checked").val();
+				$(".note").text(val === "on" ? "투표 종료 전 알림 받음" : "투표 종료 전 알림 안 받음");
+			}
+		});
+	});
+
+	$(document).on("click", ".date2", function () {
+		showDateTimePicker({
+			title: "투표 종료시간 설정",
+			defaultDate: new Date(),
+			onConfirm: (dt) => {
+				const formatted = dt.toLocaleString("ko-KR", {
+					year: "numeric", month: "2-digit", day: "2-digit",
+					weekday: "short", hour: "2-digit", minute: "2-digit"
+				});
+				$(".date2 span").text(formatted);
+			}
+		});
+	});
+
+	$(document).on("click", ".logo", function () {
+		showPopup({
+			title: "작성 취소",
+			message: "작성을 취소하면 입력된 내용이 저장되지 않습니다. 취소하시겠습니까?",
+			optionsHTML: ``,
+			onConfirm: () => {
+				window.location.href = "/survey/";
+			}
+		});
+	});
+
+	$(document).on("click", ".add-receiver", function () {
+		$(".add-page").hide();
+		$("#contact-select-container").show();
+		deptList();
+	})
 });
+
+function initVoteBox() {
+	const $initialBox = createVoteBox();
+	$(".vote-box-list").html($initialBox);
+}
+
+// 투표 박스
+function createVoteBox() {
+	const timestamp = Date.now();
+
+	return `
+	  <div class="vote-box">
+		<div class="box-header">
+		  <div class="vote-type-tabs">
+			<button class="tab active" data-type="text">텍스트</button>
+			<button class="tab" data-type="date">날짜</button>
+		  </div>
+		  <img class="close" src="/images/survey/ic_survey_delete.svg" alt="닫기" />
+		</div>
+		<div class="vote-inputs vote-input">
+		  <input type="text" class="vote-title" placeholder="투표 제목" />
+  
+		  <div class="vote-options vote-input">
+			<div class="option-inputs">
+			  <input type="text" placeholder="항목 입력" class="option-input" />
+			  <img src="/images/survey/ic_survey_album.svg" />
+			</div>
+			<div class="option-inputs">
+			  <input type="text" placeholder="항목 입력" class="option-input" />
+			  <img src="/images/survey/ic_survey_album.svg" />
+			</div>
+			<div class="option-inputs">
+			  <input type="text" placeholder="항목 입력" class="option-input" />
+			  <img src="/images/survey/ic_survey_album.svg" />
+			</div>
+		  </div>
+  
+		  <button class="add-option">+ 항목 추가</button>
+		  <button class="del-option">- 항목 삭제</button>
+		  <button class="add-descriptive-option">+ 서술형 항목 추가 (문항당 1개만 가능)</button>
+  
+		  <div class="vote-settings">
+			<div>
+			  <input type="checkbox" id="multi-${timestamp}" class="select chk-hidden" />
+			  <label for="multi-${timestamp}" class="select-label">복수 선택</label>
+			</div>
+			<div>
+			  <input type="checkbox" id="anon-${timestamp}" class="select chk-hidden" />
+			  <label for="anon-${timestamp}" class="select-label">익명 투표</label>
+			</div>
+			<div>
+			  <input type="checkbox" id="add-${timestamp}" class="select chk-hidden" />
+			  <label for="add-${timestamp}" class="select-label">선택항목 추가 허용</label>
+			</div>
+		  </div>
+		</div>
+	  </div>
+	`;
+}
+
+// 참여자
+function createFromUser(userList) {
+	const $overlay = $("#contact-select-container");
+	const $popup = $("#contact-popup").empty();
+
+	// ────────── 상단 영역(검색창 + 선택 박스) ──────────
+	let html = `
+	  <div class="mobile-header">
+		<div class="mobile-header-left">
+		  <span class="logo-user" id="btnClosePopup"><img src="/images/survey/ic_title_back_w.svg" alt="이전" /></span>
+		</div>
+		<div class="mobile-header-center">
+		  <input id="btnSearch-user" type="text" class="mobile-search-user" placeholder="검색" />
+		</div>
+		<div class="mobile-header-right">
+		  <span class="menu-icon-user">검색</span>
+		</div>
+	  </div>
+  
+	  <div class="selected-list"></div>
+	`;
+
+	// ────────── 사용자 목록 ──────────
+	html += `<div class="user-list">`;
+	userList.forEach(u => {
+		html += `
+		<div class="user-item" data-id="${u.userId}">
+		  <div class="avatar"></div>
+		  <div class="info">
+			<div class="dept">${u.deptName || ''}</div>
+			<div class="div">
+			  <span class="name">${u.userName}</span>
+			  <span class="sub">${u.posName || ''}</span>
+			</div>
+		  </div>
+		  <input type="checkbox" class="checkbox">
+		</div>
+	  `;
+	});
+	html += `</div>`;
+
+	$popup.append(html);
+
+	/* 체크박스 change */
+	$popup.on('change', '.checkbox', function () {
+		const $item = $(this).closest('.user-item');
+		const userId = $item.data('id');
+		const userDept = $item.find('.dept').text();
+		const userNm = $item.find('.name').text();
+
+
+		if (this.checked) {
+			if (!selectedUsers.find(u => u.id === userId)) {
+				selectedUsers.push({ key: userId, title: userNm, deptName: userDept, posName: "" });
+			}
+		} else {
+			selectedUsers = selectedUsers.filter(u => u.id !== userId);
+		}
+		updateSelectedList();
+	});
+
+	$popup.on('click', '.selected-list .remove', function () {
+		// 전체 삭제
+		if ($(this).hasClass('remove-all')) {
+			selectedUsers = [];
+			$popup.find('.checkbox').prop('checked', false);
+		} else {
+			const id = $(this).closest('.chip').data('id');
+			selectedUsers = selectedUsers.filter(u => u.key !== id);
+			// 체크박스도 해제
+			$popup.find(`.user-item[data-id="${id}"] .checkbox`).prop('checked', false);
+		}
+		updateSelectedList();
+	});
+
+	$(document).on('click', '#btnClosePopup', function () {
+		$('#contact-select-container').hide();
+		$('.add-page').show();
+		renderRecipientChips();	// 참여자 목록에 추가
+	});
+
+	// 글쓰기에서 x 버튼
+	$(document).on('click', '#recipient-chips .remove', function () {
+		if ($(this).hasClass('remove-all')) {
+			selectedUsers = [];
+			$('.checkbox').prop('checked', false);
+		} else {
+			const id = $(this).parent().data('id');
+			selectedUsers = selectedUsers.filter(u => u.key !== id);
+			$('.user-item[data-id="' + id + '"] .checkbox').prop('checked', false);
+		}
+		renderRecipientChips();	// 글쓰기 화면에 그대로 추가
+		updateSelectedList();
+	});
+
+	updateSelectedList();
+}
+
+function renderRecipientChips() {
+	const $box = $('#recipient-chips');
+
+	let html = `
+		<div class="chip all" id="chip">${selectedUsers.length}명
+		  <span class="remove remove-all" id="remove">×</span>
+		</div>
+	`;
+	selectedUsers.forEach(u => {
+		html += `
+		<div class="chip lenChip" id="chip" data-id="${u.key}">
+		  ${u.title}
+		  <span class="remove" id="remove">×</span>
+		</div>`;
+	});
+	$box.html(html);
+}
+
+function updateSelectedList() {
+	const $box = $('.selected-list');
+	const $chip = $box.find(".lenChip");
+
+	let html = `
+		<div class="chip all">${selectedUsers.length}명  
+		  <span class="remove remove-all">×</span>
+		</div>
+	`;
+	selectedUsers.forEach(u => {
+		html += `
+		<div class="chip lenChip" data-id="${u.key}">
+		  ${u.title}
+		  <span class="remove">×</span>
+		</div>
+	  `;
+	});
+	$box.html(html);
+
+	if($chip.length === 0) {
+		$('#chip').css('display', 'none');
+		$(".receiver-placeholder").css("display", "block");
+	}else {
+		$(".receiver-placeholder").css("display", "none");
+	}
+}
+
+// 조직도
+function deptList() {
+	const allMembers = [];
+	let pendingCount = 0;
+
+	$.ajax({
+		type: 'POST',
+		url: '/organization/deptListByPid',
+		dataType: 'json',
+		contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+		data: { key: 0 },
+		success: function (data) {
+			if (data.length === 0) return;
+
+			pendingCount = data.length;
+
+			data.forEach(function (item) {
+				memberList(item.key, function (members) {
+					allMembers.push(...members);
+					pendingCount--;
+
+					if (pendingCount === 0) {
+						createFromUser(allMembers);
+					}
+				});
+			});
+		},
+		error: function () {
+		}
+	});
+}
+
+// 멤버
+function memberList(key, callback) {
+	const data = { deptId: key };
+
+	$.ajax({
+		type: 'POST',
+		url: '/organization/memberByDeptId',
+		dataType: 'json',
+		contentType: 'application/json; charset=UTF-8',
+		data: JSON.stringify(data),
+		success: function (data) {
+			callback(data || []);
+		},
+		error: function (xhr) {
+			callback([]);
+		}
+	});
+}
+
+// 등록
+function addVote() {
+	let title = $('#surveyTitle').val();
+	let contents = $('#surveyContents').val();
+	let voteTitle = $('.vote-title').val();
+	let isOpen = $('input[name=isOpen]:checked').val();
+
+	let startDatetime = "2025-04-25 16:00:00";
+	let endDatetime = "2025-04-26 16:00:00";
+
+
+	if(selectedUsers == null || selectedUsers == "") {
+		showAlert({
+			message: '참여자를 추가해 주세요.'
+		});
+		return;
+	} else if(title == null || title == "") {
+		showAlert({
+			message: '제목을 입력해 주세요.'
+		});
+		return;
+		
+	} else if(contents == null || contents == "") {
+		showAlert({
+			message: '내용을 입력해 주세요.'
+		});
+		return;
+
+	} else if(contents == null || contents == "") {
+		showAlert({
+			message: '내용을 입력해 주세요.'
+		});
+		return;
+
+	} else if (voteTitle == null || voteTitle == "") {
+		showAlert({
+			message: '투표 제목을 입력해 주세요.'
+		});
+		return;
+	} else if(selectedUsers == null || selectedUsers == "") {
+		showAlert({
+			message: '참여자를 추가해 주세요.'
+		});
+		return;
+	}
+
+	let data = {
+		surveyTitle: title,
+		surveyContents: contents,
+		startDatetime: startDatetime,
+		endDatetime: endDatetime,
+		questionList: questionList,
+		participantsList: selectedUsers,
+		isOpen: isOpen
+	};
+
+	$.ajax({
+		type: 'POST',
+		url: '/survey/registSurvey',
+		dataType: 'json',
+		contentType: 'application/json; charset=UTF-8',
+		data: JSON.stringify(data),
+		success: function (data) {
+			console.log(data);
+		},
+		error: function (xhr) {
+		}
+	});
+}
+
+// =============================================================================================================================== mobile
+
 function init() {
 	initDatepicker();
 	initTimepicker();
 	initSurvey();
-	
+
 	var treeObj = orgTreeObj();
 	initTree(treeObj);
-	
+
 	$('#member_list').chkbox();
 	$('#participants_list').chkbox();
 }
@@ -22,7 +507,7 @@ function initEvent() {
 	$('#btnAppendParticipantsList').on('click', validateAppendDataToParticipantsList);
 	$('#btnRemoveParticipantsList').on('click', removeParticipantsList);
 	$('#btnSearchParticipantsList').on('click', searchParticipantsList);
-	$('#searchKeyword').on('keyup', function(){
+	$('#searchKeyword').on('keyup', function () {
 		chkEnter(searchParticipantsList);
 	});
 	//$('li.gnb').on('click', moveTab);
@@ -32,7 +517,7 @@ function initTree(obj) {
 	var handler = obj.handler;
 	tree = new Tree(opt, handler);
 	tree.bind();
-	
+
 	tree.reload();
 }
 function orgTreeObj() {
@@ -40,36 +525,36 @@ function orgTreeObj() {
 	opt.topId = '0';
 	opt.target = 'tree';
 	opt.grpTopUri = '/organization/deptListByPid';
-	
+
 	var handler = {
-		_onClick: function(node, event) {
+		_onClick: function (node, event) {
 			$('#searchKeyword').val('');
 			prevAct = 'tree';
-			
+
 			memberByDeptId(node.data.key);
 		},
-		_onCreate: function(node, span) {
-			if(node.data.key == opt.topId) {
+		_onCreate: function (node, span) {
+			if (node.data.key == opt.topId) {
 				obj = node;
 				node.activate(true);
 				node.expand(true);
 			}
 		},
-		_appendAjax: function(node) {
+		_appendAjax: function (node) {
 			node.appendAjax({
 				type: 'post',
 				url: '/organization/deptListByPid',
 				dataType: 'json',
-				data: {key:node.data.key},
+				data: { key: node.data.key },
 				debugLazyDelay: 750
 			});
 		}
 	};
-	
+
 	var obj = {};
 	obj.opt = opt;
 	obj.handler = handler;
-	
+
 	return obj;
 }
 function commonGroupTreeObj() {
@@ -77,31 +562,31 @@ function commonGroupTreeObj() {
 	opt.topId = '0';
 	opt.target = 'tree';
 	opt.grpTopUri = '/commongroup/groupListByPid';
-	
+
 	var handler = {
-		_onClick: function(node, event) {
+		_onClick: function (node, event) {
 			$('#keyword').val('');
 			prevAct = 'tree';
 			commonMemberByGroupCode(node.data.key);
 		},
-		_onCreate: function(node, span) {
-			
+		_onCreate: function (node, span) {
+
 		},
-		_appendAjax: function(node) {
+		_appendAjax: function (node) {
 			node.appendAjax({
 				type: 'post',
 				url: '/commongroup/groupListByPid',
 				dataType: 'json',
-				data: {key:node.data.key},
+				data: { key: node.data.key },
 				debugLazyDelay: 750
 			});
 		}
 	};
-	
+
 	var obj = {};
 	obj.opt = opt;
 	obj.handler = handler;
-	
+
 	return obj;
 }
 function deptGroupTreeObj() {
@@ -109,31 +594,31 @@ function deptGroupTreeObj() {
 	opt.topId = '0';
 	opt.target = 'tree';
 	opt.grpTopUri = '/agencygroup/groupListForSystem';
-	
+
 	var handler = {
-		_onClick: function(node, event) {
+		_onClick: function (node, event) {
 			$('#keyword').val('');
 			prevAct = 'tree';
 			agencyMemberByGroupCode(node.data.key);
 		},
-		_onCreate: function(node, span) {
-			
+		_onCreate: function (node, span) {
+
 		},
-		_appendAjax: function(node) {
+		_appendAjax: function (node) {
 			node.appendAjax({
 				type: 'post',
 				url: '/agencygroup/groupListForSystem',
 				dataType: 'json',
-				data: {key:node.data.key},
+				data: { key: node.data.key },
 				debugLazyDelay: 750
 			});
 		}
 	};
-	
+
 	var obj = {};
 	obj.opt = opt;
 	obj.handler = handler;
-	
+
 	return obj;
 }
 function initSurvey() {
@@ -145,35 +630,35 @@ function appendSurvey() {
 }
 function initDatepicker() {
 	$.datepicker.setDefaults({
-		regional : ['ko'],
-		nextText : '다음달',
-		prevText : '이전달',
+		regional: ['ko'],
+		nextText: '다음달',
+		prevText: '이전달',
 		currentText: '오늘',
 		changeYear: true,
 		changeMonth: true,
-		monthNames: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
-		monthNamesShort: ['1','2','3','4','5','6','7','8','9','10','11','12'],
-		dayNames: ['일요일','월요일','화요일','수요일','목요일','금요일','토요일'],
-		dayNamesMin: ['일','월','화','수','목','금','토'],
+		monthNames: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+		monthNamesShort: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
+		dayNames: ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'],
+		dayNamesMin: ['일', '월', '화', '수', '목', '금', '토'],
 		dateFormat: 'yy-mm-dd',
-		closeText : '닫기',
-		showOtherMonths : true,
+		closeText: '닫기',
+		showOtherMonths: true,
 		showOn: "button",
 		buttonImageOnly: true,
 		buttonImage: "/images/icon_calendar.png"
 	});
-	
+
 	var sDate = $('#sDate').datepicker({
-					minDate:'0d'
-				}).on('change', function(){
-					$('#eDate').datepicker('option', 'minDate', getDate(this));
-				});
+		minDate: '0d'
+	}).on('change', function () {
+		$('#eDate').datepicker('option', 'minDate', getDate(this));
+	});
 	var eDate = $('#eDate').datepicker({
-					minDate:'0d'
-				}).on('change', function(){
-					sDate.datepicker('option', 'maxDate', getDate(this));
-				});
-	
+		minDate: '0d'
+	}).on('change', function () {
+		sDate.datepicker('option', 'maxDate', getDate(this));
+	});
+
 	var today = new Date();
 	$("#sDate").val($.datepicker.formatDate($.datepicker.ATOM, today));
 }
@@ -181,10 +666,10 @@ function getDate(obj) {
 	var dateFormat = 'yy-mm-dd';
 
 	var date;
-	
+
 	try {
 		date = $.datepicker.parseDate(dateFormat, obj.value);
-	} catch(e) {
+	} catch (e) {
 		date = null;
 	}
 	return date;
@@ -194,41 +679,41 @@ function initTimepicker() {
 	makeHour('eHour');
 	makeMinute('sMinute');
 	makeMinute('eMinute');
-	
+
 	var date = new Date();
 	var hour = date.getHours();
-	
+
 	if (hour <= 9) {
 		hour = '9';
 	} else if (hour >= 18) {
 		hour = '18';
 	}
-	
+
 	$('#sHour').val(hour);
 }
 function datetime(type) {
 	var date = $('#' + type + 'Date').val();
 	var hour = $('#' + type + 'Hour').val();
 	var minute = $('#' + type + 'Minute').val();
-	
+
 	var datetime = '';
 	if (date != '') {
 		datetime = date + ' ' + hour + ':' + minute + ':00';
 	}
-	
+
 	return datetime;
 }
 function registSurvey() {
 	var questionList = $('#question_area').surveyData();
-	
+
 	if (validate(questionList)) {
 		var title = $('#survey_title').val();
 		var contents = $('#survey_contents').val();
 		var isOpen = $('input[name=isOpen]:checked').val();
-		
+
 		var startDatetime = datetime('s');
 		var endDatetime = datetime('e');
-		
+
 		var obj = {};
 		var data = {};
 		data.surveyTitle = title;
@@ -238,11 +723,11 @@ function registSurvey() {
 		data.questionList = questionList;
 		data.participantsList = participantsList;
 		data.isOpen = isOpen;
-		
+
 		obj.url = '/survey/registSurvey';
 		obj.data = data;
 		obj.contentType = 'json';
-		
+
 		console.log(obj);
 		ajaxCall(obj, registSurveyHandler);
 	} else {
@@ -256,11 +741,11 @@ function validate(list) {
 	var val = true;
 	var len_survey = list.length;
 	var len_participants = participantsList.length;
-	
+
 	var title = $('#survey_title').val();
 	var eDate = $('#eDate').val();
 	var eHour = $('#eHour').val();
-	
+
 	if (title == '') {
 		alert('제목을 입력하세요.');
 		val = false;
@@ -274,70 +759,72 @@ function validate(list) {
 		alert('마감일시를 지정해주세요.');
 		val = false;
 	}
-	
+
 	return val;
 }
 function participants() {
 	console.log('participants');
 	$('#participants_form').dialog({
-		modal:true,
-		width:900,
+		modal: true,
+		width: 900,
 		buttons: {
-			'확인':setParticipants,
-			'취소':function(){$(this).dialog('close');}
+			'확인': setParticipants,
+			'취소': function () { $(this).dialog('close'); }
 		}
 	});
-	
+
 	tree.reload();
 
 	var body = $('#member_list tbody');
 	body.empty();
-	
+
 	appendParticipantsList(participantsList);
-	
+
 	setCount('member_list', 'memberCnt');
 }
+
+// 참여자 목록
 function setParticipants() {
 	console.log('setParticipants');
 	var list = $('#participants_list').getItemList();
-	
+
 	console.log(participantsList);
-	
+
 	var len = list.length;
 	var participants_title = [];
-	
+
 	if (len == 0) {
 		alert('참여자는 1명 이상이어야 등록 가능합니다.');
-		
+
 	} else {
 		if (len > 5) {
 			var title = list[0].title;
-			title += '외 ' + (len -1) + '명';
-			
+			title += '외 ' + (len - 1) + '명';
+
 			participants_title.push(title);
 		} else {
-			list.forEach(function(item){
+			list.forEach(function (item) {
 				var title = item.title;
-				
+
 				participants_title.push(title);
 			});
 		}
 		participantsList = list;
-		
+
 		$('#participants_title').text(participants_title);
-		
+
 		$('#participants_form').dialog('close');
-	} 
+	}
 }
 function memberByDeptId(key) {
 	var obj = {};
 	var data = {};
 	data.deptId = key;
-	
+
 	obj.url = '/organization/memberByDeptId';
 	obj.data = data;
 	obj.contentType = 'json';
-	
+
 	console.log('[memberByDeptId] ' + JSON.stringify(obj));
 	ajaxCall(obj, appendMemberList);
 }
@@ -345,11 +832,11 @@ function agencyMemberByGroupCode(key) {
 	var obj = {};
 	var data = {};
 	data.key = key;
-	
+
 	obj.url = '/agencygroup/memberByGroupCode';
 	obj.data = data;
 	obj.contentType = 'json';
-	
+
 	console.log(JSON.stringify(obj));
 	ajaxCall(obj, appendMemberList);
 }
@@ -357,18 +844,18 @@ function commonMemberByGroupCode(key) {
 	var obj = {};
 	var data = {};
 	data.key = key;
-	
+
 	obj.url = '/commongroup/memberByGroupCode';
 	obj.data = data;
 	obj.contentType = 'json';
-	
+
 	console.log(JSON.stringify(obj));
 	ajaxCall(obj, appendMemberList);
 }
 function appendMemberList(list) {
 	var body = $('#member_list tbody');
 	body.empty();
-	list.forEach(function(item){
+	list.forEach(function (item) {
 		var key = item.userId;
 		var title = item.userName;
 		var deptName = item.deptName;
@@ -377,25 +864,25 @@ function appendMemberList(list) {
 
 		var $tr = $('<tr>');
 		var $td_checkbox = $('<td>');
-		
+
 		var $td_title = $('<td>').text(title);
 		var $td_deptname = $('<td>').text(deptName);
 		var $td_posname = $('<td>').text(posName);
-		
+
 		var $checkbox = $('<input type="checkbox">')
-							.addClass('chkItem')
-							.data('key', key)
-							.data('title', title)
-							.data('deptName', deptName)
-							.data('posName', posName);
-		
+			.addClass('chkItem')
+			.data('key', key)
+			.data('title', title)
+			.data('deptName', deptName)
+			.data('posName', posName);
+
 		$td_checkbox.append($checkbox);
 		$tr.append($td_checkbox).append($td_title).append($td_deptname).append($td_posname);
 		body.append($tr);
 	});
-	
+
 	resetChkItems('member_list');
-	
+
 	setCount('member_list', 'memberCnt');
 }
 function isChecked(key) {
@@ -415,7 +902,7 @@ function resetChkItems(key) {
 }
 function validateAppendDataToParticipantsList() {
 	var isChk = isChecked('member_list');
-	
+
 	if (isChk) {
 		var memberList = getChkItemList('member_list');
 		var participantsList = getItemList('participants_list');
@@ -429,12 +916,12 @@ function validateAppendDataToParticipantsList() {
 function removeDuplicates(originArray, prop) {
 	var newArray = [];
 	var lookupObj = {};
-	
-	for(var i in originArray) {
+
+	for (var i in originArray) {
 		var key = originArray[i].key;
 		lookupObj[originArray[i][prop]] = originArray[i];
 	}
-	
+
 	for (i in lookupObj) {
 		newArray.push(lookupObj[i]);
 	}
@@ -444,7 +931,7 @@ function appendParticipantsList(list) {
 	console.log(list);
 	var body = $('#participants_list tbody');
 	body.empty();
-	list.forEach(function(item){
+	list.forEach(function (item) {
 		if (typeof item == 'object') {
 			var key = item.key;
 			var title = item.title;
@@ -453,41 +940,41 @@ function appendParticipantsList(list) {
 
 			var $tr = $('<tr>');
 			var $td_checkbox = $('<td>');
-			
+
 			var $td_title = $('<td>').text(title);
 			var $td_deptname = $('<td>').text(deptName);
 			var $td_posname = $('<td>').text(posName);
-			
+
 			var $checkbox = $('<input type="checkbox">')
-								.addClass('chkItem')
-								.data('key', key)
-								.data('title', title)
-								.data('deptName', deptName)
-								.data('posName', posName);
-			
+				.addClass('chkItem')
+				.data('key', key)
+				.data('title', title)
+				.data('deptName', deptName)
+				.data('posName', posName);
+
 			$td_checkbox.append($checkbox);
 			$tr.append($td_checkbox).append($td_title).append($td_deptname).append($td_posname);
 			body.append($tr);
 		}
 	});
-	
+
 	resetChkItems('participants_list');
 	resetChkItems('member_list');
-	
+
 	setCount('participants_list', 'participantsCnt');
 }
 function removeParticipantsList() {
 	if (isChecked('participants_list')) {
-		$('.chkItem:checked').each(function() {
+		$('.chkItem:checked').each(function () {
 			$(this).parent().parent().remove();
 		});
-		
+
 		resetChkItems('participants_list');
 		resetChkItems('member_list');
 	} else {
 		alert('삭제할 주소록을 체크해주세요.');
 	}
-	
+
 	setCount('participants_list', 'participantsCnt');
 }
 function setCount(key, target) {
@@ -499,39 +986,39 @@ function searchParticipantsList() {
 	var tab = $('li.active');
 	var type = tab.data('type');
 	var uri = '/organization/memberByKeyword';
-	
+
 	var keyword = $('#searchKeyword').val();
-	
+
 	if (keyword == '') {
 		alert('검색어를 입력하세요.');
 	} else {
 		var obj = {};
 		var data = {};
 		data.keyword = keyword;
-		
+
 		obj.url = uri;
 		obj.data = data;
 		obj.contentType = 'json';
-		
+
 		console.log('[searchParticipantsList] ' + JSON.stringify(obj));
 		ajaxCall(obj, appendMemberList);
 	}
 }
 function moveTab() {
 	var type = $(this).data('type');
-	
+
 	var tab = $('li.gnb');
-	tab.each(function(){
+	tab.each(function () {
 		var item = $(this);
 		var itemType = item.data('type');
-		
+
 		item.removeClass('active');
-		
+
 		if (type == itemType) {
 			item.addClass('active');
 		}
 	});
-	
+
 	var treeObj;
 	if (type == 'organization') {
 		treeObj = orgTreeObj();
@@ -540,9 +1027,9 @@ function moveTab() {
 	} else {
 		treeObj = commonGroupTreeObj();
 	}
-	
+
 	initTree(treeObj);
-	
+
 	$('#member_list tbody').empty();
 	$('#searchKeyword').val('');
 }

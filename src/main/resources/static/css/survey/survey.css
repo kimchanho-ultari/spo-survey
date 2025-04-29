@@ -7,7 +7,6 @@ body, div, h1, ol, li, form, fieldset, legend, input {margin:0;padding:0;border:
 
 body{font-size:13px;color:#222222}
 /*body{font-family:'맑은고딕','Malgun Gothic', '돋움', Arial, sans-serif;font-size:12px;color:#525252} */
-div {}
 img { border:0px}
 html, body {height:100%;margin:0px;padding:0px}
 ul{list-style:none}
@@ -177,8 +176,8 @@ input[type=checkbox]{vertical-align:bottom}
 .check_box  {width:15px;padding-right:5px}
 
 /* 기타css */
-.paging {text-align:center;border-bottom:#ffffff1px solid;height:15px}
-.paging td {text-align:center;border-bottom:#ffffff1px solid;height:15px}
+.paging {text-align:center;border-bottom:#ffffff 1px solid;height:15px}
+.paging td {text-align:center;border-bottom:#ffffff 1px solid;height:15px}
 
 .padding_smscontents {padding:10px}
 
