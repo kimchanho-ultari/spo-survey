@@ -25,4 +25,9 @@ public class StringUtil {
 		String val = lpad(str + "", len, pad);
 		return val;
 	}
+
+	public static String castNowDate(LocalDateTime dateTime) {
+		DateTimeFormatter datePattern = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		return dateTime.format(datePattern);
+	}
 }

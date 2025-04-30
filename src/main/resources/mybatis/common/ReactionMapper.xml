@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ultari.additional.mapper.common.ReactionMapper">
+    <select id="findReactionCountByContentId" resultType="map">
+        SELECT REACTION_TYPE AS name
+        , CONVERT(COUNT(REACTION_TYPE),CHAR) AS count
+        FROM MSG_CONTENT_REACTION
+        WHERE CONTENT_ID=#{contentId} GROUP BY REACTION_TYPE
+    </select>
+    <select id="findReactionListByContentIdAndReaction" resultType="map">
+        SELECT CONTENT_ID AS contentId
+        , USER_ID AS userId
+        , REACTION_TYPE AS reactionType
+        , REGIST_DATE AS registDate
+        FROM MSG_CONTENT_REACTION
+        WHERE CONTENT_ID = #{contentId} AND REACTION_TYPE = #{reactionType}
+        ORDER BY REGIST_DATE DESC
+    </select>
+    <select id="findReactionTotalListByContentIdAndReaction" resultType="map">
+        SELECT CONTENT_ID AS contentId
+        , USER_ID AS userId
+        , REACTION_TYPE AS reactionType
+        , REGIST_DATE AS registDate
+        FROM MSG_CONTENT_REACTION
+        WHERE CONTENT_ID = #{contentId}
+        ORDER BY REGIST_DATE DESC
+    </select>
+    <insert id="saveReaction">
+        INSERT INTO MSG_CONTENT_REACTION (REACTION_ID, CONTENT_ID, USER_ID, REACTION_TYPE)
+        VALUES(#{reactionId},#{contentId},#{userId},#{reactionType})
+        ON DUPLICATE KEY UPDATE REACTION_TYPE = #{reactionType}
+    </insert>
+    <delete id="removeReaction">
+        DELETE FROM MSG_CONTENT_REACTION WHERE CONTENT_ID=#{contentId} AND USER_ID=#{userId}
+    </delete>
+</mapper>
