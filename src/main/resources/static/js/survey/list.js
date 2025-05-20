@@ -1,12 +1,6 @@
 $(function () {
-	document.querySelectorAll('.toggle-header').forEach(header => {
-		header.addEventListener('click', () => {
-			const content = header.nextElementSibling;
-			content.classList.toggle('active');
-		});
-	});
-
-	initEvent();
+	initEvent();		// PC
+	mobileEvent();		// MOBILE
 });
 
 function initEvent() {
@@ -14,11 +8,26 @@ function initEvent() {
 	$('#keyword').on('keyup', function () {
 		chkEnter(listBySearch);
 	});
-	$('.paging').on('click', listByPaging);
-	$('.listItem').on('click', article);
 
-	// 모바일 상세
+	$('.paging').on('click', listByPaging);
+
+	$('.listItem').on('click', article);
+}
+
+function mobileEvent() {
+	$('#btnSearchMobile').on('click', function () {
+		mobileListBySearch(1);
+	});
+
 	$('.survey-card').on('click', article);
+
+	// 진행중인 투표 | 종료된 투표
+	document.querySelectorAll('.toggle-header').forEach(header => {
+		header.addEventListener('click', () => {
+			const content = header.nextElementSibling;
+			content.classList.toggle('active');
+		});
+	});
 }
 
 function listByPaging() {
@@ -44,9 +53,29 @@ function search(pageNo) {
 	$form.submit();
 }
 
-function article() {
-	console.log('확인');
+function mobileListBySearch(pageNo = 1) {
+	const keyword = $('#keywordMobile').val();
 
+	$.ajax({
+		type: 'POST',
+		url: '/survey/',
+		dataType: 'html',
+		data: {
+			keyword: keyword,
+			pogeNo: pageNo
+		},
+		success: function (data) {
+			$('body').empty();
+			$('body').html(data);
+		},
+		error: function (req, status, e) {
+		},
+		complete: function (data) {
+		}
+	})
+}
+
+function article() {
 	var surveyCode = $(this).data('surveyCode');
 	var status = $(this).data('status');
 	var isOpen = $(this).data('isOpen');

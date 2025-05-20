@@ -2,12 +2,13 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-	<title>제주도청</title>
+	<!-- <title>제주도청</title> -->
+	<title>SURVEY</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-	<link rel="shortcut icon" th:href="@{/images/favicon.ico}" />
+	<!-- <link rel="shortcut icon" th:href="@{/images/favicon.ico}" /> -->
 	<link rel="stylesheet" th:href="@{/css/survey/survey.css}">
 	<link rel="stylesheet" th:href="@{/css/survey/survey-mobile.css}">
 
@@ -18,6 +19,7 @@
 
 <script th:inline="javascript">
 	let surveyList = [[${ list }]];
+	let mobileList = [[${ mobileList }]];
 </script>
 
 <body>
@@ -64,29 +66,32 @@
 							<td style="font-weight:bold">Q
 							</td>
 
-							<!-- <td th:switch="${item.status}">						** 상태 컬럼: 데이타 빈값으로 진행중으로 하드코딩
-								<span th:case="P" class="progressing">진행중</span>
-								<span th:case="C" class="complete">종료</span>
-								<span th:case="W" class="waiting">대기중</span>
-							</td> -->
-
-							<td>
-								<span>진행중</span>
+							<td th:switch="${item.status}">
+								<span th:case="N" class="progressing">진행중</span>
+								<span th:case="Y" class="complete">종료</span>
+								<!-- <span th:case="W" class="waiting">대기중</span> -->
 							</td>
+
 							<td class="td_align_left">
 								<span th:text="${item.surveyTitle}"></span>
 								<img th:if="${item.getIsOpen()} == 'N'" src="/images/icon_lock.png"
 									style="width:11px;height:20px;vertical-align:middle" />
 							</td>
+
 							<td>
-								<span th:text="${#lists.size(item.memberList)}"></span>명 대상 /
-								<span th:if="${item.getIsMember()} == 'Y' and ${item.getIsDone()} == 'Y'"
+								<!-- <span th:text="${#lists.size(item.memberList)}"></span>명 대상 / -->
+
+								<span th:text="${item.totalComplete} + '명/' + ${#lists.size(item.memberList)} + '명 대상'"
+									class="meta-item"></span>
+
+								<!-- <span th:if="${item.getIsMember()} == 'Y' and ${item.getIsDone()} == 'Y'"
 									th:text="${item.totalComplete} + '명 참여'"></span>
 								<span th:if="${item.getIsMember()} == 'Y' and ${item.getIsDone()} == 'N'"
 									th:text="미참여"></span>
 								<span th:if="${item.getIsMember()} == 'N'"
-									th:text="${item.totalComplete} + '명 참여'"></span>
+									th:text="${item.totalComplete} + '명 참여'"></span> -->
 							</td>
+
 							<td th:text="${#dates.format(item.startDatetime, 'yyyy-MM-dd HH:mm')}"></td>
 							<td th:text="${#dates.format(item.endDatetime, 'yyyy-MM-dd HH:mm')}"></td>
 						</tr>
@@ -126,44 +131,33 @@
 		<!-- 모바일 전용 헤더 -->
 		<div class="mobile-header">
 			<div class="mobile-header-left">
-				<span class="logo">sCalling</span>
+				<a href="/survey/"><span class="logo" style="color: #ffffff;">sCalling</span></a>
 			</div>
 			<div class="mobile-header-center">
-				<input id="btnSearch" type="text" class="mobile-search" placeholder="검색" />
+				<input id="keywordMobile" type="text" class="mobile-search" th:value="${keyword}" placeholder="검색" />
 			</div>
 			<div class="mobile-header-right">
-				<span class="menu-icon">검색</span>
+				<span class="menu-icon" id="btnSearchMobile">검색</span>
 			</div>
 		</div>
 
 		<div class="survey-scroll">
 			<div class="list-ing toggle-header">진행중인 투표</div>
 			<div class="survey-div toggle-content">
-				<div th:each="item : ${list}" class="survey-card" 
-				th:attr="data-survey-code=${item.getSurveyCode()}, data-is-open=${item.getIsOpen()}, data-status=${item.getStatus()}, data-is-writer=${item.getIsWriter()}"
-				th:if="(${item.isWriter} == 'Y' or ${item.isMember} == 'Y') and ${item.isDone} == 'N'">
+				<div th:each="item : ${mobileList}" class="survey-card"
+					th:attr="data-survey-code=${item.getSurveyCode()}, data-is-open=${item.getIsOpen()}, data-status=${item.getStatus()}, data-is-writer=${item.getIsWriter()}"
+					th:if="(${item.isWriter} == 'Y' or ${item.isMember} == 'Y') and ${item.status} == 'N'">
 
 					<div class="survey-body">
-						<div class="survey-title" th:text="${item.surveyTitle}"></div>
+						<div class="survey-title" th:text="${item.surveyTitle}"><img th:if="${item.isOpen()} == 'N'"
+								src="/images/icon_lock.png" /></div>
 						<div class="survey-writer" th:text="${item.userName}"></div>
 
-						<!-- <div class="survey-questions">
-								<div>
-									<div class="question-text">
-										<span th:text="'Q' + ${iterStat.count} + '. ' + ${q.questionTitle}"></span>
-									</div>
-								</div>
-							</div> -->
-
 						<div class="survey-meta">
-							<div style="white-space: nowrap;" th:if="${item.isWriter} == 'N'">
-								<span th:text="${item.totalComplete} + '명/' + ${#lists.size(item.memberList)} + '명 참여'"
+							<div style="white-space: nowrap;">
+								<span th:text="${item.totalComplete} + '명/' + ${#lists.size(item.memberList)} + '명 대상'"
 									class="meta-item"></span> · <span
 									th:text="${item.isDone == 'Y' ? '참여완료' : '미참여'}"></span>
-							</div>
-							<div style="white-space: nowrap;" th:if="${item.isWriter} == 'Y'">
-								<span th:text="${item.totalComplete} + '명/' + ${#lists.size(item.memberList)} + '명 참여'"
-									class="meta-item"></span>
 							</div>
 
 							<span
@@ -173,37 +167,25 @@
 						</div>
 					</div>
 
-					<div class="survey-status-badge on"
-						th:text="${item.isDone == 'N'} ? 'ON' : 'OFF'">
+					<div class="survey-status-badge on" th:text="${item.isDone == 'N'} ? 'ON' : 'OFF'">
 					</div>
 				</div>
 			</div>
 			<div class="list-end toggle-header">종료된 투표</div>
 			<div class="survey-div toggle-content">
-				<div th:each="item : ${list}" class="survey-card" th:attr="data-survey-code=${item.getSurveyCode()}, data-is-open=${item.getIsOpen()}, data-status=${item.getStatus()}, data-is-writer=${item.getIsWriter()}"
-				th:if="(${item.isWriter} == 'Y' or ${item.isMember} == 'Y') and ${item.isDone} == 'Y'">
+				<div th:each="item : ${mobileList}" class="survey-card"
+					th:attr="data-survey-code=${item.getSurveyCode()}, data-is-open=${item.getIsOpen()}, data-status=${item.getStatus()}, data-is-writer=${item.getIsWriter()}"
+					th:if="(${item.isWriter} == 'Y' or ${item.isMember} == 'Y') and ${item.status} == 'Y'">
 
 					<div class="survey-body">
 						<div class="survey-title" th:text="${item.surveyTitle}"></div>
 						<div class="survey-writer" th:text="${item.userName}"></div>
 
-						<!-- <div class="survey-questions">
-								<div>
-									<div class="question-text">
-										<span th:text="'Q' + ${iterStat.count} + '. ' + ${q.questionTitle}"></span>   ** 투표 안건 제목
-									</div>
-								</div>
-							</div> -->
-
 						<div class="survey-meta">
-							<div style="white-space: nowrap;" th:if="${item.isWriter} == 'N'">
-								<span th:text="${item.totalComplete} + '명/' + ${#lists.size(item.memberList)} + '명 참여'"
+							<div style="white-space: nowrap;">
+								<span th:text="${item.totalComplete} + '명/' + ${#lists.size(item.memberList)} + '명 대상'"
 									class="meta-item"></span> · <span
 									th:text="${item.isDone == 'Y' ? '참여완료' : '미참여'}"></span>
-							</div>
-							<div style="white-space: nowrap;" th:if="${item.isWriter} == 'Y'">
-								<span th:text="${item.totalComplete} + '명/' + ${#lists.size(item.memberList)} + '명 참여'"
-									class="meta-item"></span>
 							</div>
 
 							<span
@@ -213,8 +195,7 @@
 						</div>
 					</div>
 
-					<div class="survey-status-badge off"
-						th:text="${item.isDone == 'Y'} ? 'OFF' : 'ON'">
+					<div class="survey-status-badge off" th:text="${item.isDone == 'Y'} ? 'OFF' : 'ON'">
 					</div>
 				</div>
 			</div>
