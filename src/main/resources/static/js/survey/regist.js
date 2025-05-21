@@ -71,11 +71,11 @@ $(function () {
 		const $box = $(this).closest(".vote-box"); // 현재 투표 박스
 		const $options = $box.find(".vote-options .option-inputs"); // 모든 항목들
 
-		if ($options.length > 3) {
+		if ($options.length > 1) {
 			$options.last().remove(); // 마지막 항목만 삭제
 		} else {
 			showAlert({
-				message: "항목은 최소 3개 이상 있어야 합니다."
+				message: "항목은 최소 1개 이상 있어야 합니다."
 			})
 			return;
 		}
@@ -164,12 +164,12 @@ $(function () {
 	})
 });
 
+// 투표 박스
 function initVoteBox() {
 	const $initialBox = createVoteBox();
 	$(".vote-box-list").html($initialBox);
 }
 
-// 투표 박스
 function createVoteBox() {
 	const timestamp = Date.now();
 
@@ -212,10 +212,6 @@ function createVoteBox() {
 			<div>
 			  <input type="checkbox" id="anon-${timestamp}" class="select chk-hidden" />
 			  <label for="anon-${timestamp}" class="select-label">익명 투표</label>
-			</div>
-			<div>
-			  <input type="checkbox" id="add-${timestamp}" class="select chk-hidden" />
-			  <label for="add-${timestamp}" class="select-label">선택항목 추가 허용</label>
 			</div>
 		  </div>
 		</div>
@@ -265,6 +261,13 @@ function createFromUser(userList) {
 	html += `</div>`;
 
 	$popup.append(html);
+	$popup.off(); // 이전에 바인딩된 이벤트 제거
+
+	// 이미 추가되어 있는 참여자들 체크
+	selectedUsers.forEach(selected => {
+		const id = selected.key;
+		$popup.find(`.user-item[data-id="${id}"] .checkbox`).prop('checked', true);
+	});
 
 	/* 체크박스 change */
 	$popup.on('change', '.checkbox', function () {
@@ -279,7 +282,7 @@ function createFromUser(userList) {
 				selectedUsers.push({ key: userId, title: userNm, deptName: userDept, posName: "" });
 			}
 		} else {
-			selectedUsers = selectedUsers.filter(u => u.id !== userId);
+			selectedUsers = selectedUsers.filter(u => u.key !== userId);
 		}
 		updateSelectedList();
 	});
@@ -298,7 +301,7 @@ function createFromUser(userList) {
 		updateSelectedList();
 	});
 
-	$(document).on('click', '#btnClosePopup', function () {
+	$popup.on('click', '#btnClosePopup', function () {
 		$('#contact-select-container').hide();
 		$('.add-page').show();
 		renderRecipientChips();	// 참여자 목록에 추가
@@ -321,11 +324,42 @@ function createFromUser(userList) {
 	updateSelectedList();
 }
 
+// 글쓰기 화면에서 
 function renderRecipientChips() {
 	const $box = $('#recipient-chips');
+	$box.empty();
 
 	let html = `
-		<div class="chip all" id="chip">${selectedUsers.length}명
+				<div class="chip all" id="chip">${selectedUsers.length}명
+					<span class="remove remove-all" id="remove">x</span>
+				</div>
+				`;
+
+	selectedUsers.forEach(u => {
+		html += `
+				<div class="chip lenChip" id="chip" data-id="${u.key}">
+					${u.title}
+					<span class="remove" id="remove">x</span>
+				</div>
+				`;
+	});
+	$box.html(html);
+
+	if (selectedUsers.length === 0) {
+		$('.receiver-placeholder').show();
+		$('.all').hide();
+	} else {
+		$('.receiver-placeholder').hide();
+		$('.all').show();
+	}
+}
+
+// 참여자 화면에서
+function updateSelectedList() {
+	const $box = $('.selected-list');
+
+	let html = `
+		<div class="chip all" id="chip">${selectedUsers.length}명  
 		  <span class="remove remove-all" id="remove">×</span>
 		</div>
 	`;
@@ -334,36 +368,10 @@ function renderRecipientChips() {
 		<div class="chip lenChip" id="chip" data-id="${u.key}">
 		  ${u.title}
 		  <span class="remove" id="remove">×</span>
-		</div>`;
-	});
-	$box.html(html);
-}
-
-function updateSelectedList() {
-	const $box = $('.selected-list');
-	const $chip = $box.find(".lenChip");
-
-	let html = `
-		<div class="chip all">${selectedUsers.length}명  
-		  <span class="remove remove-all">×</span>
-		</div>
-	`;
-	selectedUsers.forEach(u => {
-		html += `
-		<div class="chip lenChip" data-id="${u.key}">
-		  ${u.title}
-		  <span class="remove">×</span>
 		</div>
 	  `;
 	});
 	$box.html(html);
-
-	if($chip.length === 0) {
-		$('#chip').css('display', 'none');
-		$(".receiver-placeholder").css("display", "block");
-	}else {
-		$(".receiver-placeholder").css("display", "none");
-	}
 }
 
 // 조직도
@@ -428,24 +436,24 @@ function addVote() {
 	let endDatetime = "2025-04-26 16:00:00";
 
 
-	if(selectedUsers == null || selectedUsers == "") {
+	if (selectedUsers == null || selectedUsers == "") {
 		showAlert({
 			message: '참여자를 추가해 주세요.'
 		});
 		return;
-	} else if(title == null || title == "") {
+	} else if (title == null || title == "") {
 		showAlert({
 			message: '제목을 입력해 주세요.'
 		});
 		return;
-		
-	} else if(contents == null || contents == "") {
+
+	} else if (contents == null || contents == "") {
 		showAlert({
 			message: '내용을 입력해 주세요.'
 		});
 		return;
 
-	} else if(contents == null || contents == "") {
+	} else if (contents == null || contents == "") {
 		showAlert({
 			message: '내용을 입력해 주세요.'
 		});
@@ -456,7 +464,7 @@ function addVote() {
 			message: '투표 제목을 입력해 주세요.'
 		});
 		return;
-	} else if(selectedUsers == null || selectedUsers == "") {
+	} else if (selectedUsers == null || selectedUsers == "") {
 		showAlert({
 			message: '참여자를 추가해 주세요.'
 		});

@@ -92,7 +92,12 @@
 @media screen and (max-width: 768px) {
 
     /* [ 목록 화면 ] */
+    html {
+        overflow-x: hidden;
+    }
+
     body {
+        overflow-x: hidden;
         background-color: #f5f5f5;
     }
 
@@ -722,6 +727,10 @@
         font-weight: 500;
     }
 
+    .text {
+        color: #555;
+    }
+
     /* [ 상세 화면 ] */
     .mobile-header {
         display: flex;
@@ -840,7 +849,7 @@
         display: flex;
         flex-direction: row;
         font-size: 0.95rem;
-        font-weight: 500;
+        font-weight: 400;
     }
 
     .mobile-notice img {
@@ -922,8 +931,10 @@
     }
 
     .btn-end,
-    .btn-submit {
-        width: calc(100% - 57%);
+    .btn-submit,
+    .user-btn-submit,
+    .user-btn-submit-dis {
+        width: calc(100% - 8%);
         margin: 0 3px;
         padding: 12px 0;
         font-size: 16px;
@@ -931,8 +942,13 @@
         border-radius: 6px;
     }
 
+    .user-btn-submit-dis {
+        background: #9f9e9e;
+        color: #dfdfdf;
+    }
+
     .btn-end {
-        background: #CCCCCC;
+        background: #f5f5f5;
         color: #555;
         font-size: 17px;
         font-weight: 500;
@@ -1068,8 +1084,34 @@
         background-image: url("/images/survey/btn_component_chk_survey_ing.svg");
     }
 
-    .select-all:checked + .all-label {
-        color: #007bff;  /* 원하는 파란색으로 조정 */
-      }
+    .select-all:checked+.all-label {
+        color: #007bff;
+    }
 
+    /* 더보기 팝업 */
+    #contentFunction {
+        background-color: #fff;
+        width: 180px;
+        height: 270px;
+        position: absolute;
+        /* bottom: 1198px;
+        left: 186px; */
+        /* z-index: 2; */
+        box-shadow: 0px 0 10px 0 rgba(46, 57, 86, 0.2);
+        padding: 10px;
+        top: 70px;
+        right: 10px;
+    }
+
+    #contentFunction>p {
+        font-size: 15px;
+        padding: 10px;
+    }
+
+    #end-time {
+        font-weight: 400;
+        color: #ff291b;
+    }
+
+    /* 투표현황 */
 }

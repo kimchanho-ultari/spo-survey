@@ -2,12 +2,13 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-	<title>제주도청</title>
+	<!-- <title>제주도청</title> -->
+	<title>SURVEY</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-	<link rel="shortcut icon" th:href="@{/images/favicon.ico}" />
+	<!-- <link rel="shortcut icon" th:href="@{/images/favicon.ico}" /> -->
 	<link rel="stylesheet" th:href="@{/js/jquery/jquery-ui.min.css}">
 	<link rel="stylesheet" th:href="@{/js/jquery/skin/ui.dynatree.css}">
 	<link rel="stylesheet" th:href="@{/css/survey/survey.css}">
@@ -23,13 +24,17 @@
 	<script type="text/javascript" th:src="@{/js/common.js}"></script>
 	<script type="text/javascript" th:src="@{/js/survey/article.js}"></script>
 	<script type="text/javascript" th:src="@{/js/tree.js}"></script>
+	<script type="text/javascript" th:src="@{/js/survey/popup.js}"></script>
 	<script th:inline="javascript">
 		var userId = [[${ session.account.key }]];
 		var surveyCode = [[${ survey.surveyCode }]];
+
+		var survey = [[${ survey }]];
 		var status = [[${ survey.status }]];
 		var isWriter = [[${ survey.isWriter }]];
 		var isOpen = [[${ survey.isOpen }]];
 		var participantsList = [[${ survey.memberList }]];
+		
 		var surveyResult = [[${ surveyResult }]];
 		var surveyItemAggregate = [[${ surveyItemAggregate }]];
 		var surveyQuestionList = [[${ surveyQuestionList }]];
@@ -42,6 +47,9 @@
 </head>
 
 <body>
+	<!-- 공통 팝업 -->
+	<div th:replace="fragments/popup :: popup"></div>
+
 	<div class="survey-list-pc">
 		<div th:include="survey/header :: header"></div>
 
@@ -358,12 +366,20 @@
 			<h1 style="font-weight:bold;color:#000;margin-bottom:5px">내용</h1>
 			<textarea name="" id="noti_contents" placeholder="알림 내용을 입력하세요." style="padding:8px"></textarea>
 		</div>
-
 		<div th:include="survey/footer :: footer"></div>
 	</div>
 
 	<!-- 모바일 전용 상세 화면 -->
 	<div class="survey-list-mobile">
+		<!-- 더보기 버튼 팝업 -->
+		<div class="popupArea" id="contentFunction" style="display: none;">
+			<p>대화창에 공유하기</p>
+			<p>투표 복제하기</p>
+			<p id="vote-update">수정하기</p>
+			<p id="vote-delete">삭제하기</p>
+			<p>투표 현황 보기</p>
+			<p>투표결과 다운로드</p>
+		</div>
 
 		<div class="mobile-header">
 			<div class="mobile-header-left">
@@ -390,14 +406,11 @@
 						</span>
 					</div>
 					<div class="meta-more">
-						<img src="/images/survey/ic_list_message_more.svg" alt="더보기"
+						<img src="/images/survey/ic_list_message_more.svg" id="moreBtn" alt="더보기"
 							class="more-icon profile-icon-more" />
 					</div>
 				</div>
 
-				<span class="title-span">
-					읽음 <span>3명</span>		<!-- ** 하드코딩 -->
-				</span>
 			</div>
 		</section>
 
@@ -412,8 +425,6 @@
 
 			<section class="mobile-section">
 				<div class="mobile-notice">
-					<p><img src="/images/survey/ic_survey_time2.svg" />투표가 <strong th:text="${remainingTime}"></strong>
-						시간 후에 종료됩니다.</p>
 				</div>
 			</section>
 
@@ -446,7 +457,8 @@
 					<!-- 전체선택 (작성자·대기중일 때) -->
 					<div class="card-footer" th:if="${question.isMulti=='Y'}">
 						<div>
-							<input type="checkbox" class="select-all chk-hidden" th:id="'allCheck_' + ${question.questionCode}"
+							<input type="checkbox" class="select-all chk-hidden"
+								th:id="'allCheck_' + ${question.questionCode}"
 								th:name="'allCheck_' + ${question.questionCode}" />
 							<label class="all-label" th:for="'allCheck_' + ${question.questionCode}">
 								전체 선택
@@ -456,14 +468,8 @@
 				</div>
 			</div>
 
-			<footer class="mobile-actions">
-				<button id="btnEndSurvey" class="btn-end">투표 종료</button>
-				<button id="btnSubmitSurvey" class="btn-submit">투표하기</button>
-				<div class="participation-div">
-					<div><span class="participation" th:text="${participantCount} + '명 참여'"></span></div>
-					<div><img src="/images/survey/btn_component_next_bk.svg" /></div>
-				</div>
-			</footer>
+			<!-- 투표종료 버튼 -->
+			<footer class="mobile-actions"></footer>
 		</div>
 
 		<section class="mobile-interact">
@@ -475,7 +481,10 @@
 			</div>
 		</section>
 	</div>
-
+	</div>
 </body>
+
+<!-- 투표현황 -->
+<div class="vote-user-list"></div>
 
 </html>

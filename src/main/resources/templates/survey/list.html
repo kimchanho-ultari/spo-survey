@@ -146,8 +146,7 @@
 					<div class="survey-body">
 						<div>
 							<span class="survey-title" th:text="${item.surveyTitle}"></span>
-							<img th:if="${item.getIsOpen()} == 'N'" src="/images/icon_lock.png"
-									style="width:13px; height:25px; vertical-align:middle; margin-bottom: 3px;" />
+							<img th:if="${item.isOpen} == 'N'" src="/images/icon_lock.png" style="width:13px; height:25px; vertical-align:middle; margin-bottom: 3px;" />
 						</div>
 						<div class="survey-writer" th:text="${item.userName}"></div>
 
@@ -176,7 +175,10 @@
 					th:if="(${item.isWriter} == 'Y' or ${item.isMember} == 'Y') and ${item.status} == 'Y'">
 
 					<div class="survey-body">
-						<div class="survey-title" th:text="${item.surveyTitle}"></div>
+						<div>
+							<span class="survey-title" th:text="${item.surveyTitle}"></span>
+							<img th:if="${item.isOpen} == 'N'" src="/images/icon_lock.png" style="width:13px; height:25px; vertical-align:middle; margin-bottom: 3px;" />
+						</div>
 						<div class="survey-writer" th:text="${item.userName}"></div>
 
 						<div class="survey-meta">
