@@ -49,10 +49,16 @@ $(function () {
 		const $options = $box.find(".vote-options");
 		const type = $box.find(".tab.active").data("type");
 
+		// 	const input = `
+		// 	<div class="option-inputs">
+		// 	  <input type="${type === "text" ? "text" : "date"}" placeholder="항목 입력" class="option-input" />
+		// 	  <img src="/images/survey/ic_survey_album.svg" />
+		// 	</div>
+		//   `;
+
 		const input = `
 		<div class="option-inputs">
 		  <input type="${type === "text" ? "text" : "date"}" placeholder="항목 입력" class="option-input" />
-		  <img src="/images/survey/ic_survey_album.svg" />
 		</div>
 	  `;
 		$options.append(input);
@@ -171,6 +177,9 @@ function initVoteBox() {
 }
 
 function createVoteBox() {
+	// 이미지
+	// <img src="/images/survey/ic_survey_album.svg" />
+
 	const timestamp = Date.now();
 
 	return `
@@ -188,15 +197,12 @@ function createVoteBox() {
 		  <div class="vote-options vote-input">
 			<div class="option-inputs">
 			  <input type="text" placeholder="항목 입력" class="option-input" />
-			  <img src="/images/survey/ic_survey_album.svg" />
 			</div>
 			<div class="option-inputs">
 			  <input type="text" placeholder="항목 입력" class="option-input" />
-			  <img src="/images/survey/ic_survey_album.svg" />
 			</div>
 			<div class="option-inputs">
 			  <input type="text" placeholder="항목 입력" class="option-input" />
-			  <img src="/images/survey/ic_survey_album.svg" />
 			</div>
 		  </div>
   
@@ -261,7 +267,7 @@ function createFromUser(userList) {
 	html += `</div>`;
 
 	$popup.append(html);
-	$popup.off(); // 이전에 바인딩된 이벤트 제거
+	$popup.off();
 
 	// 이미 추가되어 있는 참여자들 체크
 	selectedUsers.forEach(selected => {

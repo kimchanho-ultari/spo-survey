@@ -6,6 +6,7 @@ $(function () {
 	console.log(surveyResult);
 	console.log(surveyItemAggregate);
 	console.log(surveyQuestionList);
+	console.log(isDone);
 
 	init();
 	initEvent();
@@ -13,10 +14,16 @@ $(function () {
 });
 
 function mobileInit() {
-	replyList();												// 댓글
-	bindVoteButton(survey);										// 투표종료 버튼
-	getRemainingHours();										// 남은 투표 시간 계산
-	$('#vote-delete').on('click', removeSurveyMobile);			// 삭제
+	replyList();					// 댓글
+	getRemainingHours();			// 남은 투표 시간 계산
+	bindVoteButton(survey);			// 투표종료 버튼
+	surveyQuestionListMobile();		// 기타의견 라디오 선택 시 활성화
+
+	// 투표 여부에 따른 진행바
+	if (isDone === "Y") surveyDoneMobile();
+
+	// 삭제
+	$('#vote-delete').on('click', removeSurveyMobile);
 
 	// questionCode 값 가져오기
 	surveyQuestionList.forEach(item => {
@@ -47,25 +54,334 @@ function mobileInit() {
 	})
 }
 
-function removeSurveyMobile() {
-	showPopup({
-			title: "설문 삭제",
-			message: "설문을 삭제하시겠습니까?",
-			optionsHTML: ``,
-			onConfirm: () => {
-				var obj = {};
-				var data = {};
-				data.surveyCode = surveyCode;
+function validateSurveySelectMobile() {
+	var result = true;
 
-				obj.url = '/survey/removeSurvey';
-				obj.data = data;
-				obj.contentType = 'json';
+	var questionList = $('.mobile-questions');
+	questionList.each(function () {
+		var question = $('.mobile-questions');
+		var len_checked = question.find('.option-item > label > input:checked').length;
 
-				console.log(JSON.stringify(obj));
+		if (len_checked == 0) {
+			showAlert({
+				message: '선택하지 않은 설문 항목이 있습니다.'
+			});
+			result = false;
+			return false;
+		} else {
+			var $items = question.find('.option-item > label > input:checked');
+			$items.each(function () {
+				var $item = $(this);
+				var itemCode = $item.val();
+				var itemType = $item.data('itemType');
+				if (itemType == 'DESC') {
+					var desc = $('#desc_' + itemCode).val();
+					if (desc == '') {
+						showAlert({
+							message: '서술형 항목에 내용을 입력해 주세요.'
+						});
+						result = false;
+						return false;
+					}
+				}
+			});
+		}
+	});
 
-				ajaxCall(obj, removeSurveyHandlerMobile);
+	return result;
+}
+
+function surveySubmitMobile() {
+	if (validateSurveySelectMobile()) {
+		var itemList = [];
+		var descList = [];
+
+		var obj = {};
+		var data = {};
+		data.surveyCode = surveyCode;
+		data.itemList = itemList;
+		data.descList = descList;
+
+		obj.url = '/survey/submitSurvey';
+		obj.data = data;
+		obj.contentType = 'json';
+
+		var $items = $('.option-item > label > input:checked');
+		$items.each(function () {
+			var $item = $(this);
+			var questionCode = $item.attr('name');
+			var itemCode = $item.val();
+			var itemType = $item.data('itemType');
+
+			var itemObj = {};
+			itemObj.questionCode = questionCode;
+			itemObj.itemCode = itemCode;
+			itemList.push(itemObj);
+
+			if (itemType == 'DESC') {
+				var desc = {};
+				desc.itemCode = itemCode;
+				desc.questionCode = questionCode;
+				desc.desc = $('#desc_' + itemCode).val();
+
+				descList.push(desc);
 			}
 		});
+
+		console.log(obj);
+		ajaxCall(obj, submitSurveyHandlerMobile);
+	}
+}
+
+function submitSurveyHandlerMobile(data) {
+	var code = data.code;
+
+	if (code == 'fail') {
+		showAlert({
+			message: '적용에 실패하였습니다. 잠시후 다시 시도해주세요.'
+		});
+		return
+	} else {
+		location.reload();
+	}
+}
+
+function surveyQuestionListMobile() {
+	surveyQuestionList.forEach(q => {
+		const code = q.itemCode;
+		const $radio = $(`#radio_${code}`);
+		const $desc = $(`#desc_${code}`);
+		$desc.prop('disabled', !$radio.is(':checked'));
+	})
+
+	$('.mobile-questions').on('change', 'input[id^=radio_]', function () {
+		const code = this.id.split('-')[1];
+		const $desc = $(`#desc_${code}`);
+		$desc.prop('disabled', !this.checked);
+
+	})
+}
+
+function surveyDoneMobile() {
+	const totalParticipants = survey.memberList.length;
+	let $newVoteNum = '';
+
+	surveyQuestionList.forEach(question => {
+		const list = question.itemList;
+		console.log(list);
+
+		const qCode = question.questionCode;
+		const $card = $(`.question-card:has(input[name='${qCode}'])`);
+		const $lis = $card.find('.option-item');
+
+		const countMap = surveyItemAggregate.reduce((map, x) => {
+			map[x.key] = x.val;
+			return map;
+		}, {});
+
+		const myChoices = surveyResult
+			.filter(r => r.questionCode === qCode)
+			.map(r => r.itemCode);
+
+		$lis.each((_, li) => {
+			const $li = $(li);
+			const $input = $li.find('input');
+			const code = $input.val();
+			const cnt = countMap[code] || 0;
+			const pct = Math.round(cnt / totalParticipants * 100);
+			const isMine = myChoices.includes(code);
+
+			$input.prop({ checked: isMine, disabled: true });
+
+			$li.find('.progress, .vote-num').remove();
+
+			const $progress = $('<div>').addClass('progress')
+				.append(
+					$('<div>')
+						.addClass('bar-base')
+						.css('width', `${pct}%`)
+				);
+			if (isMine) {
+				$progress.append(
+					$('<div>')
+						.addClass('bar-mine')
+						.css('width', `${pct}%`)
+				);
+			}
+
+			// 현재 code에 해당하는 item 
+			const matched = list.find(item => item.itemCode === code) || {};
+			const itemType = matched.itemType || question.itemType;
+			const itemLabel = matched.label || $li.find('label span').text();
+
+			$newVoteNum = $('<span>')
+				.addClass('vote-num')
+				.text(`${cnt}명`)
+				.data({
+					itemCode: code,
+					surveyCode: surveyCode,
+					itemType: itemType,
+					isAnonymous: question.isAnonymous,
+					isMulti: question.isMulti
+				})
+				.on('click', function () {
+					const d = $(this).data();
+
+					surveyItemResultMemberMobile(
+						d.itemCode,
+						d.surveyCode,
+						d.itemType,
+						d.isAnonymous,
+						d.isMulti
+					)
+				});
+
+			const $label = $li.find('label');
+			const $detachedSpan = $label.find('span').detach();
+			$label.remove();
+
+			const $spanWrapper = $('<div>')
+				.addClass('span-wrapper')
+				.append($('<span>').text(itemLabel))
+				.append($newVoteNum);
+
+			$li.empty()
+				.append($spanWrapper)
+				.append($progress);
+
+			$progress.prepend($input);
+		});
+		$card.find('.card-footer').hide();
+	});
+
+	$('.user-btn-submit').prop('disabled', true);
+	$('.progress > input').css('display', 'none');
+
+	// 진행중 | 참여자 | 비공개 투표일 경우 
+	if (
+		survey.status === "N" &&
+		survey.isWriter === "N" &&
+		survey.isOpen === "N"
+	) {
+		$('.option-item .progress, .option-item .vote-num').remove();
+	}
+}
+
+function bindOtherDescPopup(data) {
+	const list = data.list || [];
+
+	let $modal = $('#otherTextModal');
+	if (!$modal.length) {
+		$modal = $(`
+      <div id="otherTextModal" class="modal-overlay">
+        <div class="modal-box">
+          <button class="close-btn">&times;</button>
+          <h3>기타의견</h3>
+          <ul class="other-list"></ul>
+        </div>
+      </div>
+    `).appendTo('body');
+		$modal.find('.close-btn').on('click', () => $modal.hide());
+	}
+
+	const $ul = $modal.find('.other-list').empty();
+
+	if (list.length) {
+		list.forEach(r => {
+			$ul.append(
+				$('<li>').text(r.desc || '(의견 없음)')
+			);
+		});
+	} else {
+		$ul.append(
+			$('<li>').text('등록된 기타의견이 없습니다.')
+		);
+	}
+
+	$modal.css('display', 'flex');
+}
+
+function surveyItemResultMemberMobile(itemCode, surveyCode, itemType, isAnonymous, isMulti) {
+	const obj = {
+		url: '/survey/surveyItemResultMember',
+		data: { surveyCode, itemCode, itemType, isAnonymous },
+		contentType: 'json'
+	};
+
+	ajaxCall(obj, function (data) {
+		surveyItemResultMemberHandlerMobile(data, itemType);
+	});
+}
+
+function surveyItemResultMemberHandlerMobile(data, itemType) {
+	var code = data.code;
+
+	if (code == 'fail') {
+		showAlert({
+			message: '적용에 실패하였습니다. 잠시후 다시 시도해 주세요.'
+		})
+	} else {
+		if (itemType === 'DESC') {
+			bindOtherDescPopup(data);
+		} else {
+			bindsubmitPopup(data);
+		}
+	}
+}
+
+function bindsubmitPopup(data) {
+	const list = data.list || [];
+
+	let $modal = $('#participantModal');
+	if (!$modal.length) {
+		$modal = $(`
+					<div id="participantModal" class="modal-overlay">
+						<div class="modal-box">
+						<button class="close-btn">&times;</button>
+						<h3>참여자 리스트</h3>
+						<ul class="other-list"></ul>
+						</div>
+					</div>
+				`).appendTo('body');
+		$modal.find('.close-btn').on('click', () => $modal.hide());
+	}
+
+	const $ul = $modal.find('.other-list').empty();
+
+	if (list.length) {
+		list.forEach(user => {
+			$ul.append(
+				$('<li>').text(user.userName || '')
+			);
+		});
+	} else {
+		$ul.append(
+			$('<li>').text('투표한 참여자가 없습니다.')
+		);
+	}
+
+	$modal.css('display', 'flex');
+}
+
+function removeSurveyMobile() {
+	showPopup({
+		title: "설문 삭제",
+		message: "설문을 삭제하시겠습니까?",
+		optionsHTML: ``,
+		onConfirm: () => {
+			var obj = {};
+			var data = {};
+			data.surveyCode = surveyCode;
+
+			obj.url = '/survey/removeSurvey';
+			obj.data = data;
+			obj.contentType = 'json';
+
+			console.log(JSON.stringify(obj));
+
+			ajaxCall(obj, removeSurveyHandlerMobile);
+		}
+	});
 }
 
 function removeSurveyHandlerMobile(data) {
@@ -114,30 +430,30 @@ function bindVoteButton(survey) {
 	})
 
 	// 참여자 X / 작성자 O
-	if(data.isMember === "N") {
+	if (data.isMember === "N") {
 		html += `
 			<div>
 				<button class="user-btn-submit-dis" disabled>투표하기</button>
 			</div>
 			`
-	}else {
+	} else {
 		// 투표 마감
-		if(data.status === "C"){
+		if (data.status === "C") {
 			html += `
 				<div>
 					<button class="user-btn-submit-dis" disabled>투표종료</button>
 				</div>
 				`
-		}else {
+		} else {
 			// 투표 전
-			if(data.isDone === "N") {
+			if (data.isDone === "N") {
 				html += `
 				<div>
-					<button id="btnSubmitSurvey" class="user-btn-submit">투표하기</button>
+					<button id="btnSubmitSurvey" class="user-btn-submit" onclick='surveySubmitMobile();'>투표하기</button>
 				</div>
 				`
-			// 투표 후
-			}else {
+				// 투표 후
+			} else {
 				html += `
 				<div>
 					<button class="user-btn-submit-dis" disabled>투표완료</button>
@@ -187,8 +503,8 @@ function getRemainingHours() {
 	$('.mobile-notice').append(html);
 }
 
-// 투표현황 ing
-function voteUserList() {}
+// 투표현황
+function voteUserList() { }
 
 // ===================================================================================================== mobile
 
@@ -401,7 +717,7 @@ function chkSubmitBtn() {
 			.addClass('button_survey_disabled')
 			.prop('disabled', true);
 
-	// 같으면 버튼 활성화 
+		// 같으면 버튼 활성화 
 	} else {
 		$('#btnSubmitSurvey')
 			.removeClass('button_survey_disabled')
@@ -492,6 +808,7 @@ function surveyItemResultMember() {
 
 	ajaxCall(obj, surveyItemResultMemberHandler);
 }
+
 function surveyItemResultMemberHandler(data) {
 	console.log(data);
 	var code = data.code;
@@ -515,6 +832,7 @@ function surveyItemResultMemberHandler(data) {
 		var itemType = req.itemType;
 		var isAnonymous = req.isAnonymous;
 
+		// 익명이 아니면서 기타의견
 		if (isAnonymous == 'N' || itemType == 'DESC') {
 			dialogParticipantsView();
 			appendParticipantsListView(list, data.req);
@@ -1034,11 +1352,11 @@ function submitSurvey() {
 }
 function submitSurveyHandler(data) {
 	var code = data.code;
+
 	if (code == 'fail') {
 		alert('적용에 실패하였습니다. 잠시후 다시 시도해주세요.');
 	} else {
 		alert('정상 처리되었습니다.');
-
 		location.reload();
 	}
 }
@@ -1047,7 +1365,7 @@ function validateSurveySelect() {
 
 	var questionList = $('.question');
 	questionList.each(function () {
-		var question = $(this);
+		var question = $('.question');
 		var len_checked = question.find('.item:checked').length;
 
 		if (len_checked == 0) {
@@ -1074,6 +1392,7 @@ function validateSurveySelect() {
 
 	return result;
 }
+
 function exportDesc() {
 	$('#exportDescForm').submit();
 }

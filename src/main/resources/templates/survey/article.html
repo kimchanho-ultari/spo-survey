@@ -33,8 +33,9 @@
 		var status = [[${ survey.status }]];
 		var isWriter = [[${ survey.isWriter }]];
 		var isOpen = [[${ survey.isOpen }]];
+		var isDone = [[${ survey.isDone }]];
 		var participantsList = [[${ survey.memberList }]];
-		
+
 		var surveyResult = [[${ surveyResult }]];
 		var surveyItemAggregate = [[${ surveyItemAggregate }]];
 		var surveyQuestionList = [[${ surveyQuestionList }]];
@@ -260,7 +261,8 @@
 			</div>
 		</div>
 
-		<div id="participants_form" class="dialog" title="참여자 리스트">
+		<!-- + 참여자 -->
+		<div id="participants_form" class="dialog" title="참여자 추가">
 			<table style="width:100%">
 				<tr>
 					<td class="selectuser_lt">
@@ -346,6 +348,8 @@
 				</tr>
 			</table>
 		</div>
+
+		<!-- 참여자 리스트 -->
 		<div id="participants_view" class="dialog" title="참여자 리스트">
 			<div class="table-box-wrap" style="border:1px solid #ddd">
 				<div class="table-box address_list">
@@ -395,7 +399,7 @@
 		</div>
 
 		<section class="mobile-meta">
-			<img src="" class="profile-icon" />
+			<img src="/images/survey/img_profile.png" class="profile-icon" />
 
 			<div class="meta-text">
 				<div class="meta-top">
@@ -424,8 +428,7 @@
 			</section>
 
 			<section class="mobile-section">
-				<div class="mobile-notice">
-				</div>
+				<div class="mobile-notice"></div>
 			</section>
 
 			<div class="mobile-questions" th:each="question : ${surveyQuestionList}">
@@ -444,12 +447,19 @@
 						<li class="option-item" th:each="item : ${question.itemList}">
 							<label>
 								<input type="checkbox" th:if="${question.isMulti=='Y'}"
-									th:name="${question.questionCode}" th:value="${item.itemCode}" />
+									th:name="${question.questionCode}" th:value="${item.itemCode}"
+									th:id="${'check_' + item.itemCode}" />
+
 								<input type="radio" th:if="${question.isMulti!='Y'}" th:name="${question.questionCode}"
-									th:value="${item.itemCode}" />
+									th:value="${item.itemCode}" th:id="${'radio_' + item.itemCode}" />
+
 								<span th:text="${item.itemContents}"></span>
+
 								<img th:if="${item.itemType=='IMG'}" th:src="@{${item.itemImageUrl}}" alt=""
 									class="option-thumb" />
+
+								<p class="other-input-wrapper"><input type="text" th:if="${item.itemType == 'DESC'}"
+										th:id="${'desc_' + item.itemCode}" /></p>
 							</label>
 						</li>
 					</ul>
@@ -484,7 +494,7 @@
 	</div>
 </body>
 
-<!-- 투표현황 -->
-<div class="vote-user-list"></div>
+<!-- 투표 현황 -->
+<div class="vote-total-list"></div>
 
 </html>
