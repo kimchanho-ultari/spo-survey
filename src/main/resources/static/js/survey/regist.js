@@ -1,6 +1,10 @@
 let tree;
 let selectedUsers = [];
 
+let mobileEndDate = null;
+let mobileStartDate = new Date();
+let participantsListMobile = [];
+
 $(function () {
 	init();
 	initEvent();
@@ -74,11 +78,11 @@ $(function () {
 
 	// - 항목 삭제 버튼
 	$(document).on("click", ".del-option", function () {
-		const $box = $(this).closest(".vote-box"); // 현재 투표 박스
-		const $options = $box.find(".vote-options .option-inputs"); // 모든 항목들
+		const $box = $(this).closest(".vote-box"); 						// 현재 투표 박스
+		const $options = $box.find(".vote-options .option-inputs"); 	// 모든 항목들
 
 		if ($options.length > 1) {
-			$options.last().remove(); // 마지막 항목만 삭제
+			$options.last().remove(); 									// 마지막 항목만 삭제
 		} else {
 			showAlert({
 				message: "항목은 최소 1개 이상 있어야 합니다."
@@ -168,6 +172,18 @@ $(function () {
 		$("#contact-select-container").show();
 		deptList();
 	})
+
+	$(document).on('click', '.date2', function () {
+		console.log('delegated date2 clicked');
+		showDateTimePicker({
+			title: '투표 종료시간 선택',
+			defaultDate: mobileEndDate || new Date(),
+			onConfirm: dt => {
+				mobileEndDate = dt;
+				$('.date2 span').text(formatDateTime(dt));
+			}
+		});
+	});
 });
 
 // 투표 박스
@@ -183,7 +199,7 @@ function createVoteBox() {
 	const timestamp = Date.now();
 
 	return `
-	  <div class="vote-box">
+	  <div class="vote-box" id="question_area_mobile">
 		<div class="box-header">
 		  <div class="vote-type-tabs">
 			<button class="tab active" data-type="text">텍스트</button>
@@ -310,7 +326,7 @@ function createFromUser(userList) {
 	$popup.on('click', '#btnClosePopup', function () {
 		$('#contact-select-container').hide();
 		$('.add-page').show();
-		renderRecipientChips();	// 참여자 목록에 추가
+		renderRecipientChips();					// 참여자 목록에 추가
 	});
 
 	// 글쓰기에서 x 버튼
@@ -323,7 +339,7 @@ function createFromUser(userList) {
 			selectedUsers = selectedUsers.filter(u => u.key !== id);
 			$('.user-item[data-id="' + id + '"] .checkbox').prop('checked', false);
 		}
-		renderRecipientChips();	// 글쓰기 화면에 그대로 추가
+		renderRecipientChips();					// 글쓰기 화면에 그대로 추가
 		updateSelectedList();
 	});
 
@@ -369,6 +385,7 @@ function updateSelectedList() {
 		  <span class="remove remove-all" id="remove">×</span>
 		</div>
 	`;
+
 	selectedUsers.forEach(u => {
 		html += `
 		<div class="chip lenChip" id="chip" data-id="${u.key}">
@@ -431,72 +448,129 @@ function memberList(key, callback) {
 	});
 }
 
-// 등록
+function formatDateTime(d) {
+	const pad = n => String(n).padStart(2, '0');
+	return [
+		d.getFullYear(), pad(d.getMonth() + 1), pad(d.getDate())
+	].join('-') + ' ' + [
+		pad(d.getHours()), pad(d.getMinutes()), pad(d.getSeconds())
+	].join(':');
+}
+
+function getMobileSurveyData() {
+	const list = [];
+
+	$('.vote-box').each(function () {
+		const $box = $(this);
+		const questionType = 'regist';
+
+		let questionCode = $box.data('question-code');
+		if (!questionCode) {
+			questionCode = crypto.randomUUID();
+			$box.data('question-code', questionCode);
+		}
+
+		const questionContents = $box.find('.vote-title').val().trim();
+		if (!questionContents) return;
+
+		const isMulti = $box.find('input[id^="multi"]').is(':checked') ? 'Y' : 'N';
+		const isAnonymous = $box.find('input[id^="anon"]').is(':checked') ? 'Y' : 'N';
+
+		const questionItem = [];
+		let num = 0;
+
+		$box.find('.option-input').each(function () {
+			const $opt = $(this);
+			const text = $opt.val().trim();
+			if (!text) return;
+
+			let itemCode = $opt.data('item-code');
+			if (!itemCode) {
+				itemCode = crypto.randomUUID();
+				$opt.data('item-code', itemCode);
+			}
+
+			const itemType = text === "기타의견" ? 'DESC' : 'CHOICE';
+
+			questionItem.push({
+				itemCode,
+				itemContents: text,
+				itemType,
+				num: ++num,
+				type: questionType
+			});
+		});
+
+		if (!questionItem.length) return;
+
+		list.push({
+			questionType,
+			questionCode,
+			questionContents,
+			isMulti,
+			isAnonymous,
+			questionItem
+		});
+	});
+	return list;
+}
+
+// 투표 등록
 function addVote() {
-	let title = $('#surveyTitle').val();
-	let contents = $('#surveyContents').val();
-	let voteTitle = $('.vote-title').val();
-	let isOpen = $('input[name=isOpen]:checked').val();
+	const surveyTitle = $('#surveyTitle').val().trim();
+	const surveyContents = $('#surveyContents').val().trim();
+	const isOpen = $('#isOpen').is(':checked') ? 'N' : 'Y';
 
-	let startDatetime = "2025-04-25 16:00:00";
-	let endDatetime = "2025-04-26 16:00:00";
-
-
-	if (selectedUsers == null || selectedUsers == "") {
-		showAlert({
-			message: '참여자를 추가해 주세요.'
-		});
-		return;
-	} else if (title == null || title == "") {
-		showAlert({
-			message: '제목을 입력해 주세요.'
-		});
-		return;
-
-	} else if (contents == null || contents == "") {
-		showAlert({
-			message: '내용을 입력해 주세요.'
-		});
-		return;
-
-	} else if (contents == null || contents == "") {
-		showAlert({
-			message: '내용을 입력해 주세요.'
-		});
-		return;
-
-	} else if (voteTitle == null || voteTitle == "") {
-		showAlert({
-			message: '투표 제목을 입력해 주세요.'
-		});
-		return;
-	} else if (selectedUsers == null || selectedUsers == "") {
-		showAlert({
-			message: '참여자를 추가해 주세요.'
-		});
+	if (!selectedUsers.length) {
+		showAlert({ message: '참여자를 추가해 주세요.' });
 		return;
 	}
 
-	let data = {
-		surveyTitle: title,
-		surveyContents: contents,
-		startDatetime: startDatetime,
-		endDatetime: endDatetime,
-		questionList: questionList,
+	const questionList = getMobileSurveyData();
+	if (!questionList.length) {
+		showAlert({ message: '최소 하나 이상의 투표 문항을 작성해 주세요.' });
+		return;
+	}
+
+	if (!mobileEndDate) {
+		showAlert({ message: '투표 종료시간을 선택해 주세요.' });
+		return;
+	}
+	const startDatetime = mobileStartDate
+		? formatDateTime(mobileStartDate)
+		: formatDateTime(new Date());
+	const endDatetime = formatDateTime(mobileEndDate);
+
+	const payload = {
+		surveyTitle,
+		surveyContents,
+		startDatetime,
+		endDatetime,
+		questionList,
 		participantsList: selectedUsers,
-		isOpen: isOpen
+		isOpen
 	};
 
 	$.ajax({
-		type: 'POST',
 		url: '/survey/registSurvey',
-		dataType: 'json',
+		type: 'POST',
 		contentType: 'application/json; charset=UTF-8',
-		data: JSON.stringify(data),
-		success: function (data) {
-			console.log(data);
+		dataType: 'json',
+		data: JSON.stringify(payload),
+		success(data) {
+			if (data.code === "ok") {
+				showPopup({
+					title: '투표 등록',
+					message: '투표를 등록하시겠습니까?',
+					onConfirm: () => {
+						location.href = '/survey/';
+					}
+				})
+			}
 		},
-		error: function (xhr) {
+		error(err) {
+			console.error('등록 실패:', err);
+			showAlert({ message: '등록 중 오류가 발생했습니다.' });
 		}
 	});
 }
@@ -749,7 +823,7 @@ function registSurvey() {
 	}
 }
 function registSurveyHandler(data) {
-	location.href = '/survey/';
+	// location.href = '/survey/';
 }
 function validate(list) {
 	var val = true;

@@ -45,18 +45,13 @@ function showAlert({ message, onConfirm }) {
 	});
 }
 
-/**
- * 달력 + 시간 선택 팝업
- * @param {{ title: string, defaultDate?: Date, onConfirm: (Date)=>void, onCancel?: ()=>void }} cfg
- */
+// 달력
 function showDateTimePicker({ title, defaultDate = new Date(), onConfirm, onCancel }) {
-	// 팝업 안에 input 생성
 	showPopup({
 		title,
 		message: "",
 		optionsHTML: `<input type="text" id="datetime-picker" style="width:100%; padding:8px; box-sizing:border-box;" />`,
 		onConfirm: () => {
-			// flatpickr 인스턴스에서 Date 객체 꺼내기
 			const inst = document.querySelector("#datetime-picker")._flatpickr;
 			const dt = inst.selectedDates[0] || defaultDate;
 			onConfirm(dt);
@@ -64,7 +59,6 @@ function showDateTimePicker({ title, defaultDate = new Date(), onConfirm, onCanc
 		onCancel
 	});
 
-	// 팝업이 렌더링된 직후 flatpickr 초기화
 	setTimeout(() => {
 		flatpickr("#datetime-picker", {
 			enableTime: true,

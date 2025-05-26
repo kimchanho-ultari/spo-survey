@@ -321,13 +321,7 @@ function bindOtherDescPopup(data) {
 		}
 	} else {
 		$ul.append(
-			$('<li>')
-				.addClass('vote-modal-item')
-				.append(
-					$('<span>')
-						.addClass('vote-modal-empty')
-						.text('투표된 기타의견이 없습니다.')
-				)
+			$('<li>').text('투표된 기타의견이 없습니다.')
 		);
 	}
 

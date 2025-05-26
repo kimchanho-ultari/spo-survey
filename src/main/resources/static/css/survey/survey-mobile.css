@@ -1317,18 +1317,6 @@
         padding: 0;
     }
 
-    .vote-modal-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 8px 16px;
-        border-bottom: 1px solid #eee;
-    }
-
-    .vote-modal-item:last-child {
-        border-bottom: none;
-    }
-
     .vote-modal-username {
         font-weight: bold;
         color: #333;
@@ -1342,12 +1330,6 @@
         text-align: left;
         white-space: pre-wrap;
     }
-
-    .vote-modal-empty {
-        margin: 0 auto;
-        color: #999;
-    }
-
 
 
 
