@@ -449,7 +449,7 @@ function bindVoteButton(survey) {
 	let html = '';
 
 	const data = survey;
-	const userList = data.memberList;
+	const userList = data.memberList || [];
 	let userLen = [];
 
 	// 투표 참여 인원
@@ -496,7 +496,7 @@ function bindVoteButton(survey) {
 	html += `
 			<div class='participation-div'>
 				<div class='participation'>
-					<span onclick='voteUserList();'>${userLen.length}명 참여</span>
+					<span id='participation-span'>${userLen.length}명 참여</span>
 				</div>
 				<div>
 					<img src='/images/survey/btn_component_next_bk.svg' />
@@ -505,6 +505,10 @@ function bindVoteButton(survey) {
 
 			`
 	$('.mobile-actions').append(html);
+
+	$(document).on('click', '#participation-span', function () {
+		voteUserList(userList);
+	})
 }
 
 function getRemainingHours() {
@@ -533,8 +537,82 @@ function getRemainingHours() {
 	$('.mobile-notice').append(html);
 }
 
-// 투표현황
-function voteUserList() { }
+function goBack(url) {
+	if (url === 'detail') {
+		location.href = '/survey/article/' + surveyCode;
+	} else {
+		location.href = '/survey/';
+	}
+}
+
+// 미참여 화면
+function voteUserList(data) {
+	const list = data || [];
+	const $container = $('.survey-list-mobile').empty();
+
+	const headerHtml = `
+						<div class="mobile-header">
+						<div class="mobile-header-left">
+							<span class="logo">
+							<img src="/images/survey/ic_title_back_w.svg" alt="이전" onclick="goBack('main')" />
+							</span>
+						</div>
+						<div class="mobile-header-center"><span>투표현황</span></div>
+						<div class="mobile-header-right">
+							<span class="menu-icon" onclick="goBack('detail')">상세 페이지</span>
+						</div>
+						</div>
+						<div class="mobile-header">
+						<div class="tabs">
+							<button class="tab active">참여</button>
+							<button class="tab">미참여</button>
+						</div>
+						</div>
+						<ul class="member-list"></ul>
+					`;
+	$container.append(headerHtml);
+
+	const $tabs = $container.find('.tabs .tab');
+	const $ul = $container.find('.member-list');
+
+	function renderList(status) {
+		$ul.empty();
+		const filtered = list.filter(item => item.isComplete === status);
+
+		if (filtered.length) {
+			filtered.forEach(item => {
+				const avatar = item.title.charAt(0);
+				$ul.append(`
+							<li class="member-item">
+								<div class="avatar">${avatar}</div>
+								<div class="info">
+								<div class="name">${item.title}</div>
+								<div class="dept">${item.deptName}</div>
+								</div>
+							</li>
+							`);
+			});
+		} else {
+			$ul.append(	`
+							<li class="member-item empty">
+							<div class="info">참여자가 없습니다.</div>
+							</li>
+						`);
+		}
+	}
+
+	$tabs.on('click', function () {
+		const $this = $(this);
+		$tabs.removeClass('active');
+		$this.addClass('active');
+
+		const status = $this.text() === '참여' ? 'Y' : 'N';
+		renderList(status);
+	});
+
+	renderList('Y');
+};
+
 
 // ===================================================================================================== mobile
 
