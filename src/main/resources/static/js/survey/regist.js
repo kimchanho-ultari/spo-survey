@@ -241,6 +241,20 @@ function createVoteBox() {
 	`;
 }
 
+// 참여자 검색 
+function searchListMobile() {
+	$.ajax({
+		url: '/organization/memberByKeyword',
+		contentType: 'application/json; charset=UTF-8',
+		type: 'POST',
+		dataType: 'json',
+		data: JSON.stringify({ keyword: $('#btnSearch-user').val() }),
+		success: function(data) {
+			createFromUser(data)
+		}
+	})
+}
+
 // 참여자
 function createFromUser(userList) {
 	const $overlay = $("#contact-select-container");
@@ -256,7 +270,7 @@ function createFromUser(userList) {
 		  <input id="btnSearch-user" type="text" class="mobile-search-user" placeholder="검색" />
 		</div>
 		<div class="mobile-header-right">
-		  <span class="menu-icon-user">검색</span>
+		  <span class="menu-icon-user" onclick="searchListMobile();">검색</span>
 		</div>
 	  </div>
   
