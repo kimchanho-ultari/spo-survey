@@ -19,8 +19,8 @@ function mobileInit() {
 	bindVoteButton(survey);			// 투표종료 버튼
 	surveyQuestionListMobile();		// 기타의견 라디오 선택 시 활성화
 
-	// 투표 여부에 따른 진행바
-	if (isDone === "Y") surveyDoneMobile();
+	// 투표 여부, 종료 여부에 따른 진행바
+	if (isDone === "Y" || status === "Y") surveyDoneMobile();
 
 	// 삭제
 	$('#vote-delete').on('click', removeSurveyMobile);
@@ -286,15 +286,48 @@ function bindOtherDescPopup(data) {
 
 	const $ul = $modal.find('.other-list').empty();
 
+	$ul.addClass('vote-modal-list')
+		.empty();
+
 	if (list.length) {
-		list.forEach(r => {
-			$ul.append(
-				$('<li>').text(r.desc || '(의견 없음)')
-			);
-		});
+		// 익명 X
+		if (data.req.isAnonymous === 'N') {
+			list.forEach(r => {
+				$ul.append(
+					$('<li>').addClass('vote-modal-item').append(
+						// 사용자명
+						$('<span>')
+							.addClass('vote-modal-username')
+							.text(r.userName || ''),
+						// 의견
+						$('<span>')
+							.addClass('vote-modal-comment')
+							.text(r.desc || '')
+					)
+				);
+			});
+		// 익명 O
+		} else {
+			list.forEach(r => {
+				$ul.append(
+					$('<li>').addClass('vote-modal-item').append(
+						// 의견
+						$('<span>')
+							.addClass('vote-modal-comment')
+							.text(r.desc || '')
+					)
+				);
+			});
+		}
 	} else {
 		$ul.append(
-			$('<li>').text('등록된 기타의견이 없습니다.')
+			$('<li>')
+				.addClass('vote-modal-item')
+				.append(
+					$('<span>')
+						.addClass('vote-modal-empty')
+						.text('투표된 기타의견이 없습니다.')
+				)
 		);
 	}
 
@@ -324,7 +357,10 @@ function surveyItemResultMemberHandlerMobile(data, itemType) {
 		if (itemType === 'DESC') {
 			bindOtherDescPopup(data);
 		} else {
-			bindsubmitPopup(data);
+			// 익명이 아닐때만
+			if (data.req.isAnonymous === "N") {
+				bindsubmitPopup(data);
+			}
 		}
 	}
 }
