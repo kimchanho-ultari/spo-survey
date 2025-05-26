@@ -509,6 +509,10 @@ function bindVoteButton(survey) {
 	$(document).on('click', '#participation-span', function () {
 		voteUserList(userList);
 	})
+
+	$(document).on('click', '#vote-list', function() {
+		voteUserList(userList);
+	})
 }
 
 function getRemainingHours() {
@@ -581,10 +585,9 @@ function voteUserList(data) {
 
 		if (filtered.length) {
 			filtered.forEach(item => {
-				const avatar = item.title.charAt(0);
 				$ul.append(`
 							<li class="member-item">
-								<div class="avatar">${avatar}</div>
+								<div class="avatar"><img src="/images/survey/img_profile.png" /></div>
 								<div class="info">
 								<div class="name">${item.title}</div>
 								<div class="dept">${item.deptName}</div>

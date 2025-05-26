@@ -1093,7 +1093,7 @@
     #contentFunction {
         background-color: #fff;
         width: 180px;
-        height: 270px;
+        height: 150px;
         position: absolute;
         /* bottom: 1198px;
         left: 186px; */
@@ -1216,7 +1216,7 @@
         top: 0;
     }
 
-    .vote-list {
+    /* .vote-list {
         background-color: #fff;
         width: 100%;
         height: 100%;
@@ -1229,7 +1229,7 @@
         box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
         overflow-y: scroll;
         overflow-x: hidden;
-    }
+    } */
 
     .vote-div {
         display: flex;
@@ -1391,15 +1391,9 @@
 
     .avatar {
         flex-shrink: 0;
-        width: 40px;
-        height: 40px;
-        background: #d8e8ff;
-        border-radius: 50%;
+        width: 43px;
+        height: 43px;
         display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        color: #155BC1;
         margin-right: 12px;
     }
 
