@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <g id="ic_chat_recattion_small_11" transform="translate(-33 -26)">
+    <rect id="area" width="16" height="16" transform="translate(33 26)" fill="none"/>
+    <rect id="circle" width="16" height="16" rx="8" transform="translate(33 26)" fill="#ffc300"/>
+    <g id="그룹_7148" data-name="그룹 7148" transform="translate(34.6 29.733)">
+      <rect id="circle-2" data-name="circle" width="4" height="4" rx="2" transform="translate(0.4 0.267)" fill="#fff"/>
+      <rect id="circle-3" data-name="circle" width="2" height="2" rx="1" transform="translate(1.4 1.267)"/>
+    </g>
+    <g id="그룹_7149" data-name="그룹 7149" transform="translate(42.6 29.733)">
+      <rect id="circle-4" data-name="circle" width="4" height="4" rx="2" transform="translate(0.4 0.267)" fill="#fff"/>
+      <rect id="circle-5" data-name="circle" width="2" height="2" rx="1" transform="translate(1.4 1.267)"/>
+    </g>
+    <rect id="사각형_2950" data-name="사각형 2950" width="6" height="7" rx="3" transform="translate(38 34)" fill="#bb1d80"/>
+  </g>
+</svg>

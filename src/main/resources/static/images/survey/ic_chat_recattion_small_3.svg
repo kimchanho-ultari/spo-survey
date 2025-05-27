@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <g id="ic_chat_recattion_small_10" transform="translate(-33 -26)">
+    <rect id="area" width="16" height="16" transform="translate(33 26)" fill="none"/>
+    <rect id="circle" width="16" height="16" rx="8" transform="translate(33 26)" fill="#ffc300"/>
+    <g id="그룹_7148" data-name="그룹 7148" transform="translate(34.611 29.759)">
+      <rect id="circle-2" data-name="circle" width="4" height="5" rx="2" transform="translate(0.389 0.241)" fill="#fff"/>
+      <rect id="circle-3" data-name="circle" width="3" height="3" rx="1.5" transform="translate(1.389 1.241)"/>
+    </g>
+    <g id="그룹_7149" data-name="그룹 7149" transform="translate(42.667 29.759)">
+      <rect id="circle-4" data-name="circle" width="4" height="5" rx="2" transform="translate(0.333 0.241)" fill="#fff"/>
+      <rect id="circle-5" data-name="circle" width="3" height="3" rx="1.5" transform="translate(0.333 1.241)"/>
+    </g>
+    <path id="사각형_2950" data-name="사각형 2950" d="M.8,0H7.2A.8.8,0,0,1,8,.8V1A4,4,0,0,1,4,5H4A4,4,0,0,1,0,1V.8A.8.8,0,0,1,.8,0Z" transform="translate(37 36)" fill="#bb1d80"/>
+    <path id="사각형_2951" data-name="사각형 2951" d="M0,0H6A0,0,0,0,1,6,0V0A1,1,0,0,1,5,1H1A1,1,0,0,1,0,0V0A0,0,0,0,1,0,0Z" transform="translate(38 36)" fill="#fff"/>
+  </g>
+</svg>

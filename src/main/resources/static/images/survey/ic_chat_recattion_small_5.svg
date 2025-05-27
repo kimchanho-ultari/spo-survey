@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <g id="ic_chat_recattion_small_12" transform="translate(-33 -26)">
+    <rect id="area" width="16" height="16" transform="translate(33 26)" fill="none"/>
+    <rect id="circle" width="16" height="16" rx="8" transform="translate(33 26)" fill="#ffc300"/>
+    <rect id="사각형_2950" data-name="사각형 2950" width="4" height="4" rx="2" transform="translate(39 33)" fill="#bb1d80"/>
+    <rect id="사각형_2952" data-name="사각형 2952" width="4" height="1" rx="0.5" transform="translate(35 30)"/>
+    <rect id="사각형_2953" data-name="사각형 2953" width="4" height="1" rx="0.5" transform="translate(43 30)"/>
+    <path id="사각형_2954" data-name="사각형 2954" d="M0,0H2A0,0,0,0,1,2,0V10a1,1,0,0,1-1,1H1a1,1,0,0,1-1-1V0A0,0,0,0,1,0,0Z" transform="translate(36 31)" fill="#5092ff"/>
+    <path id="사각형_2955" data-name="사각형 2955" d="M0,0H2A0,0,0,0,1,2,0V10a1,1,0,0,1-1,1H1a1,1,0,0,1-1-1V0A0,0,0,0,1,0,0Z" transform="translate(44 31)" fill="#5092ff"/>
+  </g>
+</svg>
