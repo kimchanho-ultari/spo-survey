@@ -61,9 +61,11 @@ public class SurveyController {
 		
 		Map<String, Object> map = surveyService.surveyList(data);
 		List<Survey> list = (List<Survey>) map.get("list");
+		List<Survey> mobileList = (List<Survey>) map.get("mobileList");
 		PageManager pageManager = (PageManager) map.get("pageManager");
 		
 		model.addAttribute("list", list);
+		model.addAttribute("mobileList", mobileList);
 		model.addAttribute("paging", pageManager);
 		model.addAttribute("keyword", keyword);
 		

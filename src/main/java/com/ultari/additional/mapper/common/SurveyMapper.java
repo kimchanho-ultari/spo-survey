@@ -29,6 +29,7 @@ public interface SurveyMapper {
 	
 	public int numberOfList(Map<String, Object> data) throws Exception;
 	public List<Survey> surveyList(Map<String, Object> data) throws Exception;
+	public List<Survey> surveyListMobile(Map<String, Object> data) throws Exception;
 	
 	public Survey survey(Map<String, Object> data) throws Exception;
 	public List<SurveyMember> surveyMemberList(Map<String, Object> data) throws Exception;

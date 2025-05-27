@@ -10,7 +10,8 @@
 		<result property="regDatetime" column="REG_DATETIME"/>
 		<result property="startDatetime" column="START_DATETIME"/>
 		<result property="endDatetime" column="END_DATETIME"/>
-		<result property="status" column="STATUS"/>
+		<!-- <result property="status" column="STATUS"/> -->
+		<result property="status" column="IS_COMPLETE"/>
 		<result property="isOpen" column="IS_OPEN"/>
 		<collection property="memberList" ofType="SurveyMember" column="SURVEY_CODE" select="surveyMemberList"/>
 		<collection property="totalComplete" ofType="int" column="SURVEY_CODE" select="totalComplete"/>
@@ -24,7 +25,8 @@
 		<result property="regDatetime" column="REG_DATETIME"/>
 		<result property="startDatetime" column="START_DATETIME"/>
 		<result property="endDatetime" column="END_DATETIME"/>
-		<result property="status" column="STATUS"/>
+		<!-- <result property="status" column="STATUS"/> -->
+		<result property="status" column="IS_COMPLETE"/>
 		<result property="isOpen" column="IS_OPEN"/>
 		<collection property="memberList" ofType="SurveyMember" column="SURVEY_CODE" select="surveyMemberList"/>
 	</resultMap>
@@ -176,6 +178,18 @@ ORDER BY
 		, A.REG_DATETIME DESC
 LIMIT #{startRowNo}, #{pageSize}
 	</select>
+		<select id="surveyListMobile" resultMap="surveySummary">
+		SELECT
+		A.*
+		, B.USER_NAME
+		FROM SURVEY_VW A
+		LEFT OUTER JOIN MSG_USER_VW B ON A.USER_ID=B.USER_ID
+		<include refid="search"></include>
+		ORDER BY
+		A.SORT
+		, A.REG_DATETIME DESC
+	</select>
+
 	<sql id="search">
 		<bind name="pattern" value="'%' + keyword + '%'"/>
 		<trim prefix="WHERE" prefixOverrides="AND|OR">

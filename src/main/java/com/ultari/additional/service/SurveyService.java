@@ -56,13 +56,15 @@ public class SurveyService {
 		data.put("pageSize", pageManager.getPageSize());
 		
 		List<Survey> list = surveyMapper.surveyList(data);
+		List<Survey> mobileList = surveyMapper.surveyListMobile(data);
 		
-		for (Survey survey : list) {
+		for (Survey survey : mobileList) {
 			collectAdditionalInformation(survey, userId);
 		}
 		
 		Map<String, Object> map = new HashMap<>();
 		map.put("list", list);
+		map.put("mobileList", mobileList);
 		map.put("pageManager", pageManager);
 		
 		return map;
