@@ -341,6 +341,7 @@
         border: 0;
         font-size: 1.2rem;
         font-weight: 500;
+        color: #232323;
     }
 
     .vote-type-tabs .tab.active {
@@ -979,13 +980,7 @@
         border: none;
         color: #007BFF;
         font-size: 14px;
-        margin-right: 16px;
         cursor: pointer;
-    }
-
-    .comment-box {
-        display: flex;
-        margin-top: 12px;
     }
 
     .comment-box input {
@@ -1008,7 +1003,6 @@
 
     .article {
         padding: 10px 15px;
-        padding-bottom: 15vh;
     }
 
     .mobile-meta {
@@ -1413,6 +1407,122 @@
         color: #666;
         margin-top: 4px;
     }
+
+    /* 상세 댓글 */
+    .mobile-interact {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        flex-direction: column;
+        background: #ffffff;
+        box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.05);
+        z-index: 100;
+    }
+
+    .reaction-row {
+        display: flex;
+        padding: 0px 16px;
+        flex-direction: column;
+        margin-bottom: 70px;
+        padding: 0 30px;
+    }
+
+    /* 공감·댓글 텍스트 */
+    .reaction-info {
+        display: flex;
+        align-items: center;
+        font-size: 14px;
+        color: #333;
+    }
+
+    .reaction-info .txt-like,
+    .reaction-info .txt-comment {
+        margin-right: 12px;
+    }
+
+    .reaction-info strong {
+        color: #007aff;
+    }
+
+    /* +버튼과 아바타 리스트 */
+    .reaction-list {
+        display: flex;
+        align-items: center;
+        padding: 15px 0;
+    }
+
+    .btn-add-reaction {
+        width: 28px;
+        height: 28px;
+        border: 1px solid #ddd;
+        border-radius: 50%;
+        background: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 6px;
+        cursor: pointer;
+    }
+
+    .reaction-list .avatar {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        margin-right: 4px;
+        object-fit: cover;
+    }
+
+    /* 더보기 버튼 */
+    .btn-more {
+        background: none;
+        border: none;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    .comment-box {
+        display: flex;
+        align-items: center;
+    }
+
+    .comment-box input {
+        flex: 1;
+        height: 36px;
+        padding: 0 12px;
+        border: none;
+        border-radius: 18px;
+        background: #f5f5f5;
+        font-size: 14px;
+        color: #666;
+        outline: none;
+    }
+
+    .comment-box .btn-comment-submit {
+        width: 36px;
+        height: 36px;
+        margin-left: 8px;
+        border: none;
+        background: #848485;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    .comment-box .btn-comment-submit img {
+        width: 18px;
+        height: 18px;
+    }
+
+
+
 
 
 

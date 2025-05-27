@@ -52,6 +52,11 @@ function mobileInit() {
 	$('#moreBtn').on('click', function () {
 		$('.popupArea').css('display', 'block');
 	})
+
+	// 댓글 등록
+	$(document).on('click', '.btn-comment-submit', function() {
+		replyUpload();
+	})
 }
 
 function validateSurveySelectMobile() {
@@ -111,24 +116,28 @@ function surveySubmitMobile() {
 			var $item = $(this);
 			var questionCode = $item.attr('name');
 			var itemCode = $item.val();
-			var itemType = $item.data('itemType');
+			var itemType = $('#desc_' + itemCode).length > 0 ? 'DESC' : 'CHOICE';
 
-			var itemObj = {};
-			itemObj.questionCode = questionCode;
-			itemObj.itemCode = itemCode;
+
+			var itemObj = {
+				questionCode: questionCode,
+				itemCode: itemCode,
+				itemType: itemType
+			};
 			itemList.push(itemObj);
 
-			if (itemType == 'DESC') {
-				var desc = {};
-				desc.itemCode = itemCode;
-				desc.questionCode = questionCode;
-				desc.desc = $('#desc_' + itemCode).val();
+			var $option = $item.closest('.option-item');
+			var descText = ($option.find('#desc_' + itemCode).val() || '').trim();
 
-				descList.push(desc);
+			if (descText) {
+				descList.push({
+					questionCode: questionCode,
+					itemCode: itemCode,
+					desc: descText
+				});
 			}
 		});
 
-		console.log(obj);
 		ajaxCall(obj, submitSurveyHandlerMobile);
 	}
 }
@@ -306,7 +315,7 @@ function bindOtherDescPopup(data) {
 					)
 				);
 			});
-		// 익명 O
+			// 익명 O
 		} else {
 			list.forEach(r => {
 				$ul.append(
@@ -428,18 +437,36 @@ function removeSurveyHandlerMobile(data) {
 }
 
 function replyList() {
-	let data = {
+	$('#inputText').val('');
+
+	$.ajax({
+		url: '/contentreply/list',
+		type: 'POST',
+		dataType: 'json',
+		data: { contentId: surveyCode },
+		success: function (data) {
+			console.log(data);
+		},
+		error: function (xhr, status, error) {
+			console.error('댓글 불러오기 실패:', status, error);
+		}
+	});
+}
+
+function replyUpload(replyId = null) {
+	const text = $('#inputText').val();
+
+	const data = {
 		contentId: surveyCode,
-		userId: survey.userId
+		reply: text.trim()
 	}
 
 	$.ajax({
-		url: 'contentreply/list',
-		contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+		url: '/contentreply/upload',
 		type: 'POST',
-		dataType: 'json',
-		data: data,
-		success: function (data) {
+		contentType: "application/json; charset=UTF-8",
+		data: JSON.stringify(data),
+		success: function(data) {
 			console.log(data);
 		}
 	})
@@ -510,7 +537,7 @@ function bindVoteButton(survey) {
 		voteUserList(userList);
 	})
 
-	$(document).on('click', '#vote-list', function() {
+	$(document).on('click', '#vote-list', function () {
 		voteUserList(userList);
 	})
 }
@@ -596,9 +623,9 @@ function voteUserList(data) {
 							`);
 			});
 		} else {
-			$ul.append(	`
+			$ul.append(`
 							<li class="member-item empty">
-							<div class="info">참여자가 없습니다.</div>
+							<div class="info">모든 참여자가 투표를 완료하였습니다.</div>
 							</li>
 						`);
 		}
