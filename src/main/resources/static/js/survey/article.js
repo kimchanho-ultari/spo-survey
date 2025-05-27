@@ -1,4 +1,6 @@
 let tmpParticipants = [];
+let emotionIcons = {};
+let totalReactions = '';
 let questionCode = "";
 
 $(function () {
@@ -14,10 +16,11 @@ $(function () {
 });
 
 function mobileInit() {
-	replyList();					// 댓글
-	getRemainingHours();			// 남은 투표 시간 계산
-	bindVoteButton(survey);			// 투표종료 버튼
-	surveyQuestionListMobile();		// 기타의견 라디오 선택 시 활성화
+	replyList();						// 댓글
+	emotion();							// 감정표현
+	getRemainingHours();				// 남은 투표 시간 계산
+	bindVoteButton(survey);				// 투표종료 버튼
+	surveyQuestionListMobile();			// 기타의견 라디오 선택 시 활성화
 
 	// 투표 여부, 종료 여부에 따른 진행바
 	if (isDone === "Y" || status === "Y") surveyDoneMobile();
@@ -25,7 +28,7 @@ function mobileInit() {
 	// 삭제
 	$('#vote-delete').on('click', removeSurveyMobile);
 
-	// questionCode 값 가져오기
+	// questionCode 값
 	surveyQuestionList.forEach(item => {
 		let code = item.questionCode
 		questionCode = code;
@@ -49,16 +52,51 @@ function mobileInit() {
 		}
 	});
 
+	// 더보기 팝업
 	$('#moreBtn').on('click', function () {
 		$('.popupArea').css('display', 'block');
 	})
 
 	// 댓글 등록
-	$(document).on('click', '.btn-comment-submit', function() {
+	$(document).on('click', '.btn-comment-submit', function () {
 		replyUpload();
 	})
+
+	// 감정표현 추가 팝업
+	$(document).on('click', '.btn-add-reaction > img', function () {
+		emotionUploadModal();
+	})
+
+	// 감정표현 리스트 팝업
+	$(document).on('click', '.reaction-info > span', function () {
+		emotionListModal()
+	})
+
+	// 감정표현 아이콘
+	for (let i = 0; i < 12; i++) {
+		emotionIcons[i] = `/images/survey/ic_chat_recattion_small_${i}.svg`;
+	}
+
+	// 다른곳 클릭 시 팝업 닫기
+	$(document).mouseup(function (e) {
+		var LayerPopup = $(".emotionAdd");
+		var LayerUser = $(".reaction-modal");
+
+		if (LayerPopup.has(e.target).length === 0) {
+			$(".emotionAdd").css("display", "none");
+			$(".reaction-modal").css("display", "none");
+			$(".reaction-modal").children().remove();
+		}
+
+		if (LayerUser.has(e.target).length === 0) {
+			$(".emotion-user").css("display", "none");
+			$(".user-popup").css("display", "none");
+			$(".user-popup").children().remove();
+		}
+	});
 }
 
+// 투표할때 값 확인
 function validateSurveySelectMobile() {
 	var result = true;
 
@@ -96,6 +134,7 @@ function validateSurveySelectMobile() {
 	return result;
 }
 
+// 투표
 function surveySubmitMobile() {
 	if (validateSurveySelectMobile()) {
 		var itemList = [];
@@ -155,6 +194,7 @@ function submitSurveyHandlerMobile(data) {
 	}
 }
 
+
 function surveyQuestionListMobile() {
 	surveyQuestionList.forEach(q => {
 		const code = q.itemCode;
@@ -171,6 +211,7 @@ function surveyQuestionListMobile() {
 	})
 }
 
+// 투표하기 이후 진행바
 function surveyDoneMobile() {
 	const totalParticipants = survey.memberList.length;
 	let $newVoteNum = '';
@@ -436,42 +477,6 @@ function removeSurveyHandlerMobile(data) {
 	}
 }
 
-function replyList() {
-	$('#inputText').val('');
-
-	$.ajax({
-		url: '/contentreply/list',
-		type: 'POST',
-		dataType: 'json',
-		data: { contentId: surveyCode },
-		success: function (data) {
-			console.log(data);
-		},
-		error: function (xhr, status, error) {
-			console.error('댓글 불러오기 실패:', status, error);
-		}
-	});
-}
-
-function replyUpload(replyId = null) {
-	const text = $('#inputText').val();
-
-	const data = {
-		contentId: surveyCode,
-		reply: text.trim()
-	}
-
-	$.ajax({
-		url: '/contentreply/upload',
-		type: 'POST',
-		contentType: "application/json; charset=UTF-8",
-		data: JSON.stringify(data),
-		success: function(data) {
-			console.log(data);
-		}
-	})
-}
-
 function bindVoteButton(survey) {
 	let html = '';
 
@@ -642,6 +647,219 @@ function voteUserList(data) {
 
 	renderList('Y');
 };
+
+// [ 댓글 & 감정표현 ]
+function replyList() {
+	$('#inputText').val('');
+
+	$.ajax({
+		url: '/contentreply/list',
+		type: 'POST',
+		dataType: 'json',
+		data: { contentId: surveyCode },
+		success: function (data) {
+			console.log(data);
+		},
+		error: function (xhr, status, error) {
+			console.error('댓글 불러오기 실패:', status, error);
+		}
+	});
+}
+
+function replyUpload(replyId = null) {
+	const text = $('#inputText').val();
+
+	const data = {
+		contentId: surveyCode,
+		reply: text.trim()
+	}
+
+	$.ajax({
+		url: '/contentreply/upload',
+		type: 'POST',
+		contentType: "application/json; charset=UTF-8",
+		data: JSON.stringify(data),
+		success: function (data) {
+			if(data === '0') {
+				location.reload();
+			}
+		}
+	})
+}
+
+function emotion() {
+	$.ajax({
+		url: '/contentreaction',
+		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+		type: 'POST',
+		dataType: 'json',
+		data: { contentId: surveyCode },
+		success: function (data) {
+			// 총 카운트
+			totalReactions = data[12].total;
+			emotionListModal();
+		}
+	})
+}
+
+function emotionListModal() {
+	$.ajax({
+		url: '/contentreaction/total/list',
+		contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+		type: 'POST',
+		dataType: 'json',
+		data: { contentId: surveyCode },
+		success: function (data) {
+			// bindEmotionListModal(data);
+		}
+	})
+}
+
+function bindEmotionListModal(data) {
+	let list = data;
+
+	let html = '';
+	let total = list.length > 0 ? list.length : null;
+
+	if (!document.querySelector('.emotion-user')) {
+		let div = document.createElement("div");
+		div.setAttribute("class", "emotion-user");
+		document.querySelector('body').append(div);
+	} else {
+		$('.emotion-user').children().remove();
+	}
+
+	html = `
+            <div class="user-popup">
+                <div class="user-div">
+                    <strong class="header-strong">공감한 유저</strong>
+                </div>
+                <div class="emotion-summary">
+                    <button class="click active emotionAll">전체 ${total || 0}</button> `
+
+	let reactionCount = {};
+	let contentId = list.length > 0 ? list[0].contentId : null;
+
+	list.forEach(item => {
+		let reactionNum = item.reaction;
+		reactionCount[reactionNum] = (reactionCount[reactionNum] || 0) + 1;
+	});
+
+	Object.keys(reactionCount).forEach(reactionNum => {
+		html += `
+                        <button class="click emotionButton" onclick="getListEmotionMenu(${reactionNum}, '${contentId}')">
+                            <img src='${emotionIcons[reactionNum]}' />
+                            <span>${reactionCount[reactionNum]}</span>  <!-- 공감 개수 추가 -->
+                        </button>`;
+	});
+
+	html += `                
+                </div>
+            <div class="userList"></div> `
+
+	$(".emotion-user").append(html);
+	document.querySelector('.emotion-user').style.display = "block";
+
+	bindtotalEmotionMenu(data);
+
+	$('.emotionAll').on('click', function () {
+		bindtotalEmotionMenu(data);
+	})
+
+	const buttons = document.querySelectorAll(".click");
+
+	buttons.forEach(button => {
+		button.addEventListener("click", function () {
+			buttons.forEach(btn => btn.classList.remove("active"));
+			this.classList.add("active");
+		});
+	});
+}
+
+function bindtotalEmotionMenu(data) {
+	const list = data;
+	let html = "";
+
+	for (var i = 0; i < list.length; i++) {
+		html += `
+                <ul class="user-list">
+                    <li class="user-item">
+                        <div class="emotion-info">
+                            <div>
+                                <span class='userpic'><img alt='사용자 사진' src='/images/survey/img_profile.png' /></span>
+                                <span class='userName'>${list[i].userName}</span>
+                            </div>
+                                <span class="emotion-icon"><img src='${emotionIcons[list[i].reaction]}'/></span>
+                        </div>
+                        <div class="posname-div">
+                            <span>${list[i].posName}</span>
+                        </div>
+                    </li>
+                </ul>
+            `;
+	}
+
+	$(".userList").children().remove();
+	$(".userList").append(html);
+}
+
+function emotionUploadModal() {
+	if (!document.querySelector('.emotionAdd')) {
+		let div = document.createElement("div");
+		div.setAttribute("class", "emotionAdd");
+		document.querySelector('body').append(div);
+	} else {
+		$('.emotionAdd').children().remove();
+	}
+
+	let html = `
+    <div class="reaction-modal" id="reactionModal">
+        <div class="reaction-container">
+            <div class="reaction-icons">`;
+
+	for (let i = 0; i < 6; i++) {
+		html += `<button class="reaction" data-index="${i}">
+                    <img src="${emotionIcons[i]}" />
+                 </button>`;
+	}
+
+	html += `        
+            </div>
+        </div>
+    </div>`;
+
+	$(".emotionAdd").append(html);
+	$(".emotionAdd").show();
+
+	$(".reaction-icons").on("click", ".reaction", function () {
+		let index = $(this).data("index");
+		emotionUpload(index);
+	});
+
+	function emotionUpload(reaction) {
+		const data = {
+			userId: userId,
+			reaction: reaction,
+			contentId: surveyCode
+		}
+
+		$.ajax({
+			url: '/contentreaction/upload',
+			type: 'POST',
+			contentType: 'application/json',
+			data: JSON.stringify(data),
+			xhrFields: {
+				withCredentials: true
+			},
+			success: function (data) {
+				if (data == "TRUE") {
+					location.reload();
+				}
+			}
+		})
+	}
+
+}
 
 
 // ===================================================================================================== mobile
