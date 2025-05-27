@@ -60,7 +60,7 @@ function mobileInit() {
 
 	// 댓글 등록
 	$(document).on('click', '.btn-comment-submit', function () {
-		replyUpload();
+		replySave();
 	})
 
 	// 감정표현 추가 팝업
@@ -69,7 +69,7 @@ function mobileInit() {
 	})
 
 	// 감정표현 리스트 팝업
-	$(document).on('click', '.reaction-info > span', function () {
+	$(document).on('click', '#reaction-btn > span', function () {
 		emotionListModal()
 	})
 
@@ -78,23 +78,23 @@ function mobileInit() {
 		emotionIcons[i] = `/images/survey/ic_chat_recattion_small_${i}.svg`;
 	}
 
-	// 다른곳 클릭 시 팝업 닫기
-	// $(document).mouseup(function (e) {
-	// 	var LayerPopup = $(".emotionAdd");
-	// 	var LayerUser = $(".reaction-modal");
+	$(document).mouseup(function (e) {
+		var LayerPopup1 = $(".popupArea");
+		var LayerPopup2 = $(".emotionAdd");
+		var LayerPopup3 = $(".emotion-user");
 
-	// 	if (LayerPopup.has(e.target).length === 0) {
-	// 		$(".emotionAdd").css("display", "none");
-	// 		$(".reaction-modal").css("display", "none");
-	// 		$(".reaction-modal").children().remove();
-	// 	}
+		if (LayerPopup1.has(e.target).length === 0) {
+			$(".popupArea").css("display", "none");
+		}
 
-	// 	if (LayerUser.has(e.target).length === 0) {
-	// 		$(".emotion-user").css("display", "none");
-	// 		$(".user-popup").css("display", "none");
-	// 		$(".user-popup").children().remove();
-	// 	}
-	// });
+		if (LayerPopup2.has(e.target).length === 0) {
+			$(".emotionAdd").css("display", "none");
+		}
+
+		if (LayerPopup3.has(e.target).length === 0) {
+			$(".emotion-user").css("display", "none");
+		}
+	});
 }
 
 // 투표할때 값 확인
@@ -700,18 +700,18 @@ function bindReplyList(data) {
 				<img alt="사용자 사진" src="/images/survey/img_profile.png" style="margin-right: 10px;" />
 				<div class="comment-content">
 					<div class="comment-header">
-					<!-- userName과 format 된 날짜/시간을 함께 출력 -->
 					<span class="reply-author">
 						<strong class='reply-name'>${reply.userName}</strong> / ${formatted}
 					</span>
 					${reply.myReply
-							? `<div class="comment-actions replyDiv">
+				? `<div class="comment-actions replyDiv">
 							<span class="action-btn" onclick="replyModify('${reply.replyId}')">수정&nbsp;|</span>
-							<span class="action-btn" onclick="alertBtn('${reply.replyId}', 'replyDelete','댓글을 삭제하시겠습니까?')">삭제</span>
+							<span class="action-btn" onclick="replyDelete('${reply.replyId}')">삭제</span>
 						</div>`
-							: ""}
+				: ""}
 					</div>
-					<p class="comment-text">${reply.reply}</p>
+
+					<p class="comment-text" id="replyContent">${reply.reply}</p>
 				</div>
 				</div>
   			`;
@@ -719,25 +719,151 @@ function bindReplyList(data) {
 	$reply.html(html);
 }
 
-function replyUpload(replyId = null) {
-	const text = $('#inputText').val();
+function replyModify(replyId) {
+	let replyElement = document.querySelector(`[id="${replyId}"] #replyContent`);
+	let buttonContainer = document.querySelector(`[id="${replyId}"] .replyDiv`);
 
-	const data = {
-		contentId: surveyCode,
-		reply: text.trim()
+	if (!replyElement || !buttonContainer) {
+		console.error("수정할 댓글을 찾을 수 없습니다:", replyId);
+		return;
 	}
 
+	replyCen = replyElement.innerText;
+
+	let inputElement = document.createElement("textarea");
+	inputElement.type = "text";
+	inputElement.value = replyCen;
+	inputElement.id = "setReplyContent";
+
+	replyElement.replaceWith(inputElement);
+
+	buttonContainer.innerHTML = `
+    <button class='action-btn setBtn' type='button' onclick='replySave("${replyId}")'>저장 |</button>
+    <button class='action-btn setBtn' type='button' onclick='replyCancel("${replyId}")'>취소</button>
+`;
+	inputElement.focus();
+}
+
+function replySave(replyId = null) {
+	let replyText;
+
+	if (replyId) {
+		let inputElement = document.querySelector(`[id="${replyId}"] #setReplyContent`);
+
+		if (!inputElement) {
+			showAlert({
+				message: '수정할 댓글을 찾을 수 없습니다.'
+			})
+			return;
+		}
+
+		replyText = inputElement.value;
+	} else {
+		replyText = $('#inputText').val();
+	}
+
+	if (!replyText) {
+		showAlert({
+			message: '댓글 내용을 입력하세요.'
+		})
+		return;
+	}
+
+	if (replyId) {
+		let replyElement = document.createElement("p");
+
+		replyElement.id = "replyContent";
+		replyElement.style.fontSize = "14px";
+		replyElement.style.margin = "5% 0";
+		replyElement.innerText = replyText;
+
+		document.querySelector(`[id="${replyId}"] #setReplyContent`).replaceWith(replyElement);
+
+		let buttonContainer = document.querySelector(`[id="${replyId}"] .replyDiv`);
+		if (buttonContainer) {
+			buttonContainer.innerHTML = `
+                <button class='action-btn setFont' type='button' name='replyModify' onclick='replyModify("${replyId}")'>수정 |</button>
+                <button class='action-btn setFont' type='button' name='replyDelete' onclick='replyDelete("${replyId}")'>삭제</button>
+            `;
+		}
+
+		const data = {
+			contentId: surveyCode,
+			reply: replyText.trim(),
+			replyId: replyId
+		}
+
+		$.ajax({
+			url: '/contentreply/upload',
+			type: 'POST',
+			contentType: "application/json; charset=UTF-8",
+			data: JSON.stringify(data),
+			success: function (data) {
+				if (data === '0') {
+					location.reload();
+				}
+			}
+		})
+
+	} else {
+		const data = {
+			contentId: surveyCode,
+			reply: replyText.trim(),
+		}
+
+		$.ajax({
+			url: '/contentreply/upload',
+			type: 'POST',
+			contentType: "application/json; charset=UTF-8",
+			data: JSON.stringify(data),
+			success: function (data) {
+				if (data === '0') {
+					location.reload();
+				}
+			}
+		})
+	}
+}
+
+function replyCancel(replyId) {
+	let inputElement = document.getElementById("setReplyContent");
+	let replyContainer = document.querySelector(`[id="${replyId}"] .replyDiv`);
+
+	if (!inputElement || !replyContainer) {
+		console.error("취소할 댓글을 찾을 수 없습니다:", replyId);
+		return;
+	}
+
+	let originalReply = document.createElement("p");
+	originalReply.id = "replyContent";
+	originalReply.innerText = replyCen;
+
+	inputElement.replaceWith(originalReply);
+
+	replyContainer.innerHTML = `
+        <span class="action-btn" onclick="replyModify('${replyId}')">수정&nbsp|</span>
+        <span class="action-btn" onclick="replyDelete('${replyId}')">삭제</span>
+    `;
+}
+
+function replyDelete(replyId) {
 	$.ajax({
-		url: '/contentreply/upload',
-		type: 'POST',
-		contentType: "application/json; charset=UTF-8",
-		data: JSON.stringify(data),
+		url: "/contentreply/delete",
+		beforeSend: function (xhr) {
+		},
+		contentType: "application/json",
+		type: "POST",
+		data: JSON.stringify({ replyId: replyId }),
+		dataType: "json",
 		success: function (data) {
-			if (data === '0') {
+			if (data == "0") {
 				location.reload();
 			}
+		},
+		error: function (error) {
+			console.log(error);
 		}
-	})
+	});
 }
 
 function emotion() {
@@ -750,6 +876,86 @@ function emotion() {
 		success: function (data) {
 			// 총 카운트
 			totalReactions = data[12].total;
+			emotionList();
+		}
+	})
+}
+
+function emotionList() {
+	$.ajax({
+		url: '/contentreaction/total/list',
+		contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+		type: 'POST',
+		dataType: 'json',
+		data: { contentId: surveyCode },
+		success: function (data) {
+			bindEmotionList(data);
+		}
+	})
+}
+
+function bindEmotionList(data) {
+	let html = '';
+	let list = data;
+	let emotionCount = {};
+	let userReacted = false;
+
+	list.forEach(item => {
+		let emotionNum = item.reaction;
+		emotionCount[emotionNum] = (emotionCount[emotionNum] || 0) + 1;
+
+		if (item.userId === userId) {
+			userReacted = true;
+		}
+	})
+
+	// 공감 & 댓글 개수 표시 
+	$('#emotion-total').text(totalReactions);
+	$('#emotion-user').text(replyNum);
+
+	if (userReacted) {
+		let emotion = `<span class="emoList-reply cursorPointer emotion-cancle" onclick="emotionCancle()">공감 취소</span>`
+		$('#txt-emotion-cancle').append(emotion);
+	}
+
+	if (totalReactions > 0) {
+		Object.keys(emotionCount).forEach(emotion => {
+			let iconSrc = emotionIcons[emotion]
+
+			html += `
+					<span class="emotion-img">
+						<img src='${iconSrc}' />
+						${emotionCount[emotion]}
+					</span>
+			`
+		})
+	} else {
+		html += `<span class="emotion-addContent">가장 먼저 공감해 주세요.</span>`
+	}
+	$('#emotion-contents').append(html);
+}
+
+function emotionCancle() {
+	$('.emotion-cancle').hide();
+
+	let data = {
+		userId: userId,
+		reaction: 'remove',
+		contentId: surveyCode
+	}
+
+	$.ajax({
+		url: '/contentreaction/upload',
+		type: 'POST',
+		contentType: 'application/json',
+		data: JSON.stringify(data),
+		xhrFields: {
+			withCredentials: true
+		},
+		success: function (data) {
+			if (data === "TRUE") {
+				location.reload();
+			}
 		}
 	})
 }
@@ -801,7 +1007,7 @@ function bindEmotionListModal(data) {
 		html += `
                         <button class="click emotionButton" onclick="getListEmotionMenu(${reactionNum}, '${contentId}')">
                             <img src='${emotionIcons[reactionNum]}' />
-                            <span>${reactionCount[reactionNum]}</span>  <!-- 공감 개수 추가 -->
+                            <span>${reactionCount[reactionNum]}</span> 
                         </button>`;
 	});
 
@@ -835,16 +1041,64 @@ function bindtotalEmotionMenu(data) {
 	for (var i = 0; i < list.length; i++) {
 		html += `
                 <ul class="user-list">
-                    <li class="user-item">
+                    <li class="emotion-user-item">
                         <div class="emotion-info">
-                            <div>
-                                <span class='userpic'><img alt='사용자 사진' src='/images/survey/img_profile.png' /></span>
-                                <span class='userName'>${list[i].userName}</span>
+                            <div class="emotion-info-div">
+								<div class='userpic'>
+									<img alt='사용자 사진' src='/images/survey/img_profile.png' />
+								</div>
+								<div>
+                                	<div class='name'>${list[i].userName || ''}</div>
+									<div class='dept'>${list[i].deptName || ''}</div>
+								</div>
                             </div>
-                                <span class="emotion-icon"><img src='${emotionIcons[list[i].reaction]}'/></span>
+                                <span class="emotion-icon"><img src='${emotionIcons[list[i].reaction] || ''}'/></span>
                         </div>
-                        <div class="posname-div">
-                            <span>${list[i].posName}</span>
+                    </li>
+                </ul>
+            `;
+	}
+
+	$(".userList").children().remove();
+	$(".userList").append(html);
+}
+
+function getListEmotionMenu(num, contentId) {
+	$.ajax({
+		url: "/contentreaction/" + num + "/list",
+		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+		type: "POST",
+		dataType: "json",
+		data: { contentId: contentId },
+		beforeSend: function (xhr) {
+		},
+		success: function (data) {
+			bindListEmotionMenu(data);
+		},
+		error: function () {
+		}
+	});
+}
+
+function bindListEmotionMenu(data) {
+	const list = data;
+	let html = "";
+
+	for (var i = 0; i < list.length; i++) {
+		html += `
+                <ul class="user-list">
+                    <li class="emotion-user-item">
+                        <div class="emotion-info">
+                            <div class="emotion-info-div">
+								<div class='userpic'>
+									<img alt='사용자 사진' src='/images/survey/img_profile.png' />
+								</div>
+								<div>
+                                	<div class='name'>${list[i].userName || ''}</div>
+									<div class='dept'>${list[i].deptName || ''}</div>
+								</div>
+                            </div>
+                            <span class="emotion-icon"><img src='${emotionIcons[list[i].reaction] || ''}'/></span>
                         </div>
                     </li>
                 </ul>

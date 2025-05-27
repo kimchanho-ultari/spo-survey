@@ -481,15 +481,18 @@
 
 		<div class="reaction-row">
 			<div class="reaction-info">
-				<span class="txt-like">공감 <strong>0</strong></span>
-				<span class="txt-comment">댓글 <strong>0</strong></span>
+				<div id="reaction-btn">
+					<span class="txt-like">공감 <strong id="emotion-total">0</strong></span>
+					<span class="txt-comment">댓글 <strong id="emotion-user">0</strong></span>
+				</div>
+				<div id="txt-emotion-cancle"></div>
 			</div>
 			<div class="reaction-list">
 				<div id="emotion-section">
 					<button class="btn-add-reaction">
 						<img src="/images/survey/img_profile_add_reaction.svg" alt="추가버튼">
 					</button>
-					<span class="emotion-addContent">가장 먼저 공감해 주세요.</span>
+					<div id="emotion-contents"></div>
 				</div>
 				<div id="reply-section"></div>
 			</div>
