@@ -1593,8 +1593,7 @@
 
     .reaction-icons {
         display: flex;
-        gap: 10px;
-        padding: 8% 4%;
+        padding: 4vh 8vh;
     }
 
     .reaction {
@@ -1603,8 +1602,8 @@
     }
 
     .reaction>img {
-        width: 5vh;
-        height: 5vh;
+        width: 4.5vh;
+        height: 4.5vh;
     }
 
     .emotion-user {
