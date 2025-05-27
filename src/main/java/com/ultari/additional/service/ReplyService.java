@@ -45,7 +45,7 @@ public class ReplyService {
             json.put("contentId",reply.getContentId());
             json.put("userId",userId);
             json.put("reply",reply.getReply());
-            json.put("registDate", StringUtil.castNowDate(reply.getRegistDate()));
+            json.put("registDate", reply.getRegistDate());
             json.put("userName", userName);
             json.put("myReply",false);
             if(userId.equals(myUserId)) json.put("myReply",true);
