@@ -59,7 +59,7 @@ public class ReplyService {
     public boolean uploadReply(Reply reply) {
         if(ObjectUtils.isEmpty(reply.getReplyId())) {
             reply.setReplyId(StringUtil.uuid());
-            reply.setRegistDate(LocalDateTime.now());
+            //reply.setRegistDate(LocalDateTime.now());
             reply.setReply(reply.getReply());
             replyMapper.save(reply);
         }else{
