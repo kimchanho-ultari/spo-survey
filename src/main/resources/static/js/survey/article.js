@@ -2,6 +2,7 @@ let tmpParticipants = [];
 let emotionIcons = {};
 let totalReactions = '';
 let questionCode = "";
+let replyNum = '';
 
 $(function () {
 	console.log(survey);
@@ -78,22 +79,22 @@ function mobileInit() {
 	}
 
 	// 다른곳 클릭 시 팝업 닫기
-	$(document).mouseup(function (e) {
-		var LayerPopup = $(".emotionAdd");
-		var LayerUser = $(".reaction-modal");
+	// $(document).mouseup(function (e) {
+	// 	var LayerPopup = $(".emotionAdd");
+	// 	var LayerUser = $(".reaction-modal");
 
-		if (LayerPopup.has(e.target).length === 0) {
-			$(".emotionAdd").css("display", "none");
-			$(".reaction-modal").css("display", "none");
-			$(".reaction-modal").children().remove();
-		}
+	// 	if (LayerPopup.has(e.target).length === 0) {
+	// 		$(".emotionAdd").css("display", "none");
+	// 		$(".reaction-modal").css("display", "none");
+	// 		$(".reaction-modal").children().remove();
+	// 	}
 
-		if (LayerUser.has(e.target).length === 0) {
-			$(".emotion-user").css("display", "none");
-			$(".user-popup").css("display", "none");
-			$(".user-popup").children().remove();
-		}
-	});
+	// 	if (LayerUser.has(e.target).length === 0) {
+	// 		$(".emotion-user").css("display", "none");
+	// 		$(".user-popup").css("display", "none");
+	// 		$(".user-popup").children().remove();
+	// 	}
+	// });
 }
 
 // 투표할때 값 확인
@@ -598,7 +599,7 @@ function voteUserList(data) {
 							<span class="menu-icon" onclick="goBack('detail')">상세 페이지</span>
 						</div>
 						</div>
-						<div class="mobile-header">
+						<div class="mobile-header vote-header">
 						<div class="tabs">
 							<button class="tab active">참여</button>
 							<button class="tab">미참여</button>
@@ -658,12 +659,64 @@ function replyList() {
 		dataType: 'json',
 		data: { contentId: surveyCode },
 		success: function (data) {
-			console.log(data);
+			bindReplyList(data);
 		},
 		error: function (xhr, status, error) {
 			console.error('댓글 불러오기 실패:', status, error);
 		}
 	});
+}
+
+function formatToKoreanDateTime(rawDateStr) {
+	const safeStr = rawDateStr.replace("KST", "GMT+0900");
+	const d = new Date(safeStr);
+
+	if (isNaN(d)) {
+		const ts = Date.parse(rawDateStr);
+		if (!isNaN(ts)) d = new Date(ts);
+	}
+
+	const pad = n => String(n).padStart(2, "0");
+	const YYYY = d.getFullYear();
+	const MM = pad(d.getMonth() + 1);
+	const DD = pad(d.getDate());
+	const hh = pad(d.getHours());
+	const mm = pad(d.getMinutes());
+
+	return `${YYYY}.${MM}.${DD} / ${hh}:${mm}`;
+}
+
+function bindReplyList(data) {
+	let html = '';
+
+	const $reply = $('#reply-section');
+	const list = data.list
+	replyNum = data.list.length;
+
+	list.forEach(reply => {
+		const formatted = formatToKoreanDateTime(reply.registDate);
+		html += `
+				<div class="comment" id="${reply.replyId}">
+				<img alt="사용자 사진" src="/images/survey/img_profile.png" style="margin-right: 10px;" />
+				<div class="comment-content">
+					<div class="comment-header">
+					<!-- userName과 format 된 날짜/시간을 함께 출력 -->
+					<span class="reply-author">
+						<strong class='reply-name'>${reply.userName}</strong> / ${formatted}
+					</span>
+					${reply.myReply
+							? `<div class="comment-actions replyDiv">
+							<span class="action-btn" onclick="replyModify('${reply.replyId}')">수정&nbsp;|</span>
+							<span class="action-btn" onclick="alertBtn('${reply.replyId}', 'replyDelete','댓글을 삭제하시겠습니까?')">삭제</span>
+						</div>`
+							: ""}
+					</div>
+					<p class="comment-text">${reply.reply}</p>
+				</div>
+				</div>
+  			`;
+	});
+	$reply.html(html);
 }
 
 function replyUpload(replyId = null) {
@@ -680,7 +733,7 @@ function replyUpload(replyId = null) {
 		contentType: "application/json; charset=UTF-8",
 		data: JSON.stringify(data),
 		success: function (data) {
-			if(data === '0') {
+			if (data === '0') {
 				location.reload();
 			}
 		}
@@ -697,7 +750,6 @@ function emotion() {
 		success: function (data) {
 			// 총 카운트
 			totalReactions = data[12].total;
-			emotionListModal();
 		}
 	})
 }
@@ -710,7 +762,7 @@ function emotionListModal() {
 		dataType: 'json',
 		data: { contentId: surveyCode },
 		success: function (data) {
-			// bindEmotionListModal(data);
+			bindEmotionListModal(data);
 		}
 	})
 }
