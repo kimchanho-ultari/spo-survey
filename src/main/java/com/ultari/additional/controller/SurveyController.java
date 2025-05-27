@@ -147,6 +147,11 @@ public class SurveyController {
 		
 		Map<String, Object> map = new HashMap<>();
 		map.put("code", code);
+		map.put("surveyTitle", surveyTitle);
+		map.put("surveyContents", (String) data.get("surveyContents"));
+		map.put("startDatetime", (String) data.get("startDatetime"));
+		map.put("endDatetime", (String) data.get("endDatetime"));
+		map.put("participantsList", data.get("participantsList"));
 		
 		return map;
 	}
