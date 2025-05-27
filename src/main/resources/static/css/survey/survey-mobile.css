@@ -1521,6 +1521,91 @@
         height: 18px;
     }
 
+    .emotion-addContent {
+        font-size: 1rem;
+        margin-left: 5px;
+        color: #b7b7b7;
+    }
+
+    .emotionAdd {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+
+        /* 중앙 정렬 */
+        left: 0;
+        top: 0;
+    }
+
+    .reaction-modal {
+        background-color: #fff;
+        width: 95%;
+        height: 16%;
+        position: absolute;
+        left: 50%;
+        bottom: 6%;
+        transform: translate(-50%, 15%);
+
+        border-radius: 20px;
+        /* 둥근 모서리 */
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        /* 그림자 효과 */
+    }
+
+    .reaction-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .reaction-icons {
+        display: flex;
+        gap: 10px;
+        padding: 13% 4%;
+    }
+
+    .reaction {
+        background-color: #fff;
+        border: none;
+    }
+
+    .reaction>img {
+        width: 40px;
+        height: 40px;
+    }
+
+    .emotion-user {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+
+        /* 중앙 정렬 */
+        left: 0;
+        top: 0;
+    }
+
+    .user-popup {
+        background-color: #fff;
+        width: 100%;
+        height: 101.5%;
+        position: absolute;
+        left: 50%;
+        bottom: 6%;
+        transform: translate(-50%, 15%);
+        border-top-left-radius: 20px;
+        border-top-right-radius: 20px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+
+        overflow-y: scroll;
+        overflow-x: hidden;
+    }
+
 
 
 
