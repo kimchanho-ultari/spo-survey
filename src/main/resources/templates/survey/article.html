@@ -402,7 +402,7 @@
 				<div class="meta-top">
 					<div class="meta-info">
 						<span class="username" th:text="${survey.getUserName()}">사용자</span>
-						<span class="title-span" th:text="${#dates.format(survey.regDatetime,'yyyy-MM-dd HH:mm')}">
+						<span class="title-span" th:text="${#dates.format(survey.regDatetime,'/ yyyy.MM.dd / HH:mm')}">
 							2025-04-14 15:26
 						</span>
 					</div>
@@ -481,17 +481,20 @@
 
 		<div class="reaction-row">
 			<div class="reaction-info">
-				<span class="txt-like">공감 <strong>0</strong></span>
-				<span class="txt-comment">댓글 <strong>0</strong></span>
+				<div id="reaction-btn">
+					<span class="txt-like">공감 <strong id="emotion-total">0</strong></span>
+					<span class="txt-comment">댓글 <strong id="emotion-user">0</strong></span>
+				</div>
+				<div id="txt-emotion-cancle"></div>
 			</div>
 			<div class="reaction-list">
-				<button class="btn-add-reaction">
-					<img src="/images/survey/img_profile_add_reaction.svg" alt="추가버튼">
-				</button>
-				<span class="emotion-addContent">가장 먼저 공감해 주세요.</span>
-				<div>
-
+				<div id="emotion-section">
+					<button class="btn-add-reaction">
+						<img src="/images/survey/img_profile_add_reaction.svg" alt="추가버튼">
+					</button>
+					<div id="emotion-contents"></div>
 				</div>
+				<div id="reply-section"></div>
 			</div>
 		</div>
 
