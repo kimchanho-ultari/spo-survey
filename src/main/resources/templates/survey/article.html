@@ -377,7 +377,7 @@
 	<div class="survey-list-mobile">
 		<!-- 더보기 버튼 팝업 -->
 		<div class="popupArea" id="contentFunction" style="display: none;">
-			<p id="vote-update">수정하기</p>
+			<p th:if="${survey.status=='N' && survey.isWriter=='Y'}" id="vote-update">수정하기</p>
 			<p id="vote-delete">삭제하기</p>
 			<p id="vote-list">투표 현황 보기</p>
 		</div>

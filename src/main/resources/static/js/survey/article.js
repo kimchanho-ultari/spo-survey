@@ -5,12 +5,6 @@ let questionCode = "";
 let replyNum = '';
 
 $(function () {
-	console.log(survey);
-	console.log(surveyResult);
-	console.log(surveyItemAggregate);
-	console.log(surveyQuestionList);
-	console.log(isDone);
-
 	init();
 	initEvent();
 	mobileInit();
@@ -25,9 +19,6 @@ function mobileInit() {
 
 	// 투표 여부, 종료 여부에 따른 진행바
 	if (isDone === "Y" || status === "Y") surveyDoneMobile();
-
-	// 삭제
-	$('#vote-delete').on('click', removeSurveyMobile);
 
 	// questionCode 값
 	surveyQuestionList.forEach(item => {
@@ -45,13 +36,19 @@ function mobileInit() {
 		$options.prop('checked', this.checked);
 	});
 
-	// 더보기 팝업
-	$(document).mouseup(function (e) {
-		var LayerPopup = $(".popupArea");
-		if (LayerPopup.has(e.target).length === 0) {
-			$(".popupArea").css("display", "none");
-		}
-	});
+	// 수정
+	$(document).on('click', '#vote-update', function () {
+		const payload = {
+			survey: survey,
+			questionList: surveyQuestionList,
+			participantsList: participantsList
+		};
+		sessionStorage.setItem('list', JSON.stringify(payload));
+		location.href = '/survey/regist?surveyCode=' + encodeURIComponent(survey.surveyCode);
+	})
+
+	// 삭제
+	$('#vote-delete').on('click', removeSurveyMobile);
 
 	// 더보기 팝업
 	$('#moreBtn').on('click', function () {
@@ -194,7 +191,6 @@ function submitSurveyHandlerMobile(data) {
 		location.reload();
 	}
 }
-
 
 function surveyQuestionListMobile() {
 	surveyQuestionList.forEach(q => {
@@ -631,7 +627,7 @@ function voteUserList(data) {
 		} else {
 			$ul.append(`
 							<li class="member-item empty">
-							<div class="info">모든 참여자가 투표를 완료하였습니다.</div>
+							<div class="info">참여자가 없습니다.</div>
 							</li>
 						`);
 		}
@@ -1166,7 +1162,6 @@ function emotionUploadModal() {
 	}
 
 }
-
 
 // ===================================================================================================== mobile
 

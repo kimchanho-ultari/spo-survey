@@ -5,11 +5,19 @@ let mobileEndDate = null;
 let mobileStartDate = new Date();
 let participantsListMobile = [];
 
+let checkType = true;
+
 $(function () {
 	init();
 	initEvent();
 
-	initVoteBox();
+	// 수정
+	if (surveyCode) {
+		codeCheck();
+		// 신규 등록
+	} else {
+		initVoteBox();
+	}
 
 	// 투표 추가하기 버튼
 	$(document).on("click", "#add-vote", function () {
@@ -61,10 +69,10 @@ $(function () {
 		//   `;
 
 		const input = `
-		<div class="option-inputs">
-		  <input type="${type === "text" ? "text" : "date"}" placeholder="항목 입력" class="option-input" />
-		</div>
-	  `;
+						<div class="option-inputs">
+						<input type="${type === "text" ? "text" : "date"}" placeholder="항목 입력" class="option-input" />
+						</div>
+					`;
 		$options.append(input);
 
 		// 해당 박스 안에서만 이미지 조절
@@ -186,8 +194,74 @@ $(function () {
 	});
 });
 
+function codeCheck() {
+	checkType = false;
+	const data = sessionStorage.getItem('list');
+
+	if (data) {
+		const { survey, questionList, participantsList } = JSON.parse(data);
+		console.log(survey);
+		console.log(questionList);
+		console.log(participantsList);
+
+		// 기존의 필드값
+		$('#surveyTitle').val(survey.surveyTitle);
+		$('#surveyContents').val(survey.surveyContents);
+		$('#isOpen').prop('checked', survey.isOpen === 'N');
+
+		// 투표박스 추가하기 버튼 삭제하고 공간주기 
+		$('#add-vote').css('display', 'none');
+		$('.vote-date').css('margin-top', '20px');
+
+		// 참여자
+		selectedUsers = participantsList;
+		renderRecipientChips();
+
+		// 날짜
+		mobileStartDate = new Date(survey.startDatetime);
+		mobileEndDate = new Date(survey.endDatetime);
+		$('.date2 span').text(formatDateTime(mobileEndDate));
+
+		// 질문 박스
+		$('.vote-box-list').empty();
+		questionList.forEach(q => {
+			const $box = $(createVoteBox());
+			$box.data('question-code', q.questionCode);
+			$box.find('.vote-title').val(q.questionContents);
+			$box.find('input[id^="multi"]').prop('checked', q.isMulti === 'Y');
+			$box.find('input[id^="anon"]').prop('checked', q.isAnonymous === 'Y');
+
+			const $opts = $box.find('.vote-options').empty();
+			q.itemList.forEach(item => {
+				const cls = item.itemType === 'DESC' ? 'descriptive' : '';
+				$opts.append(`
+								<div class="option-inputs">
+									<input type="text"
+										value="${item.itemContents}"
+										class="option-input ${cls}" />
+								</div>
+							`);
+			});
+			$('.vote-box-list').append($box);
+
+			// 수정 가능한 컬럼 제외 전부 비활성화 처리
+			$('.vote-box-list input[type="text"]').prop('readonly', true);
+			$('.vote-box-list input[type="checkbox"], .vote-box-list input[type="radio"]').prop('disabled', true);
+			$('.section input[type="checkbox"]').prop('disabled', true);
+			$('.vote-box-list button').prop('disabled', true);
+
+			$(document).off('click', '.vote-box-list button');
+			$(document).off('change', '.vote-box-list input[type="checkbox"], .vote-box-list input[type="radio"]');
+
+			// 중복 방지
+			sessionStorage.removeItem('list');
+		})
+	}
+}
+
 // 투표 박스
 function initVoteBox() {
+	checkType = true;
 	const $initialBox = createVoteBox();
 	$(".vote-box-list").html($initialBox);
 }
@@ -249,7 +323,7 @@ function searchListMobile() {
 		type: 'POST',
 		dataType: 'json',
 		data: JSON.stringify({ keyword: $('#btnSearch-user').val() }),
-		success: function(data) {
+		success: function (data) {
 			createFromUser(data)
 		}
 	})
@@ -565,8 +639,12 @@ function addVote() {
 		isOpen
 	};
 
+	if (checkType === false) {
+		payload.surveyCode = params.get('surveyCode');
+	}
+
 	$.ajax({
-		url: '/survey/registSurvey',
+		url: checkType === true ? '/survey/registSurvey' : '/survey/saveSurvey',
 		type: 'POST',
 		contentType: 'application/json; charset=UTF-8',
 		dataType: 'json',

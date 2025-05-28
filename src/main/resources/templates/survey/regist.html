@@ -32,6 +32,13 @@
 
 	<script type="text/javascript">
 		var participantsList = [];
+
+		const params = new URLSearchParams(window.location.search);
+		const surveyCode = params.get('surveyCode');
+
+		if (!surveyCode) {
+			sessionStorage.removeItem('list');
+		}
 	</script>
 </head>
 

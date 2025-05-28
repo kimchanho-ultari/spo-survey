@@ -1092,7 +1092,7 @@
     #contentFunction {
         background-color: #fff;
         width: 180px;
-        height: 150px;
+        /* height: 150px; */
         position: absolute;
         /* bottom: 1198px;
         left: 186px; */
@@ -1445,7 +1445,7 @@
 
     .reaction-info .txt-like,
     .reaction-info .txt-comment {
-        margin-right: 12px;
+        margin-right: 5px;
     }
 
     .reaction-info strong {
@@ -1697,9 +1697,6 @@
         height: 25px;
     }
 
-
-
-
     .comment-header {
         display: flex;
         justify-content: space-between;
@@ -1743,12 +1740,15 @@
         font-weight: 500;
     }
 
+    .setBtn {
+        border: none;
+        background-color: #ffffff;
+        padding: 0
+    }
 
-
-
-
-
-
-
-
+    #setReplyContent {
+        border: 1px solid #eee;
+        background-color: #f3f2f2;
+        width: 25vh;
+    }
 }
