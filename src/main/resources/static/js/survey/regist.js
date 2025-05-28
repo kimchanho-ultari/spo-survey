@@ -204,6 +204,10 @@ function codeCheck() {
 		console.log(questionList);
 		console.log(participantsList);
 
+		// 헤더
+		$('.mobile-header-center > span').text('수정');
+		$('.mobile-header-right > span').text('확인');
+
 		// 기존의 필드값
 		$('#surveyTitle').val(survey.surveyTitle);
 		$('#surveyContents').val(survey.surveyContents);
