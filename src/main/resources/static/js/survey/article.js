@@ -80,6 +80,9 @@ function mobileInit() {
 		var LayerPopup2 = $(".emotionAdd");
 		var LayerPopup3 = $(".emotion-user");
 
+		var pcLayerPopup1 = $(".emotionAdd-pc");
+		var pcLayerPopup2 = $(".emotion-user-pc");
+
 		if (LayerPopup1.has(e.target).length === 0) {
 			$(".popupArea").css("display", "none");
 		}
@@ -90,6 +93,14 @@ function mobileInit() {
 
 		if (LayerPopup3.has(e.target).length === 0) {
 			$(".emotion-user").css("display", "none");
+		}
+
+		if (pcLayerPopup1.has(e.target).length === 0) {
+			$(".emotionAdd-pc").css("display", "none");
+		}
+
+		if (pcLayerPopup2.has(e.target).length === 0) {
+			$(".emotion-user-pc").css("display", "none");
 		}
 	});
 }
@@ -1160,7 +1171,6 @@ function emotionUploadModal() {
 			}
 		})
 	}
-
 }
 
 // ===================================================================================================== mobile
@@ -1172,9 +1182,32 @@ function init() {
 	initTree();				// 참여자 트리
 	chkSubmitBtn();			// 제출하기 버튼
 	initSurvey();			// 막대바, 인원
+	replyListPc();			// 댓글
+	emotionPc();			// 감정표현
 
 	$('#member_list').chkbox();
 	$('#participants_list').chkbox();
+
+	// 댓글 등록
+	$(document).on('click', '.btn-comment-submit-pc', function () {
+		replySavePc();
+	})
+
+	// 감정표현 추가 팝업
+	$(document).on('click', '.btn-add-reaction-pc > img', function () {
+		emotionUploadModalPc();
+	})
+
+	// 감정표현 추가
+	$(document).on("click", ".reaction-pc", function () {
+		let index = $(this).data("index");
+		emotionUploadPc(index);
+	});
+
+	// 감정표현 리스트 팝업
+	$(document).on('click', '#reaction-btn-pc > span', function () {
+		emotionListModalPc()
+	})
 }
 
 function initEvent() {
@@ -1197,6 +1230,499 @@ function initEvent() {
 
 	$('#btnNotiForm').on('click', notiForm);
 }
+
+// [ PC 댓글 & 감정표현 ]
+
+function replyListPc() {
+	$('#inputText-pc').val('');
+
+	$.ajax({
+		url: '/contentreply/list',
+		type: 'POST',
+		dataType: 'json',
+		data: { contentId: surveyCode },
+		success: function (data) {
+			bindReplyListPc(data);
+		},
+		error: function (xhr, status, error) {
+			console.error('댓글 불러오기 실패:', status, error);
+		}
+	});
+}
+
+function bindReplyListPc(data) {
+	let html = '';
+
+	const $reply = $('#reply-section-pc');
+	const list = data.list
+	replyNum = data.list.length;
+
+	list.forEach(reply => {
+		const formatted = formatToKoreanDateTime(reply.registDate);
+		html += `
+				<div class="comment-pc" id="${reply.replyId}">
+				<img alt="사용자 사진" src="/images/survey/img_profile.png" style="margin-right: 10px;" />
+				<div class="comment-content-pc">
+					<div class="comment-header-pc">
+					<span class="reply-author-pc">
+						<strong class='reply-name-pc'>${reply.userName}</strong> / ${formatted}
+					</span>
+					${reply.myReply
+				? `<div class="comment-actions-pc replyDiv-pc">
+							<span class="action-btn-pc" onclick="replyModifyPc('${reply.replyId}')">수정&nbsp;|</span>
+							<span class="action-btn-pc" onclick="replyDelete('${reply.replyId}')">삭제</span>
+						</div>`
+				: ""}
+					</div>
+
+					<p class="comment-text-pc" id="replyContent-pc">${reply.reply}</p>
+				</div>
+				</div>
+  			`;
+	});
+	$reply.html(html);
+}
+
+function replyModifyPc(replyId) {
+	let replyElement = document.querySelector(`[id="${replyId}"] #replyContent-pc`);
+	let buttonContainer = document.querySelector(`[id="${replyId}"] .replyDiv-pc`);
+
+	if (!replyElement || !buttonContainer) {
+		console.error("수정할 댓글을 찾을 수 없습니다:", replyId);
+		return;
+	}
+
+	replyCen = replyElement.innerText;
+
+	let inputElement = document.createElement("textarea");
+	inputElement.type = "text";
+	inputElement.value = replyCen;
+	inputElement.id = "setReplyContent-pc";
+
+	replyElement.replaceWith(inputElement);
+
+	buttonContainer.innerHTML = `
+    <button class='action-btn-pc setBtn-pc' type='button' onclick='replySavePc("${replyId}")'>저장 |</button>
+    <button class='action-btn-pc setBtn-pc' type='button' onclick='replyCancelPc("${replyId}")'>취소</button>
+`;
+	inputElement.focus();
+}
+
+function replySavePc(replyId = null) {
+	let replyText;
+
+	if (replyId) {
+		let inputElement = document.querySelector(`[id="${replyId}"] #setReplyContent-pc`);
+
+		if (!inputElement) {
+			showAlert({
+				message: '수정할 댓글을 찾을 수 없습니다.'
+			})
+			return;
+		}
+
+		replyText = inputElement.value;
+	} else {
+		replyText = $('#inputText-pc').val();
+	}
+
+	if (!replyText) {
+		showAlert({
+			message: '댓글 내용을 입력하세요.'
+		})
+		return;
+	}
+
+	if (replyId) {
+		let replyElement = document.createElement("p");
+
+		replyElement.id = "replyContent-pc";
+		replyElement.style.fontSize = "14px";
+		replyElement.style.margin = "5% 0";
+		replyElement.innerText = replyText;
+
+		document.querySelector(`[id="${replyId}"] #setReplyContent-pc`).replaceWith(replyElement);
+
+		let buttonContainer = document.querySelector(`[id="${replyId}"] .replyDiv-pc`);
+		if (buttonContainer) {
+			buttonContainer.innerHTML = `
+                <button class='action-btn-pc setFont-pc' type='button' name='replyModify' onclick='replyModifyPc("${replyId}")'>수정 |</button>
+                <button class='action-btn-pc setFont-pc' type='button' name='replyDelete' onclick='replyDelete("${replyId}")'>삭제</button>
+            `;
+		}
+
+		const data = {
+			contentId: surveyCode,
+			reply: replyText.trim(),
+			replyId: replyId
+		}
+
+		$.ajax({
+			url: '/contentreply/upload',
+			type: 'POST',
+			contentType: "application/json; charset=UTF-8",
+			data: JSON.stringify(data),
+			success: function (data) {
+				if (data === '0') {
+					location.reload();
+				}
+			}
+		})
+
+	} else {
+		const data = {
+			contentId: surveyCode,
+			reply: replyText.trim(),
+		}
+
+		$.ajax({
+			url: '/contentreply/upload',
+			type: 'POST',
+			contentType: "application/json; charset=UTF-8",
+			data: JSON.stringify(data),
+			success: function (data) {
+				if (data === '0') {
+					location.reload();
+				}
+			}
+		})
+	}
+}
+
+function replyCancelPc(replyId) {
+	let inputElement = document.getElementById("setReplyContent-pc");
+	let replyContainer = document.querySelector(`[id="${replyId}"] .replyDiv-pc`);
+
+	if (!inputElement || !replyContainer) {
+		console.error("취소할 댓글을 찾을 수 없습니다:", replyId);
+		return;
+	}
+
+	let originalReply = document.createElement("p");
+	originalReply.id = "replyContent-pc";
+	originalReply.innerText = replyCen;
+
+	inputElement.replaceWith(originalReply);
+
+	replyContainer.innerHTML = `
+        <span class="action-btn-pc" onclick="replyModifyPc('${replyId}')">수정&nbsp|</span>
+        <span class="action-btn-pc" onclick="replyDelete('${replyId}')">삭제</span>
+    `;
+}
+
+function emotionPc() {
+	$.ajax({
+		url: '/contentreaction',
+		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+		type: 'POST',
+		dataType: 'json',
+		data: { contentId: surveyCode },
+		success: function (data) {
+			// 총 카운트
+			totalReactions = data[12].total;
+			emotionListPc();
+		}
+	})
+}
+
+function emotionListPc() {
+	$.ajax({
+		url: '/contentreaction/total/list',
+		contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+		type: 'POST',
+		dataType: 'json',
+		data: { contentId: surveyCode },
+		success: function (data) {
+			bindEmotionListPc(data);
+		}
+	})
+}
+
+function bindEmotionListPc(data) {
+	let html = '';
+	let list = data;
+	let emotionCount = {};
+	let userReacted = false;
+
+	list.forEach(item => {
+		let emotionNum = item.reaction;
+		emotionCount[emotionNum] = (emotionCount[emotionNum] || 0) + 1;
+
+		if (item.userId === userId) {
+			userReacted = true;
+		}
+	})
+
+	// 공감 & 댓글 개수 표시 
+	$('#emotion-total-pc').text(totalReactions);
+	$('#emotion-user-pc').text(replyNum);
+
+	if (userReacted) {
+		let emotion = `<span class="emoList-reply-pc cursorPointer emotion-cancle-pc" onclick="emotionCanclePc()">공감 취소</span>`
+		$('#txt-emotion-cancle-pc').append(emotion);
+	}
+
+	if (totalReactions > 0) {
+		Object.keys(emotionCount).forEach(emotion => {
+			let iconSrc = emotionIcons[emotion]
+
+			html += `
+					<span class="emotion-img-pc">
+						<img src='${iconSrc}' />
+						${emotionCount[emotion]}
+					</span>
+			`
+		})
+	} else {
+		html += `<span class="emotion-addContent-pc">가장 먼저 공감해 주세요.</span>`
+	}
+	$('#emotion-contents-pc').append(html);
+}
+
+function emotionCanclePc() {
+	$('.emotion-cancle-pc').hide();
+
+	let data = {
+		userId: userId,
+		reaction: 'remove',
+		contentId: surveyCode
+	}
+
+	$.ajax({
+		url: '/contentreaction/upload',
+		type: 'POST',
+		contentType: 'application/json',
+		data: JSON.stringify(data),
+		xhrFields: {
+			withCredentials: true
+		},
+		success: function (data) {
+			if (data === "TRUE") {
+				location.reload();
+			}
+		}
+	})
+}
+
+function emotionListModalPc() {
+	$.ajax({
+		url: '/contentreaction/total/list',
+		contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+		type: 'POST',
+		dataType: 'json',
+		data: { contentId: surveyCode },
+		success: function (data) {
+			bindEmotionListModalPc(data);
+		}
+	})
+}
+
+function bindEmotionListModalPc(data) {
+	let html = '';
+	let list = data;
+	let total = list.length > 0 ? list.length : null;
+
+	if (!document.querySelector('.emotion-user-pc')) {
+		let div = document.createElement("div");
+		div.setAttribute("class", "emotion-user-pc");
+		document.querySelector('body').append(div);
+	} else {
+		$('.emotion-user-pc').children().remove();
+	}
+
+	html = `
+            <div class="user-popup-pc">
+                <div class="user-div-pc">
+                    <strong class="header-strong-pc">공감한 유저</strong>
+                </div>
+                <div class="emotion-summary-pc">
+                    <button class="click-pc active-pc emotionAll-pc">전체 ${total || 0}</button> `
+
+	let reactionCount = {};
+	let contentId = list.length > 0 ? list[0].contentId : null;
+
+	list.forEach(item => {
+		let reactionNum = item.reaction;
+		reactionCount[reactionNum] = (reactionCount[reactionNum] || 0) + 1;
+	});
+
+	Object.keys(reactionCount).forEach(reactionNum => {
+		html += `
+                        <button class="click-pc emotionButton-pc" onclick="getListEmotionMenuPc(${reactionNum}, '${contentId}')">
+                            <img src='${emotionIcons[reactionNum]}' />
+                            <span>${reactionCount[reactionNum]}</span> 
+                        </button>`;
+	});
+
+	html += `                
+                </div>
+            <div class="userList-pc"></div> `
+
+	$(".emotion-user-pc").append(html);
+	document.querySelector('.emotion-user-pc').style.display = "block";
+
+	bindtotalEmotionMenuPc(data);
+
+	$(document).on('click', '.emotionAll-pc', function () {
+		bindtotalEmotionMenuPc(data);
+	})
+
+	const buttons = document.querySelectorAll(".click-pc");
+
+	buttons.forEach(button => {
+		button.addEventListener("click", function () {
+			buttons.forEach(btn => btn.classList.remove("active-pc"));
+			this.classList.add("active-pc");
+		});
+	});
+}
+
+function bindtotalEmotionMenuPc(data) {
+	const list = data;
+	let html = "";
+
+	for (var i = 0; i < list.length; i++) {
+		html += `
+                <ul class="user-list-pc">
+                    <li class="emotion-user-item-pc">
+                        <div class="emotion-info-pc">
+                            <div class="emotion-info-div-pc">
+								<div class='userpic-pc'>
+									<img alt='사용자 사진' src='/images/survey/img_profile.png' />
+								</div>
+								<div>
+                                	<div class='name-pc'>${list[i].userName || ''}</div>
+									<div class='dept-pc'>${list[i].deptName || ''}</div>
+								</div>
+                            </div>
+                                <span class="emotion-icon-pc"><img src='${emotionIcons[list[i].reaction] || ''}'/></span>
+                        </div>
+                    </li>
+                </ul>
+            `;
+	}
+
+	$(".userList-pc").children().remove();
+	$(".userList-pc").append(html);
+}
+
+function getListEmotionMenuPc(num, contentId) {
+	$.ajax({
+		url: "/contentreaction/" + num + "/list",
+		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+		type: "POST",
+		dataType: "json",
+		data: { contentId: contentId },
+		beforeSend: function (xhr) {
+		},
+		success: function (data) {
+			bindListEmotionMenuPc(data);
+		},
+		error: function () {
+		}
+	});
+}
+
+function bindListEmotionMenuPc(data) {
+	const list = data;
+	let html = "";
+
+	for (var i = 0; i < list.length; i++) {
+		html += `
+                <ul class="user-list-pc">
+                    <li class="emotion-user-item-pc">
+                        <div class="emotion-info-pc">
+                            <div class="emotion-info-div-pc">
+								<div class='userpic-pc'>
+									<img alt='사용자 사진' src='/images/survey/img_profile.png' />
+								</div>
+								<div>
+                                	<div class='name-pc'>${list[i].userName || ''}</div>
+									<div class='dept-pc'>${list[i].deptName || ''}</div>
+								</div>
+                            </div>
+                            <span class="emotion-icon-pc"><img src='${emotionIcons[list[i].reaction] || ''}'/></span>
+                        </div>
+                    </li>
+                </ul>
+            `;
+	}
+
+	$(".userList-pc").children().remove();
+	$(".userList-pc").append(html);
+}
+
+function emotionUploadModalPc() {
+	if (!document.querySelector('.emotionAdd-pc')) {
+		let div = document.createElement("div");
+		div.setAttribute("class", "emotionAdd-pc");
+		document.querySelector('body').append(div);
+	} else {
+		$('.emotionAdd-pc').children().remove();
+	}
+
+	let html = `
+    <div class="reaction-modal-pc" id="reactionModal-pc">
+        <div class="reaction-container-pc">
+            <div class="reaction-icons-pc">`;
+
+	for (let i = 0; i < 6; i++) {
+		html += `<button class="reaction-pc" data-index="${i}">
+                    <img src="${emotionIcons[i]}" />
+                 </button>`;
+	}
+
+	html += `        
+            </div>
+        </div>
+    </div>`;
+
+	$(".emotionAdd-pc").append(html);
+	$(".emotionAdd-pc").show();
+
+	setTimeout(function () {
+		var popup = $(".reaction-modal-pc");
+		var button = $(".btn-add-reaction-pc");
+
+		if (button.length === 0) {
+			console.error("Error: .emotionModal element not found");
+			return;
+		}
+
+		var buttonOffset = button.offset();
+
+		popup.css({
+			top: buttonOffset.top + 40,
+			left: buttonOffset.left - 8,
+			zIndex: 999,
+			position: "absolute",
+		});
+	}, 100);
+}
+
+function emotionUploadPc(reaction) {
+	const data = {
+		userId: userId,
+		reaction: reaction,
+		contentId: surveyCode
+	}
+
+	$.ajax({
+		url: '/contentreaction/upload',
+		type: 'POST',
+		contentType: 'application/json',
+		data: JSON.stringify(data),
+		xhrFields: {
+			withCredentials: true
+		},
+		success: function (data) {
+			if (data == "TRUE") {
+				location.reload();
+			}
+		}
+	})
+}
+
 function initTime() {
 	makeHour('sHour');
 	makeHour('eHour');
@@ -1217,6 +1743,7 @@ function initTime() {
 	$('#eHour').prop('disabled', false);
 	$('#eMinute').prop('disabled', false);
 }
+
 function initDatepicker() {
 	$.datepicker.setDefaults({
 		regional: ['ko'],

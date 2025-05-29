@@ -55,6 +55,26 @@
 		<div th:include="survey/header :: header"></div>
 
 		<div id="contents">
+
+			<div id="search" style="margin-top:20px">
+				<table style="width:100%">
+					<tr>
+						<td width="460px">
+							<span id="btnSaveSurvey" class="button button_blue"
+								th:if="${survey.getIsWriter()} == 'Y'">저장</span>
+							<span id="btnRemoveSurvey" class="button button_blue"
+								th:if="${survey.getIsWriter()} == 'Y'">삭제</span>
+						</td>
+						<td width="50px">&nbsp;</td>
+						<td align="right">
+							<span id="exportStatistics" class="button button_gray" style="width:140px"
+								th:if="${survey.getIsWriter()} == 'Y' and ${survey.getStatus()} == 'C'">투표결과 다운로드</span>
+							<a href="/survey/" class="button button_gray">목록</a>
+						</td>
+					</tr>
+				</table>
+			</div>
+
 			<div id="view">
 				<table style="width:100%">
 					<tr>
@@ -241,25 +261,38 @@
 					</tr>
 				</table>
 			</div>
-			<div id="search" style="margin-top:20px">
-				<table style="width:100%">
-					<tr>
-						<td width="460px">
-							<span id="btnSaveSurvey" class="button button_blue"
-								th:if="${survey.getIsWriter()} == 'Y'">저장</span>
-							<span id="btnRemoveSurvey" class="button button_blue"
-								th:if="${survey.getIsWriter()} == 'Y'">삭제</span>
-						</td>
-						<td width="50px">&nbsp;</td>
-						<td align="right">
-							<span id="exportStatistics" class="button button_gray" style="width:140px"
-								th:if="${survey.getIsWriter()} == 'Y' and ${survey.getStatus()} == 'C'">투표결과 다운로드</span>
-							<a href="/survey/" class="button button_gray">목록</a>
-						</td>
-					</tr>
-				</table>
+
+			<div id="reply">
+				<div class="reaction-row-pc">
+					<div class="reaction-info-pc">
+						<div id="reaction-btn-pc">
+							<span class="txt-like-pc">공감 <strong id="emotion-total-pc">0</strong></span>
+							<span class="txt-comment-pc">댓글 <strong id="emotion-user-pc">0</strong></span>
+						</div>
+						<div id="txt-emotion-cancle-pc"></div>
+					</div>
+					<div class="reaction-list-pc">
+						<div id="emotion-section-pc">
+							<button class="btn-add-reaction-pc">
+								<img src="/images/survey/img_profile_add_reaction.svg" alt="추가버튼">
+							</button>
+							<div id="emotion-contents-pc"></div>
+						</div>
+						<div id="reply-section-pc"></div>
+					</div>
+				</div>
+
+				<section class="mobile-interact-pc">
+					<div class="comment-box-pc">
+						<input id="inputText-pc" type="text" placeholder="댓글을 남겨주세요." />
+						<button class="btn-comment-submit-pc">
+							<img src="/images/survey/btn_input_send.svg" alt="send" />
+						</button>
+					</div>
+				</section>
 			</div>
 		</div>
+
 
 		<!-- + 참여자 -->
 		<div id="participants_form" class="dialog" title="참여자 추가">
