@@ -8,4 +8,5 @@ public class TokenData {
 	private String systemCode;
 	private String ip;
 	private String datetime;
+	private String surveyCode;
 }

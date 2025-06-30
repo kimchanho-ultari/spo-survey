@@ -49,5 +49,6 @@ public interface SurveyMapper {
 	public List<SurveyQuestion> surveyQuestionListWithoutItems(Map<String, Object> data) throws Exception;
 	public List<SurveyItem> surveyItemListBySurveyCode(Map<String, Object> data) throws Exception;
 	public List<SurveyResult> surveyResultBySurveyCode(Map<String, Object> data) throws Exception;
-	
+
+	void savePicture(String itemCode, String filePath);
 }

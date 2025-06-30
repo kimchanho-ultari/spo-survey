@@ -8,7 +8,11 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import com.ultari.additional.domain.account.TokenData;
+import com.ultari.additional.service.AccountService;
+import com.ultari.additional.util.CryptorManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,6 +35,7 @@ import com.ultari.additional.util.PageManager;
 import com.ultari.additional.util.StringUtil;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Slf4j
 @RequestMapping("/survey")
@@ -39,9 +44,23 @@ public class SurveyController {
 	
 	@Autowired
 	SurveyService surveyService;
+
+	@Autowired
+	AccountService accountService;
 	
 	@Autowired
 	private XlsxView xlsxView;
+
+	@Value("${common.account.encrypt.use:true}")
+	private boolean USE_CRYPT;
+	@Value("${common.account.encrypt.driver}")
+	private String CRYPT_DRIVER;
+	@Value("${common.account.encrypt.method}")
+	private String ENCRYPT_METHOD;
+	@Value("${common.account.decrypt.method}")
+	private String DECRYPT_METHOD;
+	@Value("${common.account.encrypt.use-wrapping-base64}")
+	private boolean USE_WRAPPING_BASE64;
 
 	@SuppressWarnings("unchecked")
 	@RequestMapping("/")
@@ -126,7 +145,7 @@ public class SurveyController {
 		
 		return "survey/article";
 	}
-	
+
 	@PostMapping("/saveSurvey")
 	@ResponseBody
 	public Map<String, Object> saveSurvey(@RequestBody Map<String, Object> data, HttpSession session) throws Exception {

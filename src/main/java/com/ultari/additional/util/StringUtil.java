@@ -26,8 +26,8 @@ public class StringUtil {
 		return val;
 	}
 
-	public static String castNowDate(LocalDateTime dateTime) {
-		DateTimeFormatter datePattern = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+	public static String castNowDate(LocalDateTime dateTime, String pattern) {
+		DateTimeFormatter datePattern = DateTimeFormatter.ofPattern(pattern);
 		return dateTime.format(datePattern);
 	}
 }

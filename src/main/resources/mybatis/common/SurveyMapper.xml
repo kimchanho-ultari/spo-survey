@@ -420,4 +420,7 @@ WHERE
 		SURVEY_CODE=#{surveyCode}
 		AND IS_COMPLETE='N'
 	</select>
+	<update id="savePicture">
+		UPDATE SURVEY_ITEM SET PICTURE_PATH = #{filePath} WHERE ITEM_CODE=#{itemCode}
+	</update>
 </mapper>

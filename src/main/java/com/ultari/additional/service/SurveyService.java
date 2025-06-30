@@ -1,10 +1,11 @@
 package com.ultari.additional.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.*;
 
+import com.ultari.additional.domain.organization.User;
+import com.ultari.additional.mapper.common.AlertMapper;
+import com.ultari.additional.mapper.common.OrganizationMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -35,10 +36,16 @@ public class SurveyService {
 	
 	@Autowired
 	ApiManager apiManager;
+
+	@Autowired
+	AlertMapper alertMapper;
+
+	@Autowired
+	OrganizationMapper organizationMapper;
 	
 	@Value("${common.api.survey-noti-domain}")
 	private String NOTI_DOMAIN;
-	
+
 	public Map<String, Object> surveyList(Map<String, Object> data) throws Exception {
 		String userId = (String) data.get("userId");
 		int pageNo = (int)data.get("pageNo");
@@ -83,6 +90,8 @@ public class SurveyService {
 		surveyMapper.registParticipants(data);
 		surveyMapper.registQuestions(data);
 		surveyMapper.registQuestionsItems(data);
+
+		alertSurvey(data);
 	}
 	
 	public Map<String, Object> survey(Map<String, Object> data) throws Exception {
@@ -133,7 +142,6 @@ public class SurveyService {
 		return surveyMapper.surveyResultDesc(data);
 	}
 	
-	@SuppressWarnings({ "unused", "unchecked" })
 	private void transSurvey(Map<String, Object> data) {
 		String surveyCode = StringUtil.uuid();
 		if (data.containsKey("type") && data.get("type").equals("save")) {
@@ -169,6 +177,24 @@ public class SurveyService {
 		}
 		
 		data.put("questionItemList", questionItemList);
+	}
+
+	@Transactional
+	public void alertSurvey(Map<String, Object> data) throws Exception {
+		List<Map<String, Object>> participantsList = (List<Map<String, Object>>) data.get("participantsList");
+		String surveyTitle = (String) data.get("surveyTitle");
+		String userId = (String) data.get("userId");
+		String sndName = organizationMapper.memberById(userId).getUserName();
+		String surveyCode = (String) data.get("surveyCode");
+
+		log.debug(surveyTitle+" "+userId);
+
+		for(Map<String, Object> map : participantsList) {
+			log.debug((String) map.get("key"));
+			String member = (String) map.get("key");
+
+			alertMapper.registAlert(userId, surveyTitle, surveyCode, StringUtil.castNowDate(LocalDateTime.now(),"yyyyMMddHHmmss"), member, sndName, "SURVEY", "0");
+		}
 	}
 	
 	private void collectAdditionalInformation(Survey survey, String userId) {

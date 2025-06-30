@@ -8,6 +8,7 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -45,9 +46,9 @@ public class AccountController {
 	
 	@RequestMapping("/sso/{systemCode}/{key}")
 	public String sso(@PathVariable("systemCode") String systemCode,
-			@PathVariable("key") String key,
-			RedirectAttributes attr,
-			HttpSession session) throws Exception {
+					  @PathVariable("key") String key,
+					  RedirectAttributes attr,
+					  HttpSession session, @Nullable String surveyCode) throws Exception {
 		log.debug("systemCode=" + systemCode + ", key=" + key);
 		log.debug("USE_CRYPT=" + USE_CRYPT);
 		String userId = key;
@@ -59,6 +60,7 @@ public class AccountController {
 		TokenData tokenData = new TokenData();
 		tokenData.setKey(userId);
 		tokenData.setSystemCode(systemCode);
+		tokenData.setSurveyCode(surveyCode);
 		
 		Map<String, Object> map = accountInfo(tokenData);
 		Account account = (Account)map.get("account");
@@ -140,10 +142,15 @@ public class AccountController {
 			account = accountService.memberByKey(key);
 			if (account != null) {
 				String systemCode = tokenData.getSystemCode();
+				String surveyCode = tokenData.getSurveyCode();
 				sb.append(systemCode).append("/");
 				if (systemCode.equals("adm")) {
 					sb.append("organization");
-				}
+				} else {
+					if(surveyCode != null) {
+						sb.append("article").append("/").append(surveyCode);
+					}
+                }
 			} else {
 				sb.append("invalid");
 				log.info("User not found: " + key);
