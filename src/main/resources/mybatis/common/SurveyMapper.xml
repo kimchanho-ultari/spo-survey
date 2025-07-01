@@ -86,7 +86,7 @@
 		<result property="deptName" column="DEPT_NAME"/>
 	</resultMap>
 	<insert id="registSurvey">
-INSERT INTO SURVEY(SURVEY_CODE, SURVEY_TITLE, SURVEY_CONTENTS, USER_ID, START_DATETIME, END_DATETIME, IS_OPEN)
+INSERT INTO SURVEY(SURVEY_CODE, SURVEY_TITLE, SURVEY_CONTENTS, USER_ID, START_DATETIME, END_DATETIME, IS_OPEN, END_ALARM)
 VALUES (
 	  #{surveyCode}
 	, #{surveyTitle}
@@ -102,6 +102,7 @@ VALUES (
 		</otherwise>
 	</choose>
 	, #{isOpen}
+	,#{endAlarm}
 )
 ON DUPLICATE KEY UPDATE
 	  SURVEY_TITLE=#{surveyTitle}
