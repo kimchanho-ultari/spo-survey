@@ -2,12 +2,14 @@ plugins {
 	id 'org.springframework.boot' version '2.2.6.RELEASE'
 	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
 	id 'java'
+	id 'war'
 }
 
 group = 'com.ultari.additional'
 sourceCompatibility = '1.8'
 
 bootJar {
+	enabled = false
     archiveBaseName = 'at-additional-jeju'
     archiveVersion = '1.0.8.RELEASE'
 }
@@ -27,6 +29,11 @@ repositories {
 }
 
 dependencies {
+	compileOnly 'org.projectlombok:lombok:1.18.32'
+	annotationProcessor 'org.projectlombok:lombok:1.18.32'
+	testCompileOnly 'org.projectlombok:lombok:1.18.32'
+	testAnnotationProcessor 'org.projectlombok:lombok:1.18.32'
+	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.1.2'
@@ -47,4 +54,9 @@ dependencies {
 
 test {
 	useJUnitPlatform()
+}
+
+war{
+	enabled = true
+	archiveFileName = 'at-additional-survey.war'
 }

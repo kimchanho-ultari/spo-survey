@@ -23,7 +23,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 				.excludePathPatterns("/js/**")
 				.excludePathPatterns("/images/**")
 				.excludePathPatterns("/fonts/**")
-				.excludePathPatterns("/sso/**")
+				.excludePathPatterns("/survey/**")
 				.excludePathPatterns("/ssa/**")
 				.excludePathPatterns("/redirect/**")
 				.excludePathPatterns("/adm/login")
