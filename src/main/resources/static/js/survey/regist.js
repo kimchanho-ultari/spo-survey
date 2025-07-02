@@ -6,6 +6,7 @@ let mobileStartDate = new Date();
 let participantsListMobile = [];
 
 let checkType = true;
+let val = "";
 
 $(function () {
 	init();
@@ -14,7 +15,7 @@ $(function () {
 	// 수정
 	if (surveyCode) {
 		codeCheck();
-		// 신규 등록
+	// 신규 등록
 	} else {
 		initVoteBox();
 	}
@@ -60,14 +61,6 @@ $(function () {
 		const $box = $(this).closest(".vote-box");
 		const $options = $box.find(".vote-options");
 		const type = $box.find(".tab.active").data("type");
-
-		// 	const input = `
-		// 	<div class="option-inputs">
-		// 	  <input type="${type === "text" ? "text" : "date"}" placeholder="항목 입력" class="option-input" />
-		// 	  <img src="/images/survey/ic_survey_album.svg" />
-		// 	</div>
-		//   `;
-
 		const input = `
 						<div class="option-inputs">
 						<input type="${type === "text" ? "text" : "date"}" placeholder="항목 입력" class="option-input" />
@@ -135,17 +128,28 @@ $(function () {
 		$box.remove();
 	});
 
+	// 종료 알림 여부 기본값 세팅
+	$('.note').each(function () {
+		$(this).data('endAlarm', 'Y');
+	})
+
 	$(document).on("click", ".note", function () {
+		const preVal = $(this).data('endAlarm') || 'Y';
+		const $note = $(this);
+		const optionsHTML =
+			`
+			<label><input type="radio" name="endAlarm" value="Y" ${preVal === 'Y' ? 'checked' : ''}> 알림 받음</label><br>
+			<label><input type="radio" name="endAlarm" value="N" ${preVal === 'N' ? 'checked' : ''}> 알림 받지 않음</label>
+		`
+
 		showPopup({
 			title: "투표 종료 전 알림",
 			message: "종료 30분 전에 알림을 보내드립니다.",
-			optionsHTML: `
-			<label><input type="radio" name="alarm" value="on" checked> 알림 받음</label><br>
-			<label><input type="radio" name="alarm" value="off"> 알림 받지 않음</label>
-			`,
+			optionsHTML: optionsHTML,
 			onConfirm: () => {
-				const val = $("input[name='alarm']:checked").val();
-				$(".note").text(val === "on" ? "투표 종료 전 알림 받음" : "투표 종료 전 알림 안 받음");
+				val = $("input[name='endAlarm']:checked").val();
+				$note.text(val === "Y" ? "투표 종료 전 알림 받음" : "투표 종료 전 알림 안 받음");
+				$note.data("endAlarm", val);
 			}
 		});
 	});
@@ -271,9 +275,6 @@ function initVoteBox() {
 }
 
 function createVoteBox() {
-	// 이미지
-	// <img src="/images/survey/ic_survey_album.svg" />
-
 	const timestamp = Date.now();
 
 	return `
@@ -612,6 +613,7 @@ function addVote() {
 	const surveyTitle = $('#surveyTitle').val().trim();
 	const surveyContents = $('#surveyContents').val().trim();
 	const isOpen = $('#isOpen').is(':checked') ? 'N' : 'Y';
+	const endAlarm = val;
 
 	if (!selectedUsers.length) {
 		showAlert({ message: '참여자를 추가해 주세요.' });
@@ -628,6 +630,12 @@ function addVote() {
 		showAlert({ message: '투표 종료시간을 선택해 주세요.' });
 		return;
 	}
+
+	if ($('.note').text() == "투표 종료 알림 여부") {
+		showAlert({ message: '투표 종료 알림 여부를 선택해 주세요.' });
+		return;
+	}
+
 	const startDatetime = mobileStartDate
 		? formatDateTime(mobileStartDate)
 		: formatDateTime(new Date());
@@ -640,7 +648,8 @@ function addVote() {
 		endDatetime,
 		questionList,
 		participantsList: selectedUsers,
-		isOpen
+		isOpen,
+		endAlarm
 	};
 
 	if (checkType === false) {
@@ -894,6 +903,7 @@ function registSurvey() {
 		var title = $('#survey_title').val();
 		var contents = $('#survey_contents').val();
 		var isOpen = $('input[name=isOpen]:checked').val();
+		var endAlarm = $('input[name=endAlarm]:checked').val();
 
 		var startDatetime = datetime('s');
 		var endDatetime = datetime('e');
@@ -907,6 +917,7 @@ function registSurvey() {
 		data.questionList = questionList;
 		data.participantsList = participantsList;
 		data.isOpen = isOpen;
+		data.endAlarm = endAlarm;
 
 		obj.url = '/survey/registSurvey';
 		obj.data = data;
@@ -919,7 +930,7 @@ function registSurvey() {
 	}
 }
 function registSurveyHandler(data) {
-	// location.href = '/survey/';
+	location.href = '/survey/';
 }
 function validate(list) {
 	var val = true;
