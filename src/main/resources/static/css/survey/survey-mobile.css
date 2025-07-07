@@ -1339,14 +1339,10 @@
     .mobile-header {
         display: flex;
         align-items: center;
-        justify-content: space-between;
+        justify-content: space-around;
         background: #155BC1;
         border: 1px solid #155BC1;
         padding: 10px 16px;
-    }
-
-    .tabs {
-        display: flex;
     }
 
     .tab {
@@ -1354,14 +1350,16 @@
         border: none;
         color: #fff;
         font-size: 16px;
-        padding: 8px 12px;
+        padding: 5px 7vh;
         cursor: pointer;
         opacity: 0.7;
+        font-weight: 400
     }
 
     .tab.active {
         opacity: 1;
-        border-bottom: 2px solid #fff;
+        border: 1px solid #fff;
+        border-radius: 5px;
     }
 
     .btn-filter {
@@ -1751,343 +1749,133 @@
         background-color: #f3f2f2;
         width: 25vh;
     }
-}
 
-/* pc버전 댓글 */
-#reply {
-    margin-top: 30px;
-}
+    /* 통계 > 항목별 */
+    .vote-style {
+        padding: 5px 25px;
+        border-bottom: 1px solid #eee;
+    }
 
-.reaction-info-pc {
-    padding: 10px 0;
-}
+    .item-non {
+        width: 100%;
+    }
 
-#reaction-btn-pc {
-    font-size: 15px;
-    cursor: pointer;
-}
+    .item-non > img {
+        margin-right: 10px;
+    }
 
-.txt-like-pc,
-.txt-comment-pc {
-    margin-right: 5px;
-    font-size: 15px;
-    font-weight: 600;
-}
+    .survey-question {
+      margin: 18px 0 16px 0;
+    }
 
-.reaction-info-pc {
-    display: flex;
-    align-items: center;
-    color: #333;
-    justify-content: space-between;
-}
+    .question-title {
+        font-size: 1.1rem;
+        margin-bottom: 4px;
+        font-weight: 500;
+    }
 
-.reaction-info-pc strong {
-    color: #007aff;
-    font-weight: 600;
-}
+    .question-type {
+        font-size: 0.83rem;
+        color: #b1b1b1;
+        margin-bottom: 18px;
+        margin-left: 5px;
+    }
 
-.btn-add-reaction-pc {
-    border: none;
-    background-color: #ffffff;
-    padding: 0;
-}
+    .vote-group-list {
+      margin-bottom: 24px;
+    }
 
-#emotion-section-pc {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
-}
+    .vote-group {
+      margin-bottom: 22px;
+    }
 
-.btn-add-reaction-pc>img {
-    margin-top: 6px;
-    cursor: pointer;
-}
+    .vote-group-title {
+      font-size: 1rem;
+      font-weight: bold;
+      margin-bottom: 13px;
+      display: flex;
+      gap: 6px;
+      align-items: baseline;
+    }
 
-.emotion-addContent-pc {
-    font-size: 14px;
-    margin-left: 10px;
-    color: #b9b9b9;
-}
+    .vote-group-title .group-name {
+      font-weight: bold;
+      color: #222;
+    }
+    .vote-group-title .group-count {
+      font-size: 0.96em;
+      color: #888;
+      font-weight: normal;
+    }
 
-#inputText-pc {
-    width: 900px;
-    border: 1px solid #eee;
-    padding: 10px;
-}
+    .vote-member-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
 
-.comment-box-pc {
-    padding: 10px 5px 10px 10px;
-    border-top: 1px solid #c9c9c9;
-    border-bottom: 1px solid #c9c9c9;
-    background-color: #f9f9f9;
-    margin-top: 20px;
-}
+    .vote-member-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 10px;
+      min-height: 42px;
+    }
 
-.btn-comment-submit-pc {
-    border: none;
-    background-color: #8b8b8b;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    margin-left: 10px;
-    cursor: pointer;
-}
+    .vote-member-item img {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #e6eaf4;
+      flex-shrink: 0;
+    }
 
-.emotion-img-pc {
-    margin-left: 8px;
-}
+    .vote-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #222;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
 
-.emotion-img-pc>img {
-    width: 20px;
-    height: 20px;
-    margin-top: 8px;
-}
+    .vote-name .me {
+        display: inline-block;
+        background: #222;
+        color: #fff;
+        font-size: 0.7em;
+        border-radius: 50%;
+        text-align: center;
+        padding: 3px 6px 5px;
+    }
 
-#reply-section-pc {
-    margin-top: 20px;
-}
+    .vote-team {
+        font-size: 0.8rem;
+        color: #b5b5b5;
+        margin-left: 2px;
+        font-weight: 400;
+    }
 
-#emotion-contents-pc {
-    margin-left: 10px;
-}
+    .vote-setting {
+        display: flex;
+        flex-direction: column;
+    }
 
-.comment-pc {
-    display: flex;
-    flex-direction: row;
-    align-content: flex-start;
-    justify-content: flex-start;
-    align-items: center;
-    margin-bottom: 20px;
-}
+    .vote-member-item:last-child {
+      margin-bottom: 0;
+    }
 
-.comment-pc>img {
-    margin-right: 10px;
-    width: 35px;
-    height: 35px;
-}
+    /* 0명일 때 안내문 */
+    .vote-member-list .empty,
+    .vote-member-list .no-member {
+      color: #aaa;
+      font-size: 1rem;
+      margin: 14px 0 0 0;
+      text-align: center;
+    }
 
-.comment-content-pc {
-    display: flex;
-    flex-direction: column;
-}
-
-.comment-header-pc {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-}
-
-.comment-content-pc {
-    flex: 1;
-}
-
-.emotion-cancle-pc,
-.action-btn-pc {
-    font-size: 12px;
-    cursor: pointer;
-}
-
-.reply-author-pc {
-    font-size: 11px;
-    color: #afabab;
-}
-
-.reply-name-pc {
-    font-size: 16px;
-    font-weight: 500;
-    color: #000;
-}
-
-.btn-add-reaction-pc {
-    margin-left: 4px;
-}
-
-#setReplyContent-pc {
-    border: 1px solid #e7e3e3;
-    margin-top: 10px;
-    height: 40px;
-}
-
-.setBtn-pc {
-    border: none;
-    background-color: #ffffff;
-    padding: 0;
-    cursor: pointer;
-}
-
-/* 감정표현 추가 팝업 */
-.reaction-modal-pc {
-    background-color: #fff;
-    width: 18%;
-    height: 7%;
-    position: absolute;
-    border-radius: 100px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-}
-
-.reaction-container-pc {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.reaction-icons-pc,
-.reaction-numbers-pc {
-    display: flex;
-    gap: 10px;
-    padding: 5% 0px;
-}
-
-.reaction-pc {
-    background-color: #fff;
-    border: none;
-}
-
-.reaction-pc>img {
-    width: 25px;
-    height: 25px;
-}
-
-.contentdata-pc>p>img {
-    cursor: pointer;
-}
-
-.emotion-user-pc {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-
-    /* 중앙 정렬 */
-    left: 0;
-    top: 0;
-}
-
-.user-popup-pc {
-    background-color: #fff;
-    border: 2px solid #0045a7;
-    width: 570px !important;
-    max-height: 80vh;
-    height: 100%;
-
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-}
-
-.user-div-pc {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 4% 4% 2%;
-}
-
-.user-div-pc>strong {
-    font-size: 18px;
-    font-weight: 600;
-}
-
-.emotion-summary-pc {
-    display: flex;
-    font-size: 0.95rem;
-    border-bottom: 1px solid #ddd;
-    padding: 0 2.5%;
-}
-
-.emotion-summary-pc>span {
-    font-size: 0.95rem;
-    font-weight: 500;
-    font-family: NotoSansCJKKR;
-}
-
-.click-pc {
-    background: none;
-    border: none;
-    font-size: 17px;
-    cursor: pointer;
-    padding: 8px 11px;
-    position: relative;
-    transition: color 0.3s ease-in-out;
-}
-
-.click-pc.active {
-    font-weight: bold;
-    color: black;
-}
-
-.click-pc.active::after {
-    content: "";
-    display: block;
-    width: 100%;
-    height: 2px;
-    background-color: black;
-    position: absolute;
-    bottom: -2px;
-    left: 5px;
-}
-
-.emotionButton-pc {
-    width: 40px;
-    height: 40px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin-right: 10px;
-}
-
-.emotionButton-pc>span {
-    margin-left: 3px;
-}
-
-.userList-pc {
-    overflow-y: scroll;
-    scrollbar-width: none;
-    height: 100%;
-    max-height: 84.5%;
-}
-
-.emotion-info-pc {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    padding: 10px 20px;
-}
-
-.emotion-info-div-pc {
-    display: flex;
-}
-
-.userpic-pc {
-    margin-right: 10px;
-}
-
-.userpic-pc>img {
-    width: 40px;
-    height: 40px;
-}
-
-.name-pc {
-    font-size: 16px;
-    font-weight: 500;
-}
-
-.dept-pc {
-    font-size: 12px;
-    color: #ababab;
-}
-
-.emotion-icon-pc>img {
-    width: 25px;
-    height: 25px;
-    margin-top: 5px;
-}
-
-.active-pc {
-    border-bottom: 2px solid #272727;
-    padding-bottom: 5px;
-    font-weight: 600;
+    .anonymous-type {
+        display: inline-flex;
+    }
 }

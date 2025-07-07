@@ -139,7 +139,6 @@ function validateSurveySelectMobile() {
 			});
 		}
 	});
-
 	return result;
 }
 
@@ -185,7 +184,6 @@ function surveySubmitMobile() {
 				});
 			}
 		});
-
 		ajaxCall(obj, submitSurveyHandlerMobile);
 	}
 }
@@ -331,14 +329,14 @@ function bindOtherDescPopup(data) {
 	let $modal = $('#otherTextModal');
 	if (!$modal.length) {
 		$modal = $(`
-      <div id="otherTextModal" class="modal-overlay">
-        <div class="modal-box">
-          <button class="close-btn">&times;</button>
-          <h3>기타의견</h3>
-          <ul class="other-list"></ul>
-        </div>
-      </div>
-    `).appendTo('body');
+					<div id="otherTextModal" class="modal-overlay">
+						<div class="modal-box">
+						<button class="close-btn">&times;</button>
+						<h3>기타의견</h3>
+						<ul class="other-list"></ul>
+						</div>
+					</div>
+				`).appendTo('body');
 		$modal.find('.close-btn').on('click', () => $modal.hide());
 	}
 
@@ -382,10 +380,10 @@ function bindOtherDescPopup(data) {
 			$('<li>').text('투표된 기타의견이 없습니다.')
 		);
 	}
-
 	$modal.css('display', 'flex');
 }
 
+// 참여자 리스트
 function surveyItemResultMemberMobile(itemCode, surveyCode, itemType, isAnonymous, isMulti) {
 	const obj = {
 		url: '/survey/surveyItemResultMember',
@@ -425,15 +423,14 @@ function bindsubmitPopup(data) {
 		$modal = $(`
 					<div id="participantModal" class="modal-overlay">
 						<div class="modal-box">
-						<button class="close-btn">&times;</button>
-						<h3>참여자 리스트</h3>
-						<ul class="other-list"></ul>
+							<button class="close-btn">&times;</button>
+							<h3>참여자 리스트</h3>
+							<ul class="other-list"></ul>
 						</div>
 					</div>
 				`).appendTo('body');
 		$modal.find('.close-btn').on('click', () => $modal.hide());
 	}
-
 	const $ul = $modal.find('.other-list').empty();
 
 	if (list.length) {
@@ -447,7 +444,6 @@ function bindsubmitPopup(data) {
 			$('<li>').text('투표한 참여자가 없습니다.')
 		);
 	}
-
 	$modal.css('display', 'flex');
 }
 
@@ -589,9 +585,8 @@ function goBack(url) {
 	}
 }
 
-// 미참여 화면
+// 통계 화면
 function voteUserList(data) {
-	const list = data || [];
 	const $container = $('.survey-list-mobile').empty();
 
 	const headerHtml = `
@@ -608,55 +603,174 @@ function voteUserList(data) {
 						</div>
 						<div class="mobile-header vote-header">
 						<div class="tabs">
-							<button class="tab active">참여</button>
-							<button class="tab">미참여</button>
+							<button id="item" class="tab active">항목별</button>
+							<button id="non" class="tab">미참여</button>
 						</div>
 						</div>
 						<ul class="member-list"></ul>
 					`;
 	$container.append(headerHtml);
 
-	const $tabs = $container.find('.tabs .tab');
-	const $ul = $container.find('.member-list');
-
-	function renderList(status) {
-		$ul.empty();
-		const filtered = list.filter(item => item.isComplete === status);
-
-		if (filtered.length) {
-			filtered.forEach(item => {
-				$ul.append(`
-							<li class="member-item">
-								<div class="avatar"><img src="/images/survey/img_profile.png" /></div>
-								<div class="info">
-								<div class="name">${item.title}</div>
-								<div class="dept">${item.deptName}</div>
-								</div>
-							</li>
-							`);
-			});
-		} else {
-			$ul.append(`
-							<li class="member-item empty">
-							<div class="info">참여자가 없습니다.</div>
-							</li>
-						`);
-		}
-	}
-
-	$tabs.on('click', function () {
+	$('.tab').on('click', function () {
 		const $this = $(this);
-		$tabs.removeClass('active');
+		$('.tab').removeClass('active');
 		$this.addClass('active');
+	})
 
-		const status = $this.text() === '참여' ? 'Y' : 'N';
-		renderList(status);
-	});
+	$('#item').on('click', function () {
+		getListByItem();
+	})
 
-	renderList('Y');
+	$('#non').on('click', function () {
+		getListByNon(data);
+	})
+
+	$('#item').trigger('click');
 };
 
-// [ 댓글 & 감정표현 ]
+// 통계 - 항목별
+function getListByItem() {
+    const $ul = $('.member-list');
+    const list = surveyQuestionList;
+    let num = 1;
+    let html = '';
+
+    list.forEach(question => {
+        html += `
+            <div class="vote-style">
+                <div class="survey-question">
+                    <div class="question-title">Q${num++}. ${question.questionContents}</div>
+                    <div class="anonymous-type">
+        `;
+
+        html += `<div class="question-type">${question.isMulti === 'Y' ? '복수 선택 가능' : '복수 선택 불가능'}</div>`;
+        if (question.isAnonymous === 'Y') {
+            html += `<div class="question-type"> · 익명</div>`;
+        }
+
+        html += `</div>
+            </div>
+        <div class="vote-group-list">`;
+
+        question.itemList.forEach(item => {
+            const count = item.userList.length;
+
+            // 익명 + 기타의견(DESC) 아닐 경우 명수만 표시
+            if (question.isAnonymous === 'Y' && item.itemType !== 'DESC') {
+                html += `
+                    <div class="vote-group">
+                        <div class="vote-group-title">
+                            <span class="group-name">${item.itemContents}:</span>
+                            <span class="group-count">${count}명</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div class="vote-group">
+                        <div class="vote-group-title">
+                            <span class="group-name">${item.itemContents}:</span>
+                            <span class="group-count">${count}명</span>
+                        </div>
+                        <ul class="vote-member-list">
+                `;
+
+                if (count === 0) {
+                    html += `
+                        <li class="vote-member-item empty">
+                            <div class="vote-team">투표한 멤버가 없습니다.</div>
+                        </li>
+                    `;
+                } else {
+                    item.userList.forEach(userStr => {
+                        let user = null;
+                        try {
+                            user = JSON.parse(userStr);
+                        } catch (e) {}
+                        if (!user) return;
+
+                        let name = '익명';
+                        let dept = '';
+                        if (question.isAnonymous !== 'Y') {
+                            name = user.userName || user.userId;
+                            dept = user.deptName || '';
+                        }
+                        if (item.itemType === 'DESC') {
+                            html += `
+                                <li class="vote-member-item">
+                                    <img src="/images/survey/img_profile.png" alt="사용자 사진" />
+                                    <div class="vote-setting">
+                                        <div class="vote-name">${name}</div>
+                                        <div class="vote-team">${dept}</div>
+                                        <div class="vote-desc">${user.desc || ''}</div>
+                                    </div>
+                                </li>
+                            `;
+                        } else {
+                            html += `
+                                <li class="vote-member-item">
+                                    <img src="/images/survey/img_profile.png" alt="사용자 사진" />
+                                    <div class="vote-setting">
+                                        <div class="vote-name">${name}</div>
+                                        <div class="vote-team">${dept}</div>
+                                    </div>
+                                </li>
+                            `;
+                        }
+                    });
+                }
+                html += `
+                        </ul>
+                    </div>
+                `;
+            }
+        });
+
+        html += `</div></div>`;
+    });
+
+    $ul.empty();
+    $ul.append(html);
+}
+
+// 통계 - 미참여
+function getListByNon(data) {
+	const list = data || [];
+	let html = '';
+	const $ul = $('.member-list');
+
+	// 미참여(N)인 인원만 필터링
+	const nonParticipants = list.filter(item => item.isComplete === 'N');
+
+	if (nonParticipants.length === 0) {
+		// 미참여 인원 없음
+		html = `
+            <li class="member-item empty">
+                <div class="info">미참여한 인원이 없습니다.</div>
+            </li>
+        `;
+	} else {
+		// 미참여 인원 목록 출력
+		nonParticipants.forEach(item => {
+			html += `
+                <li class="member-item">
+                    <div class="avatar item-non">
+                        <img src="/images/survey/img_profile.png" alt="사용자 사진" />
+                        <div class="info">
+                            <div class="name">${item.title}</div>
+                            <div class="dept">${item.deptName}</div>
+                        </div>
+                    </div>
+                </li>
+            `;
+		});
+	}
+
+	$ul.empty();
+	$ul.append(html);
+}
+
+// 댓글 & 감정표현
 function replyList() {
 	$('#inputText').val('');
 
@@ -1828,7 +1942,6 @@ function initParticipants() {
 
 	participantsList.forEach(function (item) {
 		tmpParticipants.push(item);
-		console.log('mpParticipants >>>' + tmpParticipants);
 	});
 }
 function initTree() {
