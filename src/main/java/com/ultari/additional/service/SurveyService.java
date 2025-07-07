@@ -3,9 +3,9 @@ package com.ultari.additional.service;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import com.ultari.additional.domain.organization.User;
 import com.ultari.additional.mapper.common.AlertMapper;
 import com.ultari.additional.mapper.common.OrganizationMapper;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -42,7 +42,7 @@ public class SurveyService {
 
 	@Autowired
 	OrganizationMapper organizationMapper;
-	
+
 	@Value("${common.api.survey-noti-domain}")
 	private String NOTI_DOMAIN;
 
@@ -99,6 +99,33 @@ public class SurveyService {
 		
 		Survey survey = surveyMapper.survey(data);
 		List<SurveyQuestion> surveyQuestionList = surveyMapper.surveyQuestionList(data);
+		//20250707 KHJ
+		for(SurveyQuestion surveyQuestion : surveyQuestionList) {
+			List<SurveyItem> itemList = surveyQuestion.getItemList();
+			for(SurveyItem item : itemList) {
+				Map<String, Object> map = new HashMap<>();
+				map.put("surveyCode",(String) data.get("surveyCode"));
+				map.put("itemCode",item.getItemCode());
+
+				log.debug("{}:{}",(String) data.get("surveyCode"),item.getItemCode());
+				List<SurveyResult> resultList = surveyItemResultMember(map);
+				for(SurveyResult result : resultList) {
+					JSONObject json = new JSONObject();
+					log.debug("{}:{}:{}:{}:{}",result.getItemCode(),result.getUserId(),result.getUserName(),result.getDeptName(),result.getDesc());
+					json.put("questionCode",result.getQuestionCode());
+					json.put("itemCode",result.getItemCode());
+					json.put("userId",result.getUserId());
+					json.put("userName",result.getUserName());
+					json.put("deptName",result.getDeptName());
+					json.put("desc",result.getDesc());
+					json.put("dateTime",result.getDatetime());
+					json.put("itemType",result.getItemType());
+					json.put("itemNumber",result.getItemNumber());
+
+					item.addUser(json.toString());
+				}
+			}
+		}
 		collectAdditionalInformation(survey, userId);
 		
 		List<SurveyResult> surveyResult = surveyMapper.surveyResult(data);
@@ -109,7 +136,9 @@ public class SurveyService {
 		map.put("surveyQuestionList", surveyQuestionList);
 		map.put("surveyResult", surveyResult);
 		map.put("surveyItemAggregate", surveyItemAggregate);
-		
+
+		log.debug("{}",surveyQuestionList);
+
 		return map;
 	}
 	
