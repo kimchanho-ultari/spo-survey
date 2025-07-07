@@ -44,7 +44,7 @@ public class AccountController {
 	@Value("${common.account.encrypt.use-wrapping-base64}")
 	private boolean USE_WRAPPING_BASE64;
 	
-	@RequestMapping("/sso/{systemCode}/{key}")
+	@RequestMapping("/survey/{systemCode}/{key}")
 	public String sso(@PathVariable("systemCode") String systemCode,
 					  @PathVariable("key") String key,
 					  RedirectAttributes attr,
