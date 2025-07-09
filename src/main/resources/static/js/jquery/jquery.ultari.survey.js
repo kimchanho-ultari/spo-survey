@@ -180,8 +180,8 @@ Survey.prototype._appendSurvey = function(question) {
 	
 	// 항목입력
 	var $th_items_title = $('<th class="th_0px_yellow2">').text('항목 입력');
-	var $btn_add_items = $('<span class="button button_gray2">')
-							.text('항목 추가')
+	var $btn_add_items = $('<span class="button button_gray2 btn-item">')
+							.text('항목 추가  ')
 							.data('key', 'items_' + code)
 							.on('click', function(){
 								objThis._appendQuestionsItems('items_' + code);

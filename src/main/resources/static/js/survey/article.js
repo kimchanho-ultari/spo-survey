@@ -82,6 +82,7 @@ function mobileInit() {
 
 		var pcLayerPopup1 = $(".emotionAdd-pc");
 		var pcLayerPopup2 = $(".emotion-user-pc");
+		var pcLayerPopup3 = $(".item-user-pc");
 
 		if (LayerPopup1.has(e.target).length === 0) {
 			$(".popupArea").css("display", "none");
@@ -101,6 +102,10 @@ function mobileInit() {
 
 		if (pcLayerPopup2.has(e.target).length === 0) {
 			$(".emotion-user-pc").css("display", "none");
+		}
+
+		if (pcLayerPopup3.has(e.target).length === 0) {
+			$(".item-user-pc").css("display", "none");
 		}
 	});
 }
@@ -630,34 +635,34 @@ function voteUserList(data) {
 
 // 통계 - 항목별
 function getListByItem() {
-    const $ul = $('.member-list');
-    const list = surveyQuestionList;
-    let num = 1;
-    let html = '';
+	const $ul = $('.member-list');
+	const list = surveyQuestionList;
+	let num = 1;
+	let html = '';
 
-    list.forEach(question => {
-        html += `
+	list.forEach(question => {
+		html += `
             <div class="vote-style">
                 <div class="survey-question">
                     <div class="question-title">Q${num++}. ${question.questionContents}</div>
                     <div class="anonymous-type">
         `;
 
-        html += `<div class="question-type">${question.isMulti === 'Y' ? '복수 선택 가능' : '복수 선택 불가능'}</div>`;
-        if (question.isAnonymous === 'Y') {
-            html += `<div class="question-type"> · 익명</div>`;
-        }
+		html += `<div class="question-type">${question.isMulti === 'Y' ? '복수 선택 가능' : '복수 선택 불가능'}</div>`;
+		if (question.isAnonymous === 'Y') {
+			html += `<div class="question-type"> · 익명</div>`;
+		}
 
-        html += `</div>
+		html += `</div>
             </div>
         <div class="vote-group-list">`;
 
-        question.itemList.forEach(item => {
-            const count = item.userList.length;
+		question.itemList.forEach(item => {
+			const count = item.userList.length;
 
-            // 익명 + 기타의견(DESC) 아닐 경우 명수만 표시
-            if (question.isAnonymous === 'Y' && item.itemType !== 'DESC') {
-                html += `
+			// 익명 + 기타의견(DESC) 아닐 경우 명수만 표시
+			if (question.isAnonymous === 'Y' && item.itemType !== 'DESC') {
+				html += `
                     <div class="vote-group">
                         <div class="vote-group-title">
                             <span class="group-name">${item.itemContents}:</span>
@@ -665,8 +670,8 @@ function getListByItem() {
                         </div>
                     </div>
                 `;
-            } else {
-                html += `
+			} else {
+				html += `
                     <div class="vote-group">
                         <div class="vote-group-title">
                             <span class="group-name">${item.itemContents}:</span>
@@ -675,28 +680,28 @@ function getListByItem() {
                         <ul class="vote-member-list">
                 `;
 
-                if (count === 0) {
-                    html += `
+				if (count === 0) {
+					html += `
                         <li class="vote-member-item empty">
                             <div class="vote-team">투표한 멤버가 없습니다.</div>
                         </li>
                     `;
-                } else {
-                    item.userList.forEach(userStr => {
-                        let user = null;
-                        try {
-                            user = JSON.parse(userStr);
-                        } catch (e) {}
-                        if (!user) return;
+				} else {
+					item.userList.forEach(userStr => {
+						let user = null;
+						try {
+							user = JSON.parse(userStr);
+						} catch (e) { }
+						if (!user) return;
 
-                        let name = '익명';
-                        let dept = '';
-                        if (question.isAnonymous !== 'Y') {
-                            name = user.userName || user.userId;
-                            dept = user.deptName || '';
-                        }
-                        if (item.itemType === 'DESC') {
-                            html += `
+						let name = '익명';
+						let dept = '';
+						if (question.isAnonymous !== 'Y') {
+							name = user.userName || user.userId;
+							dept = user.deptName || '';
+						}
+						if (item.itemType === 'DESC') {
+							html += `
                                 <li class="vote-member-item">
                                     <img src="/images/survey/img_profile.png" alt="사용자 사진" />
                                     <div class="vote-setting">
@@ -706,8 +711,8 @@ function getListByItem() {
                                     </div>
                                 </li>
                             `;
-                        } else {
-                            html += `
+						} else {
+							html += `
                                 <li class="vote-member-item">
                                     <img src="/images/survey/img_profile.png" alt="사용자 사진" />
                                     <div class="vote-setting">
@@ -716,21 +721,21 @@ function getListByItem() {
                                     </div>
                                 </li>
                             `;
-                        }
-                    });
-                }
-                html += `
+						}
+					});
+				}
+				html += `
                         </ul>
                     </div>
                 `;
-            }
-        });
+			}
+		});
 
-        html += `</div></div>`;
-    });
+		html += `</div></div>`;
+	});
 
-    $ul.empty();
-    $ul.append(html);
+	$ul.empty();
+	$ul.append(html);
 }
 
 // 통계 - 미참여
@@ -1290,14 +1295,14 @@ function emotionUploadModal() {
 // ===================================================================================================== mobile
 
 function init() {
-	initDatepicker();		// 달력
-	initTime();				// 시간
+	initDatepicker();		  // 달력
+	initTime();				    // 시간
 	initParticipants();		// 참여자 목록
-	initTree();				// 참여자 트리
-	chkSubmitBtn();			// 제출하기 버튼
-	initSurvey();			// 막대바, 인원
-	replyListPc();			// 댓글
-	emotionPc();			// 감정표현
+	initTree();				    // 참여자 트리
+	chkSubmitBtn();			  // 제출하기 버튼
+	initSurvey();			    // 막대바, 인원
+	replyListPc();			  // 댓글
+	emotionPc();			    // 감정표현
 
 	$('#member_list').chkbox();
 	$('#participants_list').chkbox();
@@ -1322,6 +1327,11 @@ function init() {
 	$(document).on('click', '#reaction-btn-pc > span', function () {
 		emotionListModalPc()
 	})
+
+	// 통계 팝업
+	$(document).on('click', '#btn-vote-list', function () {
+		itemListModalPc();
+	})
 }
 
 function initEvent() {
@@ -1345,8 +1355,179 @@ function initEvent() {
 	$('#btnNotiForm').on('click', notiForm);
 }
 
-// [ PC 댓글 & 감정표현 ]
+// 통계 화면
+function itemListModalPc() {
+	let html = '';
+	let num = 1;
+	const list = surveyQuestionList;
 
+	if (!document.querySelector('.item-user-pc')) {
+		let div = document.createElement('div');
+		div.setAttribute('class', 'item-user-pc');
+		div.style.display = "none";  // 기본은 숨김
+		document.querySelector('body').append(div);
+	} else {
+		$('.item-user-pc').children().remove();
+	}
+
+	html += `
+        <div class="survey-modal">
+            <div class="survey-modal-div">
+                <div class="modal-tab">
+                    <button id="item-pc" class="tab-pc tab-on">항목별</button>
+                    <button id="non-pc" class="tab-pc">미참여</button>
+                </div>
+    `;
+
+	list.forEach(question => {
+		html += `
+            <div class="survey-modal-div2">
+                <div class="modal-header">
+                    <span>Q${num++}. ${question.questionContents}</span>
+                    <span class="question-meta">${question.isMulti === 'Y' ? '복수 선택 가능' : '복수 선택 불가능'}</span>
+                    ${question.isAnonymous === 'Y' ? '<span class="question-meta">익명</span>' : ''}
+                </div>
+                <div class="modal-content">
+        `;
+
+		question.itemList.forEach(item => {
+			const count = item.userList.length;
+			html += `
+                <div class="survey-item-group">
+                    <div class="survey-item-header">
+                        <span class="survey-item-title">${item.itemContents}: </span>
+                        <span class="survey-item-count">${count}명</span>
+                    </div>
+            `;
+
+			if (question.isAnonymous !== 'Y' || item.itemType === 'DESC') {
+				html += `<ul class="survey-user-list">`;
+
+				if (count === 0) {
+					html += `<li><div class="vote-team">투표한 멤버가 없습니다.</div></li>`;
+				} else {
+					item.userList.forEach(userStr => {
+						const user = JSON.parse(userStr);
+						const name = question.isAnonymous === 'Y' ? '익명' : user.userName || user.userId;
+						const dept = question.isAnonymous === 'Y' ? '' : user.deptName || '';
+
+						html += `
+                            <li>
+                                <img src="/images/survey/img_profile.png" class="user-profile">
+                                <div class="user-info">
+                                    <span class="user-name">${name}</span>
+                                    <span class="user-team">${dept}</span>
+                                    ${item.itemType === 'DESC' ? `<div class="vote-desc">${user.desc || ''}</div>` : ''}
+                                </div>
+                            </li>
+                        `;
+					});
+				}
+
+				html += `</ul>`;
+			}
+			html += `</div>`;
+		});
+
+		html += `
+                </div>
+            </div>
+        `;
+	});
+
+	html += `
+            </div>
+        </div>
+    `;
+
+	$(".item-user-pc").empty().append(html).css('display', 'block');
+
+	$('.tab-pc').off('click').on('click', function () {
+		$('.tab-pc').removeClass('.tab-on');
+		$(this).addClass('.tab-on');
+
+		if ($(this).attr('id') === 'item-pc') {
+			itemListModalPc();
+		} else {
+			getListByNonPc();
+		}
+	});
+}
+
+function getListByNonPc() {
+	const data = survey;
+	const member = data.memberList || [];
+
+	let html = '';
+	let $ul = $(".item-user-pc");
+
+	if (!document.querySelector('.item-user-pc')) {
+		let div = document.createElement('div');
+		div.setAttribute('class', 'item-user-pc');
+		document.querySelector('body').append(div);
+	} else {
+		$('.item-user-pc').children().remove();
+	}
+
+	html += `
+            <div class="survey-modal">
+                <div class="survey-modal-div">
+                    <div class="modal-tab">
+                        <button id="item-pc" class="tab-pc">항목별</button>
+                        <button id="non-pc" class="tab-pc tab-on">미참여</button>
+                    </div>
+                    <div class="modal-content">
+                        <ul class="member-list">
+    `;
+
+	const nonList = member.filter(item => item.isComplete === 'N');
+
+	if (nonList.length === 0) {
+		html += `
+            <li class="member-item empty">
+                <div class="info">미참여한 인원이 없습니다.</div>
+            </li>
+        `;
+	} else {
+		nonList.forEach(item => {
+			html += `
+                <li class="member-item">
+                    <div class="avatar item-non">
+                        <img src="/images/survey/img_profile.png" alt="사용자 사진" />
+                        <div class="info">
+                            <div class="name">${item.title}</div>
+                            <div class="dept">${item.deptName}</div>
+                        </div>
+                    </div>
+                </li>
+            `;
+		});
+	}
+
+	html += `
+                    </ul>
+                </div>
+            </div>
+        </div>
+    `;
+
+	$ul.empty();
+	$ul.append(html);
+	$ul.css('display', 'block');
+
+	$('.tab-pc').off('click').on('click', function () {
+		$('.tab-pc').removeClass('tab-on');
+		$(this).addClass('tab-on');
+
+		if (this.id === 'item-pc') {
+			itemListModalPc();
+		} else {
+			getListByNonPc();
+		}
+	});
+}
+
+// [ PC 댓글 & 감정표현 ]
 function replyListPc() {
 	$('#inputText-pc').val('');
 

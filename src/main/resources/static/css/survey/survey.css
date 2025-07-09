@@ -1953,7 +1953,7 @@ A.link_adress_list:hover {
     padding: 5% 0px;
 }
 
-.reaction-icons-pc > button {
+.reaction-icons-pc>button {
     cursor: pointer;
 }
 
@@ -1971,7 +1971,8 @@ A.link_adress_list:hover {
     cursor: pointer;
 }
 
-.emotion-user-pc {
+.emotion-user-pc,
+.item-user-pc {
     display: none;
     position: fixed;
     z-index: 1000;
@@ -1984,7 +1985,8 @@ A.link_adress_list:hover {
     top: 0;
 }
 
-.user-popup-pc {
+.user-popup-pc,
+.survey-modal {
     background-color: #fff;
     border: 2px solid #0045a7;
     width: 570px !important;
@@ -2108,4 +2110,192 @@ A.link_adress_list:hover {
     border-bottom: 2px solid #272727;
     padding-bottom: 5px;
     font-weight: 600;
+}
+
+.iconSurveyItemResultMember>img,
+.iconSurveyItemResultMember>span {
+    cursor: pointer;
+}
+
+.btn-item {
+    margin-left: 10px;
+}
+
+/* 통계 화면 */
+.survey-modal-div {
+    padding: 30px;
+    overflow-y: auto;
+    max-height: 72vh;
+    height: 100%;
+}
+
+#item-pc,
+#non-pc {
+    width: 49%;
+    height: 5vh;
+    border: 1px solid #eee;
+    background-color: #ffffff;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.modal-tab {
+    display: flex;
+}
+
+.tab-on {
+    border: 1px solid #0950a0 !important;
+}
+
+.modal-header {
+    padding: 15px 0;
+    font-weight: bold;
+    align-items: center;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    margin-top: 24px;
+    display: flex;
+    gap: 10px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.question-meta {
+    font-size: 10px;
+    color: #1976d2;
+    background: #f2f7ff;
+    border-radius: 6px;
+    margin-left: 10px;
+}
+
+.survey-item-group {
+    margin-bottom: 28px;
+}
+
+.survey-item-header {
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.survey-item-title {}
+
+.survey-item-count {
+    font-size: 13px;
+    color: #888;
+}
+
+.survey-user-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.survey-user-list li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.user-profile {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    margin-right: 14px;
+    background: #eaeaea;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name {
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.user-team {
+    font-size: 12px;
+    color: #aaa;
+}
+
+.survey-modal-div2 {
+    border-bottom: 1px solid #eee;
+}
+
+.survey-modal-div2:last-child {
+    border-bottom: none;
+}
+
+.vote-team {
+    font-size: 12px;
+    color: #888888;
+}
+
+.member-list {
+    display: flex;
+    flex-direction: row;
+    padding: 0 20px;
+}
+
+.member-list>li {
+    margin-bottom: 20px;
+}
+
+.member-list {
+    display: flex;
+    flex-wrap: wrap;
+    /* 요소가 많아지면 자동으로 밑으로 내려가게 처리 */
+    gap: 2px;
+    /* 항목 간 간격 */
+    padding: 0;
+    margin: 0;
+}
+
+.member-item {
+    list-style: none;
+    width: 100px;
+    /* 고정 너비 지정 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* 요소를 중앙 정렬 */
+}
+
+.avatar img {
+    width: 40px;
+    height: 40px;
+}
+
+.info {
+    text-align: center;
+    margin-top: 5px;
+    word-break: break-all;
+    /* 긴 이름이 있을 경우 줄바꿈 */
+}
+
+.modal-content {
+    margin-top: 30px;
+}
+
+.item-non {
+    display: contents;
+}
+
+.name {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.dept {
+    font-size: 12px;
+    color: #b3b3b3;
 }

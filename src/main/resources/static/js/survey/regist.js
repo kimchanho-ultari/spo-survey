@@ -15,7 +15,7 @@ $(function () {
 	// 수정
 	if (surveyCode) {
 		codeCheck();
-	// 신규 등록
+		// 신규 등록
 	} else {
 		initVoteBox();
 	}
@@ -79,11 +79,11 @@ $(function () {
 
 	// - 항목 삭제 버튼
 	$(document).on("click", ".del-option", function () {
-		const $box = $(this).closest(".vote-box"); 						// 현재 투표 박스
+		const $box = $(this).closest(".vote-box"); 						        // 현재 투표 박스
 		const $options = $box.find(".vote-options .option-inputs"); 	// 모든 항목들
 
 		if ($options.length > 1) {
-			$options.last().remove(); 									// 마지막 항목만 삭제
+			$options.last().remove(); 									                // 마지막 항목만 삭제
 		} else {
 			showAlert({
 				message: "항목은 최소 1개 이상 있어야 합니다."
