@@ -1436,6 +1436,9 @@ function itemListModalPc() {
 	});
 
 	html += `
+                <div class="excel-down">
+                    <button class="button button_gray2">엑셀 다운로드</button>
+                </div>
             </div>
         </div>
     `;

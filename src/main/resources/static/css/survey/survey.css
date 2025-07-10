@@ -2134,7 +2134,6 @@ A.link_adress_list:hover {
     width: 49%;
     height: 5vh;
     border: 1px solid #eee;
-    background-color: #ffffff;
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
@@ -2146,6 +2145,8 @@ A.link_adress_list:hover {
 
 .tab-on {
     border: 1px solid #0950a0 !important;
+    background-color: #0950a0 !important;
+    color: #ffffff;
 }
 
 .modal-header-pc {
@@ -2281,10 +2282,6 @@ A.link_adress_list:hover {
     /* 긴 이름이 있을 경우 줄바꿈 */
 }
 
-/* .modal-content {
-    margin-top: 30px;
-}*/
-
 .item-non-pc {
     display: contents;
 }
@@ -2297,4 +2294,14 @@ A.link_adress_list:hover {
 .dept-pc {
     font-size: 12px;
     color: #b3b3b3;
+}
+
+.excel-down {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.excel-down>button {
+    margin-top: 15px;
+    height: 29px;
 }
