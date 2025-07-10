@@ -1371,9 +1371,9 @@ function itemListModalPc() {
 	}
 
 	html += `
-        <div class="survey-modal">
-            <div class="survey-modal-div">
-                <div class="modal-tab">
+        <div class="survey-modal-pc">
+            <div class="survey-modal-div-pc">
+                <div class="modal-tab-pc">
                     <button id="item-pc" class="tab-pc tab-on">항목별</button>
                     <button id="non-pc" class="tab-pc">미참여</button>
                 </div>
@@ -1382,10 +1382,10 @@ function itemListModalPc() {
 	list.forEach(question => {
 		html += `
             <div class="survey-modal-div2">
-                <div class="modal-header">
+                <div class="modal-header-pc">
                     <span>Q${num++}. ${question.questionContents}</span>
-                    <span class="question-meta">${question.isMulti === 'Y' ? '복수 선택 가능' : '복수 선택 불가능'}</span>
-                    ${question.isAnonymous === 'Y' ? '<span class="question-meta">익명</span>' : ''}
+                    <span class="question-meta-pc">${question.isMulti === 'Y' ? '복수 선택 가능' : '복수 선택 불가능'}</span>
+                    ${question.isAnonymous === 'Y' ? '<span class="question-meta-pc">익명</span>' : ''}
                 </div>
                 <div class="modal-content">
         `;
@@ -1393,18 +1393,18 @@ function itemListModalPc() {
 		question.itemList.forEach(item => {
 			const count = item.userList.length;
 			html += `
-                <div class="survey-item-group">
-                    <div class="survey-item-header">
-                        <span class="survey-item-title">${item.itemContents}: </span>
-                        <span class="survey-item-count">${count}명</span>
+                <div class="survey-item-group-pc">
+                    <div class="survey-item-header-pc">
+                        <span class="survey-item-title-pc">${item.itemContents}: </span>
+                        <span class="survey-item-count-pc">${count}명</span>
                     </div>
             `;
 
 			if (question.isAnonymous !== 'Y' || item.itemType === 'DESC') {
-				html += `<ul class="survey-user-list">`;
+				html += `<ul class="survey-user-list-pc">`;
 
 				if (count === 0) {
-					html += `<li><div class="vote-team">투표한 멤버가 없습니다.</div></li>`;
+					html += `<li><div class="vote-team-pc">투표한 멤버가 없습니다.</div></li>`;
 				} else {
 					item.userList.forEach(userStr => {
 						const user = JSON.parse(userStr);
@@ -1413,11 +1413,11 @@ function itemListModalPc() {
 
 						html += `
                             <li>
-                                <img src="/images/survey/img_profile.png" class="user-profile">
-                                <div class="user-info">
-                                    <span class="user-name">${name}</span>
-                                    <span class="user-team">${dept}</span>
-                                    ${item.itemType === 'DESC' ? `<div class="vote-desc">${user.desc || ''}</div>` : ''}
+                                <img src="/images/survey/img_profile.png" class="user-profile-pc">
+                                <div class="user-info-pc">
+                                    <span class="user-name-pc">${name}</span>
+                                    <span class="user-team-pc">${dept}</span>
+                                    ${item.itemType === 'DESC' ? `<div class="vote-desc-pc">${user.desc || ''}</div>` : ''}
                                 </div>
                             </li>
                         `;
@@ -1470,33 +1470,33 @@ function getListByNonPc() {
 	}
 
 	html += `
-            <div class="survey-modal">
-                <div class="survey-modal-div">
-                    <div class="modal-tab">
+            <div class="survey-modal-pc">
+                <div class="survey-modal-div-pc">
+                    <div class="modal-tab-pc">
                         <button id="item-pc" class="tab-pc">항목별</button>
                         <button id="non-pc" class="tab-pc tab-on">미참여</button>
                     </div>
-                    <div class="modal-content">
-                        <ul class="member-list">
+                    <div class="modal-content-pc">
+                        <ul class="member-list-pc">
     `;
 
 	const nonList = member.filter(item => item.isComplete === 'N');
 
 	if (nonList.length === 0) {
 		html += `
-            <li class="member-item empty">
+            <li class="member-item-pc empty">
                 <div class="info">미참여한 인원이 없습니다.</div>
             </li>
         `;
 	} else {
 		nonList.forEach(item => {
 			html += `
-                <li class="member-item">
-                    <div class="avatar item-non">
+                <li class="member-item-pc">
+                    <div class="avatar item-non-pc">
                         <img src="/images/survey/img_profile.png" alt="사용자 사진" />
-                        <div class="info">
-                            <div class="name">${item.title}</div>
-                            <div class="dept">${item.deptName}</div>
+                        <div class="info-pc">
+                            <div class="name-pc">${item.title}</div>
+                            <div class="dept-pc">${item.deptName}</div>
                         </div>
                     </div>
                 </li>

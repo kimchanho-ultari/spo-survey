@@ -1986,7 +1986,7 @@ A.link_adress_list:hover {
 }
 
 .user-popup-pc,
-.survey-modal {
+.survey-modal-pc {
     background-color: #fff;
     border: 2px solid #0045a7;
     width: 570px !important;
@@ -2122,7 +2122,7 @@ A.link_adress_list:hover {
 }
 
 /* 통계 화면 */
-.survey-modal-div {
+.survey-modal-div-pc {
     padding: 30px;
     overflow-y: auto;
     max-height: 72vh;
@@ -2140,7 +2140,7 @@ A.link_adress_list:hover {
     cursor: pointer;
 }
 
-.modal-tab {
+.modal-tab-pc {
     display: flex;
 }
 
@@ -2148,7 +2148,7 @@ A.link_adress_list:hover {
     border: 1px solid #0950a0 !important;
 }
 
-.modal-header {
+.modal-header-pc {
     padding: 15px 0;
     font-weight: bold;
     align-items: center;
@@ -2164,7 +2164,7 @@ A.link_adress_list:hover {
     align-items: flex-start;
 }
 
-.question-meta {
+.question-meta-pc {
     font-size: 10px;
     color: #1976d2;
     background: #f2f7ff;
@@ -2172,11 +2172,11 @@ A.link_adress_list:hover {
     margin-left: 10px;
 }
 
-.survey-item-group {
+.survey-item-group-pc {
     margin-bottom: 28px;
 }
 
-.survey-item-header {
+.survey-item-header-pc {
     font-size: 13px;
     font-weight: bold;
     margin-bottom: 10px;
@@ -2185,26 +2185,24 @@ A.link_adress_list:hover {
     gap: 7px;
 }
 
-.survey-item-title {}
-
-.survey-item-count {
+.survey-item-count-pc {
     font-size: 13px;
     color: #888;
 }
 
-.survey-user-list {
+.survey-user-list-pc {
     list-style: none;
     margin: 0;
     padding: 0;
 }
 
-.survey-user-list li {
+.survey-user-list-pc li {
     display: flex;
     align-items: center;
     margin-bottom: 10px;
 }
 
-.user-profile {
+.user-profile-pc {
     width: 38px;
     height: 38px;
     border-radius: 50%;
@@ -2212,17 +2210,17 @@ A.link_adress_list:hover {
     background: #eaeaea;
 }
 
-.user-info {
+.user-info-pc {
     display: flex;
     flex-direction: column;
 }
 
-.user-name {
+.user-name-pc {
     font-size: 15px;
     font-weight: 500;
 }
 
-.user-team {
+.user-team-pc {
     font-size: 12px;
     color: #aaa;
 }
@@ -2235,22 +2233,22 @@ A.link_adress_list:hover {
     border-bottom: none;
 }
 
-.vote-team {
+.vote-team-pc {
     font-size: 12px;
     color: #888888;
 }
 
-.member-list {
+.member-list-pc {
     display: flex;
     flex-direction: row;
     padding: 0 20px;
 }
 
-.member-list>li {
+.member-list-pc>li {
     margin-bottom: 20px;
 }
 
-.member-list {
+.member-list-pc {
     display: flex;
     flex-wrap: wrap;
     /* 요소가 많아지면 자동으로 밑으로 내려가게 처리 */
@@ -2258,9 +2256,10 @@ A.link_adress_list:hover {
     /* 항목 간 간격 */
     padding: 0;
     margin: 0;
+    margin-top: 30px;
 }
 
-.member-item {
+.member-item-pc {
     list-style: none;
     width: 100px;
     /* 고정 너비 지정 */
@@ -2275,27 +2274,27 @@ A.link_adress_list:hover {
     height: 40px;
 }
 
-.info {
+.info-pc {
     text-align: center;
     margin-top: 5px;
     word-break: break-all;
     /* 긴 이름이 있을 경우 줄바꿈 */
 }
 
-.modal-content {
+/* .modal-content {
     margin-top: 30px;
-}
+}*/
 
-.item-non {
+.item-non-pc {
     display: contents;
 }
 
-.name {
+.name-pc {
     font-size: 13px;
     font-weight: 500;
 }
 
-.dept {
+.dept-pc {
     font-size: 12px;
     color: #b3b3b3;
 }
