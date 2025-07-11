@@ -3,11 +3,11 @@
 <mapper namespace="com.ultari.additional.mapper.common.AlertMapper">
 	<insert id="registAlert" parameterType="String">
 		INSERT INTO ULT_MSG_ALERT (DOC_DESC, DOC_TITLE, DOC_URL, INPUT_DATE, RECV_ID, SND_USER, SYS_NAME, ALERT_TYPE, SEND_YN)
-		VALUES('미니투표가 등록되었습니다.',#{title}, CONCAT('http://127.0.0.1:8081/sso/survey/',#{recvId},'?surveyCode=',#{url}), #{inputDate}, #{recvId}, #{sndUser}, #{sysName}, #{alertType}, 'N')
+		VALUES('미니투표가 등록되었습니다.',#{title}, CONCAT('http://127.0.0.1:8081/survey/survey/',#{recvId},'?surveyCode=',#{url}), #{inputDate}, #{recvId}, #{sndUser}, #{sysName}, #{alertType}, 'N')
 	</insert>
 	<insert id="endAlert" parameterType="String">
 		INSERT INTO ULT_MSG_ALERT (DOC_DESC, DOC_TITLE, DOC_URL, INPUT_DATE, RECV_ID, SND_USER, SYS_NAME, ALERT_TYPE, SEND_YN)
-		VALUES('미니투표 종료가 30분 남았습니다.',#{title}, CONCAT('http://127.0.0.1:8081/sso/survey/',#{recvId},'?surveyCode=',#{url}), #{inputDate}, #{recvId}, '미니투표', #{sysName}, #{alertType}, 'N')
+		VALUES('미니투표 종료가 30분 남았습니다.',#{title}, CONCAT('http://127.0.0.1:8081/survey/survey/',#{recvId},'?surveyCode=',#{url}), #{inputDate}, #{recvId}, '미니투표', #{sysName}, #{alertType}, 'N')
 	</insert>
 	<select id="selectEnd30min" resultType="Map">
 		<![CDATA[
