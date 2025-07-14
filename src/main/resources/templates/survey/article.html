@@ -159,15 +159,15 @@
 					<tr>
 						<th class="th_0px_gray">현황 공개 여부</th>
 						<td colspan="2">
-							<div th:if="${survey.getIsWriter()} == 'Y' and ${survey.getStatus()} == 'W'">
+							<div th:if="${survey.getIsWriter()} == 'Y' and ${survey.getStatus()} == 'N'">
 								<label style=""><input type="radio" name="isOpen" value="Y"
 										style="width:15px;height:15px;vertical-align:bottom" checked="checked">
 									공개</label>
 								<label style="margin-left:20px"><input type="radio" name="isOpen" value="N"
 										style="width:15px;height:15px;vertical-align:bottom"> 비공개</label>
 							</div>
-							<div th:if="${survey.getStatus()} != 'W'">
-								<span th:if="${survey.getIsOpen()} == 'Y'">공개</span>
+							<div th:if="${survey.getStatus()} != 'N'">
+								<span th:if="${survey.getIsOpen() } == 'Y' or ${survey.getIsOpen() } == null">공개</span>
 								<span th:if="${survey.getIsOpen()} == 'N'">비공개</span>
 							</div>
 						</td>
