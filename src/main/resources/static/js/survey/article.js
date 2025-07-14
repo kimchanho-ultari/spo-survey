@@ -1332,6 +1332,11 @@ function init() {
 	$(document).on('click', '#btn-vote-list', function () {
 		itemListModalPc();
 	})
+
+	// 엑셀 다운로드
+	$(document).on('click', '#btnExcel', function () {
+		getExcelDown();
+	})
 }
 
 function initEvent() {
@@ -1353,6 +1358,35 @@ function initEvent() {
 	$('#exportStatistics').on('click', exportStatistics);
 
 	$('#btnNotiForm').on('click', notiForm);
+}
+
+function getExcelDown() {
+	$.ajax({
+		url: '/survey/export?surveyCode=' + surveyCode,
+		type: 'POST',
+		xhrFields: {
+			responseType: 'blob'
+		},
+		success: function (blob, status, xhr) {
+			const now = new Date();
+			const pad = n => n.toString().padStart(2, '0');
+			const dateStr = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}`;
+			const timeStr = `${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+
+			const url = window.URL.createObjectURL(blob);
+			const a = document.createElement('a');
+
+			a.href = url;
+			a.download = `미니투표_${dateStr}_${timeStr}.xlsx`;
+			document.body.appendChild(a);
+			a.click();
+			a.remove();
+			window.URL.revokeObjectURL(url);
+		},
+		error: function (xhr, status, error) {
+			console.error("엑셀 다운로드 실패:", error);
+		}
+	});
 }
 
 // 통계 화면
@@ -1437,7 +1471,7 @@ function itemListModalPc() {
 
 	html += `
                 <div class="excel-down">
-                    <button class="button button_gray2">엑셀 다운로드</button>
+                    <button class="button button_gray2" id="btnExcel">엑셀 다운로드</button>
                 </div>
             </div>
         </div>
