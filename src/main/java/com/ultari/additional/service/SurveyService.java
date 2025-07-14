@@ -99,7 +99,7 @@ public class SurveyService {
 		
 		Survey survey = surveyMapper.survey(data);
 		List<SurveyQuestion> surveyQuestionList = surveyMapper.surveyQuestionList(data);
-		//20250707 KHJ
+		//20250707 KHJ start
 		for(SurveyQuestion surveyQuestion : surveyQuestionList) {
 			List<SurveyItem> itemList = surveyQuestion.getItemList();
 			for(SurveyItem item : itemList) {
@@ -126,6 +126,7 @@ public class SurveyService {
 				}
 			}
 		}
+		//20250707 KHJ end
 		collectAdditionalInformation(survey, userId);
 		
 		List<SurveyResult> surveyResult = surveyMapper.surveyResult(data);
@@ -304,18 +305,48 @@ public class SurveyService {
 	}
 	
 	public Map<String, Object> export(Map<String, Object> map) throws Exception {
+		Survey survey = surveyMapper.survey(map);
 		List<SurveyQuestion> surveyQuestionList = surveyMapper.surveyQuestionListWithoutItems(map);
+
 		List<SurveyItem> surveyItemList = surveyMapper.surveyItemListBySurveyCode(map);
+
+		/*for(SurveyItem item : surveyItemList) {
+			Map<String, Object> tmp = new HashMap<>();
+			tmp.put("surveyCode",survey.getSurveyCode());
+			tmp.put("itemCode",item.getItemCode());
+
+			log.debug("{}:{}",survey.getSurveyCode(),item.getItemCode());
+			List<SurveyResult> resultList = surveyItemResultMember(tmp);
+			for(SurveyResult result : resultList) {
+				JSONObject json = new JSONObject();
+				log.debug("{}:{}:{}:{}:{}",result.getItemCode(),result.getUserId(),result.getUserName(),result.getDeptName(),result.getDesc());
+				json.put("questionCode",result.getQuestionCode());
+				json.put("itemCode",result.getItemCode());
+				json.put("userId",result.getUserId());
+				json.put("userName",result.getUserName());
+				json.put("deptName",result.getDeptName());
+				json.put("desc",result.getDesc());
+				json.put("dateTime",result.getDatetime());
+				json.put("itemType",result.getItemType());
+				json.put("itemNumber",result.getItemNumber());
+
+				item.addUser(json.toString());
+			}
+		}*/
+
 		List<SurveyResult> surveyResult = surveyMapper.surveyResultBySurveyCode(map);
 		List<SurveyMember> surveyMemberList = surveyMapper.surveyMemberList(map);
 		
-		SurveyStatistics statistics = new SurveyStatistics(surveyQuestionList, surveyItemList, surveyResult, surveyMemberList);
-		Map<String, Object> statisticsIndividualSelectionQuestions = statistics.individualSelectionQuestions();
-		Map<String, Object> statisticsByItem = statistics.statisticsByItem();
+		SurveyStatistics statistics = new SurveyStatistics(survey, surveyQuestionList, surveyItemList, surveyResult, surveyMemberList);
+		//Map<String, Object> statisticsIndividualSelectionQuestions = statistics.individualSelectionQuestions();
+		//Map<String, Object> statisticsByItem = statistics.statisticsByItem();
+		Map<String, Object> statisticsSummary = statistics.statisticsSummary();
+
 		
 		List<Map<String, Object>> list = new ArrayList<>();
-		list.add(statisticsByItem);
-		list.add(statisticsIndividualSelectionQuestions);
+		//list.add(statisticsByItem);
+		//list.add(statisticsIndividualSelectionQuestions);
+		list.add(statisticsSummary);
 		
 		Map<String, Object> data = new HashMap<>();
 		data.put(ExcelConstant.FILE_NAME, "미니투표_" + StringUtil.datetime("yyyyMMddHHmmss"));

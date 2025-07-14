@@ -250,7 +250,7 @@ public class SurveyController {
 		return map;
 	}
 	
-	@PostMapping("/exportDesc")
+	@RequestMapping("/exportDesc")
 	public ModelAndView exportDesc(@RequestParam("surveyCode") String surveyCode,
 			HttpSession session) {
 		Map<String, Object> map = new HashMap<>();
@@ -301,13 +301,13 @@ public class SurveyController {
 		return map;
 	}
 	
-	@PostMapping("/export")
+	@RequestMapping("/export")
 	public ModelAndView export(@RequestParam String surveyCode, HttpSession session) throws Exception {
 		Map<String, Object> data = new HashMap<>();
 		data.put("surveyCode", surveyCode);
 		
 		Map<String, Object> map = surveyService.export(data);
-		
+		log.debug(map.toString());
 		return new ModelAndView(xlsxView, map);
 	}
 }
