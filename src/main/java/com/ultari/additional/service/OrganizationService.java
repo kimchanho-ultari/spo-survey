@@ -6,9 +6,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -345,4 +348,53 @@ public class OrganizationService {
 		data.put("code", code);
 		return data;
 	}
+
+	@Transactional
+	public JSONObject buddyList(String userId, String buddyParent) throws Exception {
+		User user = organizationMapper.memberById(userId);
+		JSONObject json = new JSONObject();
+		JSONArray groupArr = new JSONArray();
+		JSONArray memberArr = new JSONArray();
+		List<Map<String, String>> groupList = organizationMapper.findBuddyGroupList(userId, buddyParent);
+		for(Map<String, String> groupMap : groupList) {
+			JSONObject j = new JSONObject();
+			j.put("key", groupMap.get("buddyId"));
+			j.put("parent", groupMap.get("buddyParent"));
+			j.put("name", groupMap.get("buddyName"));
+			j.put("order", groupMap.get("buddyOrder"));
+			j.put("type", groupMap.get("buddyType"));
+			j.put("userId", groupMap.get("userId"));
+			groupArr.put(j);
+		}
+		json.put("groupList",groupArr);
+
+		if(buddyParent.equals("1")) {
+			Map<String, Object> map = new HashMap<>();
+			map.put("deptId",user.getDeptId());
+			List<User> userList = organizationMapper.memberByDeptId(map);
+			for(User usr : userList) {
+				JSONObject j = new JSONObject();
+				j.put("userId", usr.getUserId());
+				j.put("userName",usr.getUserName());
+				j.put("posName",usr.getPosName());
+				j.put("deptName",usr.getDeptName());
+				memberArr.put(j);
+			}
+			json.put("memberList",memberArr);
+		} else {
+			List<Map<String, String>> memberList = organizationMapper.findBuddyMemberList(userId, buddyParent);
+			for(Map<String, String> memberMap : memberList) {
+				JSONObject j = new JSONObject();
+				User usr = organizationMapper.memberById(memberMap.get("buddyId"));
+				j.put("userId", usr.getUserId());
+				j.put("userName",usr.getUserName());
+				j.put("posName",usr.getPosName());
+				j.put("deptName",usr.getDeptName());
+				memberArr.put(j);
+			}
+			json.put("memberList",memberArr);
+		}
+		return json;
+	}
 }
+

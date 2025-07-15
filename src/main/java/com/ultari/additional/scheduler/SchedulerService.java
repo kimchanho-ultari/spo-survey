@@ -5,10 +5,12 @@ import com.ultari.additional.mapper.common.SurveyMapper;
 import com.ultari.additional.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -20,8 +22,14 @@ public class SchedulerService {
     @Autowired
     AlertMapper alertMapper;
 
+    @Autowired
+    SurveyMapper surveyMapper;
+
+    @Value("${ultari.survey.expiryday:90}")
+    int delDays;
+
     @Transactional
-    @Scheduled(cron = "${ultari.scheduler.endAlert.cron:0 0,5,10,15,20,25,30,35,40,45,50,55 * * * *}")
+    @Scheduled(cron = "${ultari.scheduler.endAlert.cron:0 */5 * * * *}")
     public void endAlertCron (){
         log.debug("endAlarmCron");
 
@@ -34,6 +42,31 @@ public class SchedulerService {
             String member = map.get("member");
             String inputDate = StringUtil.castNowDate(LocalDateTime.now(),"yyyyMMddHHmmss");
             alertMapper.endAlert(userId, title, code, inputDate, member, userId, "SURVEY", "0");
+        }
+    }
+
+    @Transactional
+    @Scheduled(cron = "${ultari.scheduler.expiresurvey.delete.cron:0 0 0 * * *}")
+    public void deleteCron (){
+        log.debug("deleteCron");
+
+        LocalDate today = LocalDate.now();
+        LocalDate minusDaysAgo = today.minusDays(delDays);
+
+        String deleteDays = minusDaysAgo.toString();
+
+        log.debug("delete days ago : {}",deleteDays);
+        List<String> list = surveyMapper.findDeleteSurveyList(deleteDays);
+        for(String surveyCode : list) {
+
+            log.debug("delete surveyCode : " + surveyCode);
+
+            surveyMapper.deleteSurvey(surveyCode);
+            surveyMapper.deleteSurveyItem(surveyCode);
+            surveyMapper.deleteSurveyMember(surveyCode);
+            surveyMapper.deleteSurveyQuestion(surveyCode);
+            surveyMapper.deleteSurveyResult(surveyCode);
+            surveyMapper.deleteSurveyResultDesc(surveyCode);
         }
 
     }

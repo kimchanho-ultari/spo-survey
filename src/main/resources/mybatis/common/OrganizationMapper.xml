@@ -211,4 +211,24 @@ UPDATE MSG_PASSWORD_MANAGE SET COUNT=0
 WHERE
 		USER_ID=#{key}
 	</update>
+	<select id="findBuddyMemberList" resultType="map">
+		SELECT USER_ID AS userId
+			, BUDDY_PARENT AS buddyParent
+			, BUDDY_ID AS buddyId
+			, BUDDY_NAME AS buddyName
+			, BUDDY_ORDER AS buddyOrder
+			, BUDDY_TYPE AS buddyType
+		FROM MSG_BUDDY
+		WHERE USER_ID = #{userId} AND BUDDY_PARENT = #{buddyParent} AND BUDDY_TYPE = '0'
+	</select>
+	<select id="findBuddyGroupList" resultType="map">
+		SELECT USER_ID AS userId
+		, BUDDY_PARENT AS buddyParent
+		, BUDDY_ID AS buddyId
+		, BUDDY_NAME AS buddyName
+		, BUDDY_ORDER AS buddyOrder
+		, BUDDY_TYPE AS buddyType
+		FROM MSG_BUDDY
+		WHERE USER_ID = #{userId} AND BUDDY_PARENT = #{buddyParent} AND BUDDY_TYPE != '0'
+	</select>
 </mapper>

@@ -51,4 +51,13 @@ public interface SurveyMapper {
 	public List<SurveyResult> surveyResultBySurveyCode(Map<String, Object> data) throws Exception;
 
 	void savePicture(String itemCode, String filePath);
+
+	List<String> findDeleteSurveyList(String deleteDays);
+
+	void deleteSurvey(String surveyCode);
+	void deleteSurveyItem(String surveyCode);
+	void deleteSurveyMember(String surveyCode);
+	void deleteSurveyQuestion(String surveyCode);
+	void deleteSurveyResult(String surveyCode);
+	void deleteSurveyResultDesc(String surveyCode);
 }

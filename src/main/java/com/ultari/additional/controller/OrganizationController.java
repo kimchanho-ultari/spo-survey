@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -119,5 +121,13 @@ public class OrganizationController {
 	public Map<String, Object> syncOrg(@RequestBody Map<String, Object> data) throws Exception {
 		log.debug("called");
 		return organizationService.syncOrg();
+	}
+
+	@PostMapping("/buddy")
+	@ResponseBody
+	public String buddyList(@RequestParam String buddyParent, @RequestParam String userId) throws Exception {
+		JSONObject json = organizationService.buddyList(userId, buddyParent);
+		log.debug(json.toString());
+		return json.toString();
 	}
 }

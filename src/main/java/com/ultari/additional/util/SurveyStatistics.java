@@ -213,7 +213,7 @@ public class SurveyStatistics {
 		infoItem4.add(castDate(survey.getEndDatetime()));
 		List<String> infoItem5 = new ArrayList<>();
 		infoItem5.add("현황 공개 여부");
-		if(ObjectUtils.isEmpty(survey.getIsOpen())) infoItem5.add("공개");
+		if(survey.getIsOpen().equals("Y") || ObjectUtils.isEmpty(survey.getIsOpen())) infoItem5.add("공개");
 		else infoItem5.add("비공개");
 		List<String> infoItem6 = new ArrayList<>();
 		infoItem6.add("내용");

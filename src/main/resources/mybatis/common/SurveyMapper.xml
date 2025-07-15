@@ -426,4 +426,27 @@ WHERE
 	<update id="savePicture">
 		UPDATE SURVEY_ITEM SET PICTURE_PATH = #{filePath} WHERE ITEM_CODE=#{itemCode}
 	</update>
+	<select id="findDeleteSurveyList" resultType="String">
+		<![CDATA[
+		SELECT SURVEY_CODE AS surveyCode FROM SURVEY WHERE REG_DATETIME < #{deleteDays}
+		]]>
+	</select>
+	<delete id="deleteSurvey">
+		DELETE FROM SURVEY WHERE SURVEY_CODE=#{surveyCode}
+	</delete>
+	<delete id="deleteSurveyItem">
+		DELETE FROM SURVEY_ITEM WHERE SURVEY_CODE=#{surveyCode}
+	</delete>
+	<delete id="deleteSurveyMember">
+		DELETE FROM SURVEY_MEMBER WHERE SURVEY_CODE=#{surveyCode}
+	</delete>
+	<delete id="deleteSurveyQuestion">
+		DELETE FROM SURVEY_QUESTION WHERE SURVEY_CODE=#{surveyCode}
+	</delete>
+	<delete id="deleteSurveyResult">
+		DELETE FROM SURVEY_RESULT WHERE SURVEY_CODE=#{surveyCode}
+	</delete>
+	<delete id="deleteSurveyResultDesc">
+		DELETE FROM SURVEY_RESULT_DESC WHERE SURVEY_CODE=#{surveyCode}
+	</delete>
 </mapper>

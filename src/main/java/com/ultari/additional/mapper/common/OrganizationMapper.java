@@ -31,4 +31,9 @@ public interface OrganizationMapper {
 	public User memberById(String key) throws Exception;
 	
 	public void resetFailedPasswordCount(String key) throws Exception;
+
+	public List<Map<String, String>> findBuddyList(String userId, String buddyParent);
+
+	List<Map<String, String>> findBuddyGroupList(String userId, String buddyParent);
+	List<Map<String, String>> findBuddyMemberList(String userId, String buddyParent);
 }
