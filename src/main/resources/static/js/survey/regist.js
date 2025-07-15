@@ -944,16 +944,16 @@ function validate(list) {
 	if (title == '') {
 		alert('제목을 입력하세요.');
 		val = false;
-	} else if (len_survey == 0) {
-		alert('설문을 작성해 주세요.');
-		val = false;
 	} else if (len_participants == 0) {
 		alert('참여자를 추가해 주세요.');
 		val = false;
 	} else if (eDate == '' || eHour == '') {
 		alert('마감일시를 지정해주세요.');
 		val = false;
-	}
+	} else if (len_survey == 0) {
+		alert('설문을 작성해 주세요.');
+		val = false;
+	
 
 	return val;
 }

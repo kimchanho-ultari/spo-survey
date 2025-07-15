@@ -647,9 +647,9 @@ input[type=checkbox] {
 }
 
 /* 게시판 검색 및 등록 버튼 */
-#search {
+/* #search {
     padding-bottom: 20px
-}
+} */
 
 #search .select1 select {
     display: inline-block;
@@ -2304,4 +2304,27 @@ A.link_adress_list:hover {
 .excel-down>button {
     margin-top: 15px;
     height: 29px;
+}
+
+.txt {
+    padding: 10px;
+}
+
+.txt-vote {
+    color: red;
+    font-weight: 500;
+}
+
+#title_width {
+    padding-bottom: 20px;
+}
+
+.vote-right > a,
+#search {
+    margin-bottom: 10px;
+}
+
+.txt {
+    display: flex;
+    justify-content: flex-end;
 }

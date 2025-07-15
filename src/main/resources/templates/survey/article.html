@@ -66,9 +66,7 @@
 								th:if="${survey.getIsWriter()} == 'Y'">삭제</span>
 						</td>
 						<td width="50px">&nbsp;</td>
-						<td align="right">
-							<span id="exportStatistics" class="button button_gray" style="width:140px"
-								th:if="${survey.getIsWriter()} == 'Y' and ${survey.getStatus()} == 'C'">투표결과 다운로드</span>
+						<td align="right" class="vote-right">
 							<a href="/survey/" class="button button_gray">목록</a>
 						</td>
 					</tr>
