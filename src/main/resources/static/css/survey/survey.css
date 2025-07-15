@@ -2312,7 +2312,8 @@ A.link_adress_list:hover {
 
 .txt-vote {
     color: red;
-    font-weight: 500;
+    font-weight: 400;
+    font-size: 12px;
 }
 
 #title_width {
