@@ -66,9 +66,7 @@
 								th:if="${survey.getIsWriter()} == 'Y'">삭제</span>
 						</td>
 						<td width="50px">&nbsp;</td>
-						<td align="right">
-							<span id="exportStatistics" class="button button_gray" style="width:140px"
-								th:if="${survey.getIsWriter()} == 'Y' and ${survey.getStatus()} == 'C'">투표결과 다운로드</span>
+						<td align="right" class="vote-right">
 							<a href="/survey/" class="button button_gray">목록</a>
 						</td>
 					</tr>
@@ -159,15 +157,15 @@
 					<tr>
 						<th class="th_0px_gray">현황 공개 여부</th>
 						<td colspan="2">
-							<div th:if="${survey.getIsWriter()} == 'Y' and ${survey.getStatus()} == 'W'">
+							<div th:if="${survey.getIsWriter()} == 'Y' and ${survey.getStatus()} == 'N'">
 								<label style=""><input type="radio" name="isOpen" value="Y"
 										style="width:15px;height:15px;vertical-align:bottom" checked="checked">
 									공개</label>
 								<label style="margin-left:20px"><input type="radio" name="isOpen" value="N"
 										style="width:15px;height:15px;vertical-align:bottom"> 비공개</label>
 							</div>
-							<div th:if="${survey.getStatus()} != 'W'">
-								<span th:if="${survey.getIsOpen()} == 'Y'">공개</span>
+							<div th:if="${survey.getStatus()} != 'N'">
+								<span th:if="${survey.getIsOpen() } == 'Y' or ${survey.getIsOpen() } == null">공개</span>
 								<span th:if="${survey.getIsOpen()} == 'N'">비공개</span>
 							</div>
 						</td>
@@ -258,7 +256,7 @@
 				</table>
 			</div>
 			<div class="result-btn-area" style="position:relative; min-height:40px;">
-				<button class="button button_gray2" type="button" id="btn-vote-list">결과보기</button>
+				<button class="button button_gray2" type="button" id="btn-vote-list">통계</button>
 			</div>
 
 			<div id="reply">

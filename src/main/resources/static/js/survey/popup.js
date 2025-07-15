@@ -44,26 +44,3 @@ function showAlert({ message, onConfirm }) {
 		$popup.addClass("hidden").empty();
 	});
 }
-
-// 달력
-function showDateTimePicker({ title, defaultDate = new Date(), onConfirm, onCancel }) {
-	showPopup({
-		title,
-		message: "",
-		optionsHTML: `<input type="text" id="datetime-picker" style="width:100%; padding:8px; box-sizing:border-box;" />`,
-		onConfirm: () => {
-			const inst = document.querySelector("#datetime-picker")._flatpickr;
-			const dt = inst.selectedDates[0] || defaultDate;
-			onConfirm(dt);
-		},
-		onCancel
-	});
-
-	setTimeout(() => {
-		flatpickr("#datetime-picker", {
-			enableTime: true,
-			dateFormat: "Y-m-d H:i",
-			defaultDate
-		}).open();
-	}, 0);
-}

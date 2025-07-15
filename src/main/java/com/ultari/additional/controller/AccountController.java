@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AccountController {
 	@Autowired
 	AccountService accountService;
-	
+
 	@Value("${common.account.encrypt.use:true}")
 	private boolean USE_CRYPT;
 	@Value("${common.account.encrypt.driver}")
@@ -43,12 +43,12 @@ public class AccountController {
 	private String DECRYPT_METHOD;
 	@Value("${common.account.encrypt.use-wrapping-base64}")
 	private boolean USE_WRAPPING_BASE64;
-	
-	@RequestMapping("/survey/{systemCode}/{key}")
+
+	 @RequestMapping("/{systemCode:^(?!css|js|images|static$).*$}/{key}")
 	public String sso(@PathVariable("systemCode") String systemCode,
-					  @PathVariable("key") String key,
-					  RedirectAttributes attr,
-					  HttpSession session, @Nullable String surveyCode) throws Exception {
+			@PathVariable("key") String key,
+			RedirectAttributes attr,
+			HttpSession session, @Nullable String surveyCode) throws Exception {
 		log.debug("systemCode=" + systemCode + ", key=" + key);
 		log.debug("USE_CRYPT=" + USE_CRYPT);
 		String userId = key;
@@ -56,87 +56,88 @@ public class AccountController {
 			userId = CryptorManager.crypt(key, CRYPT_DRIVER, ENCRYPT_METHOD, false, USE_WRAPPING_BASE64);
 		}
 		log.debug("userId=" + userId);
-		
+
 		TokenData tokenData = new TokenData();
 		tokenData.setKey(userId);
 		tokenData.setSystemCode(systemCode);
 		tokenData.setSurveyCode(surveyCode);
-		
+
 		Map<String, Object> map = accountInfo(tokenData);
-		Account account = (Account)map.get("account");
+		Account account = (Account) map.get("account");
 		String uri = (String) map.get("uri");
 		if (!uri.contains("invalid")) {
 			account.setDecKey(key);
 			session.setAttribute("account", account);
 		}
-		
+
 		return uri;
 	}
-	
+
 	@RequestMapping("/ssa/{token}")
 	public String ssa(@PathVariable("token") String token,
 			RedirectAttributes attr,
 			HttpServletRequest request,
 			HttpSession session) throws Exception {
 		String uri = "redirect:/invalid";
-		
+
 		try {
 			TokenData tokenData = AuthenticationTokenManager.tokenData(token);
 			boolean validation = AuthenticationTokenManager.validation(tokenData);
 			log.debug("validation=" + validation);
-			
+
 			if (validation) {
 				String userId = "";
 				try {
-					userId = CryptorManager.crypt(tokenData.getKey(), CRYPT_DRIVER, DECRYPT_METHOD, false, USE_WRAPPING_BASE64);
-				} catch(Exception e) {
+					userId = CryptorManager.crypt(tokenData.getKey(), CRYPT_DRIVER, DECRYPT_METHOD, false,
+							USE_WRAPPING_BASE64);
+				} catch (Exception e) {
 					userId = tokenData.getKey();
 					log.error("", e);
 				}
-				
+
 				log.info(userId);
 				Map<String, Object> map = accountInfo(tokenData);
-				Account account = (Account)map.get("account");
+				Account account = (Account) map.get("account");
 				uri = (String) map.get("uri");
 				if (!uri.contains("invalid")) {
 					account.setDecKey(userId);
 					session.setAttribute("account", account);
 				}
 			}
-		} catch(Exception e) {
+		} catch (Exception e) {
 			uri = "redirect:/invalid";
 		}
-		
+
 		return uri;
 	}
-	
+
 	@RequestMapping("/redirect/{key}")
-	public String redirect(	@PathVariable("key") String key,
+	public String redirect(@PathVariable("key") String key,
 			@RequestParam("redirect") String redirect,
 			HttpSession session) throws Exception {
-		
+
 		TokenData tokenData = new TokenData();
 		tokenData.setKey(key);
 		tokenData.setSystemCode(redirect);
-		
+
 		Map<String, Object> map = accountInfo(tokenData);
-		Account account = (Account)map.get("account");
+		Account account = (Account) map.get("account");
 		String uri = (String) map.get("uri");
 		if (!uri.contains("invalid")) {
 			account.setDecKey(key);
 			session.setAttribute("account", account);
 		}
-		
+
 		return uri;
 	}
-	
+
 	private Map<String, Object> accountInfo(TokenData tokenData) {
 		Map<String, Object> map = new HashMap<>();
 		StringBuilder sb = new StringBuilder();
 		sb.append("redirect:/");
-		
+
 		Account account = null;
-		
+
 		try {
 			String key = tokenData.getKey();
 			account = accountService.memberByKey(key);
@@ -147,30 +148,30 @@ public class AccountController {
 				if (systemCode.equals("adm")) {
 					sb.append("organization");
 				} else {
-					if(surveyCode != null) {
+					if (surveyCode != null) {
 						sb.append("article").append("/").append(surveyCode);
 					}
-                }
+				}
 			} else {
 				sb.append("invalid");
 				log.info("User not found: " + key);
 			}
-		} catch(Exception e) {
+		} catch (Exception e) {
 			log.error("", e);
 			sb.append("invalid");
 		}
-		
+
 		map.put("uri", sb.toString());
 		map.put("account", account);
-		
+
 		return map;
 	}
-	
+
 	@GetMapping("/invalid")
 	public void invalid() throws Exception {
 		log.debug("called");
 	}
-	
+
 	@GetMapping("/logout")
 	private String logout(HttpSession session) throws Exception {
 		Account account = (Account) session.getAttribute("account");
@@ -179,27 +180,26 @@ public class AccountController {
 		} else {
 			log.info("called: key is not valid");
 		}
-		
+
 		String uri = "redirect:/adm/login";
 		session.invalidate();
 		return uri;
 	}
-	
+
 	@PostMapping("/adm/account")
 	@ResponseBody
 	private Map<String, Object> login(@RequestBody Map<String, Object> data,
 			HttpSession session) throws Exception {
 		String userId = (String) data.get("userId");
 		String password = (String) data.get("password");
-		
+
 		log.info(userId);
-		
+
 		if (USE_CRYPT) {
 			userId = CryptorManager.crypt(userId, CRYPT_DRIVER, ENCRYPT_METHOD, false, USE_WRAPPING_BASE64);
 			password = CryptorManager.crypt(password, CRYPT_DRIVER, ENCRYPT_METHOD, false, USE_WRAPPING_BASE64);
 		}
-		
-		
+
 		Account account = accountService.managerByKey(userId);
 		Map<String, Object> map = new HashMap<>();
 		String code = "LOGIN";
@@ -212,7 +212,7 @@ public class AccountController {
 				session.setAttribute("account", account);
 			}
 		}
-		
+
 		map.put("code", code);
 		return map;
 	}

@@ -28,8 +28,8 @@
 					<tr>
 						<td width="310px">
 							<div class="select1">
-								<input type="text" id="keyword" placeholder="제목을 입력하세요." th:value="${keyword}"
-									autocomplete="off" />
+								<input type="text" id="keyword" placeholder="제목을 입력하세요."
+									th:value="${keyword}" autocomplete="off" />
 							</div>
 						</td>
 						<td width="50px">
@@ -42,24 +42,24 @@
 					</tr>
 				</table>
 			</div>
-
 			<div id="list">
 				<table style="width:100%">
 					<thead>
 						<tr>
-							<th width="60"></th>
+							<!-- <th width="60"></th> -->
 							<th width="80">상태</th>
 							<th>제목</th>
 							<th width="130">참여자</th>
 							<th width="130">시작일</th>
 							<th width="130">마감일</th>
+							<th width="130">작성자</th>
+							<th width="130">작성일</th>
 						</tr>
 					</thead>
 					<tbody>
 						<tr th:each="item : ${list}" class="listItem"
 							th:attr="data-survey-code=${item.getSurveyCode()}, data-is-open=${item.getIsOpen()}, data-status=${item.getStatus()}, data-is-writer=${item.getIsWriter()}">
-							<td style="font-weight:bold">Q
-							</td>
+							<!-- <td style="font-weight:bold">Q </td> -->
 
 							<td th:switch="${item.status}">
 								<span th:case="N" class="progressing">진행중</span>
@@ -89,14 +89,25 @@
 
 							<td th:text="${#dates.format(item.startDatetime, 'yyyy-MM-dd HH:mm')}"></td>
 							<td th:text="${#dates.format(item.endDatetime, 'yyyy-MM-dd HH:mm')}"></td>
+
+							<td>
+								<span th:text="${item.userName}"></span>
+							</td>
+							<td th:text="${#dates.format(item.regDatetime, 'yyyy-MM-dd HH:mm')}"></td>
 						</tr>
 					</tbody>
 				</table>
 			</div>
+			<div class="txt">
+				<span class="txt-vote">
+					미니투표 목록은 3개월 보관 후 삭제됩니다.
+				</span>
+			</div>
 			<div id="count">
 				<span th:if="${paging.startPageNo > 1}" class="paging"
 					th:attr="data-page-no=${paging.getFirstPageNo()}">
-					<img src="/images/btn_count_prev2.png" style="width:35px;height:35px;vertical-align:top" />
+					<img src="/images/btn_count_prev2.png"
+						style="width:35px;height:35px;vertical-align:top" />
 				</span>
 				<span th:if="${paging.prevPageNo < paging.startPageNo}" class="paging"
 					th:attr="data-page-no=${paging.getPrevPageNo()}">
@@ -104,8 +115,8 @@
 				</span>
 
 				<span th:each="pageNo: ${#numbers.sequence(paging.startPageNo, paging.endPageNo)}"
-					th:class="${pageNo == paging.pageNo} ? 'count_active' : 'count_normal'" th:text="${pageNo}"
-					th:classappend="paging" th:attr="data-page-no=${pageNo}"></span>
+					th:class="${pageNo == paging.pageNo} ? 'count_active' : 'count_normal'"
+					th:text="${pageNo}" th:classappend="paging" th:attr="data-page-no=${pageNo}"></span>
 
 				<span th:if="${paging.nextPageNo < paging.finalPageNo}" class="paging"
 					th:attr="data-page-no=${paging.getNextPageNo()}">
@@ -113,7 +124,8 @@
 				</span>
 				<span th:if="${paging.endPageNo < paging.finalPageNo}" class="paging"
 					th:attr="data-page-no=${paging.getFinalPageNo()}">
-					<img src="/images/btn_count_next2.png" style="width:35px;height:35px;vertical-align:top" />
+					<img src="/images/btn_count_next2.png"
+						style="width:35px;height:35px;vertical-align:top" />
 				</span>
 			</div>
 		</div>
@@ -129,7 +141,8 @@
 				<a href="/survey/"><span class="logo" style="color: #ffffff;">sCalling</span></a>
 			</div>
 			<div class="mobile-header-center">
-				<input id="keywordMobile" type="text" class="mobile-search" th:value="${keyword}" placeholder="검색" />
+				<input id="keywordMobile" type="text" class="mobile-search" th:value="${keyword}"
+					placeholder="검색" />
 			</div>
 			<div class="mobile-header-right">
 				<span class="menu-icon" id="btnSearchMobile">검색</span>
@@ -146,7 +159,8 @@
 					<div class="survey-body">
 						<div>
 							<span class="survey-title" th:text="${item.surveyTitle}"></span>
-							<img th:if="${item.isOpen} == 'N'" src="/images/icon_lock.png" style="width:13px; height:25px; vertical-align:middle; margin-bottom: 3px;" />
+							<img th:if="${item.isOpen} == 'N'" src="/images/icon_lock.png"
+								style="width:13px; height:25px; vertical-align:middle; margin-bottom: 3px;" />
 						</div>
 						<div class="survey-writer" th:text="${item.userName}"></div>
 
@@ -177,7 +191,8 @@
 					<div class="survey-body">
 						<div>
 							<span class="survey-title" th:text="${item.surveyTitle}"></span>
-							<img th:if="${item.isOpen} == 'N'" src="/images/icon_lock.png" style="width:13px; height:25px; vertical-align:middle; margin-bottom: 3px;" />
+							<img th:if="${item.isOpen} == 'N'" src="/images/icon_lock.png"
+								style="width:13px; height:25px; vertical-align:middle; margin-bottom: 3px;" />
 						</div>
 						<div class="survey-writer" th:text="${item.userName}"></div>
 
