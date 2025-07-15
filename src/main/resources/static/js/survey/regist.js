@@ -4,6 +4,7 @@ let selectedUsers = [];
 let mobileEndDate = null;
 let mobileStartDate = new Date();
 let participantsListMobile = [];
+let tempSelectedDate = null;
 
 let checkType = true;
 let val = "";
@@ -80,10 +81,10 @@ $(function () {
 	// - 항목 삭제 버튼
 	$(document).on("click", ".del-option", function () {
 		const $box = $(this).closest(".vote-box"); 						        // 현재 투표 박스
-		const $options = $box.find(".vote-options .option-inputs"); 	// 모든 항목들
+		const $options = $box.find(".vote-options .option-inputs"); 				  // 모든 항목들
 
 		if ($options.length > 1) {
-			$options.last().remove(); 									                // 마지막 항목만 삭제
+			$options.last().remove(); 									  // 마지막 항목만 삭제
 		} else {
 			showAlert({
 				message: "항목은 최소 1개 이상 있어야 합니다."
@@ -154,20 +155,6 @@ $(function () {
 		});
 	});
 
-	$(document).on("click", ".date2", function () {
-		showDateTimePicker({
-			title: "투표 종료시간 설정",
-			defaultDate: new Date(),
-			onConfirm: (dt) => {
-				const formatted = dt.toLocaleString("ko-KR", {
-					year: "numeric", month: "2-digit", day: "2-digit",
-					weekday: "short", hour: "2-digit", minute: "2-digit"
-				});
-				$(".date2 span").text(formatted);
-			}
-		});
-	});
-
 	$(document).on("click", ".logo", function () {
 		showPopup({
 			title: "작성 취소",
@@ -185,18 +172,57 @@ $(function () {
 		deptList();
 	})
 
-	$(document).on('click', '.date2', function () {
-		console.log('delegated date2 clicked');
-		showDateTimePicker({
-			title: '투표 종료시간 선택',
-			defaultDate: mobileEndDate || new Date(),
-			onConfirm: dt => {
-				mobileEndDate = dt;
-				$('.date2 span').text(formatDateTime(dt));
+	
+
+	$(document).on("click", ".date2", function () {
+		const defaultDate = new Date();
+		tempSelectedDate = defaultDate;
+
+		const defaultValue = formatToInputDateTime(defaultDate);
+
+		const optionsHTML = `
+		<div style="text-align:center; margin-top:10px;">
+			<input id="calendar-input" type="datetime-local"
+				value="${defaultValue}"
+				style="padding:10px; width: 80%; font-size:16px;" />
+		</div>
+	`;
+		showPopup({
+			title: "투표 종료시간 설정",
+			message: "",
+			optionsHTML: optionsHTML,
+			onConfirm: () => {
+				const val = $("#calendar-input").val();
+				if (val) {
+					const dt = new Date(val);
+					tempSelectedDate = dt;
+					$(".date2 span").text(formatDateTime(dt));
+				}
 			}
 		});
 	});
 });
+
+function formatDateTime(dt) {
+	return dt.toLocaleString("ko-KR", {
+		year: "numeric",
+		month: "2-digit",
+		day: "2-digit",
+		weekday: "short",
+		hour: "2-digit",
+		minute: "2-digit"
+	});
+}
+
+function formatToInputDateTime(date) {
+	const pad = n => n.toString().padStart(2, '0');
+	const yyyy = date.getFullYear();
+	const mm = pad(date.getMonth() + 1);
+	const dd = pad(date.getDate());
+	const hh = pad(date.getHours());
+	const mi = pad(date.getMinutes());
+	return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+}
 
 function codeCheck() {
 	checkType = false;

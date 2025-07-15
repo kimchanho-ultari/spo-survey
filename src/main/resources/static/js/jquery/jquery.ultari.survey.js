@@ -73,7 +73,7 @@ Survey.prototype._removeSurvey = function() {
 	list.each(function(){
 		var item = $(this);
 		
-		item.text('Q' + (++num));
+		item.text('질문' + (++num));
 	});
 }
 Survey.prototype._appendSurvey = function(question) {
@@ -100,7 +100,7 @@ Survey.prototype._appendSurvey = function(question) {
 	
 	// 질문 내용
 	var $th_title = $('<th style="width:140px" class="th_0px_yellow2">');
-	var $p_title = $('<p class="q question_num">').text('Q' + num);
+	var $p_title = $('<p class="q question_num">').text('질문' + num);
 	
 	$th_title.append($p_title);
 	$tr_title.append($th_title);
