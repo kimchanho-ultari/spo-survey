@@ -42,7 +42,10 @@ public class ExcelWriter {
 		
 		if (type.equals("org")) {
 			Sheet sheet = workbook.createSheet();
-			
+			sheet.setColumnWidth(0, 15 * 256);
+			sheet.setColumnWidth(1, 30 * 256);
+			sheet.setColumnWidth(3, 30 * 256);
+
 			createHead(sheet, mapToHeadList());
 			
 			createBody(sheet, mapToBodyList());
@@ -53,7 +56,10 @@ public class ExcelWriter {
 			for (Map<String, Object> item : list) {
 				String sheetName = (String) item.get("sheetName");
 				Sheet sheet = workbook.createSheet(sheetName);
-				
+				sheet.setColumnWidth(0, 15 * 256);
+				sheet.setColumnWidth(1, 30 * 256);
+				sheet.setColumnWidth(3, 30 * 256);
+
 				createHead(sheet, mapToHeadList(item));
 				
 				createBody(sheet, mapToBodyList(item), bodyMarkList(item));
@@ -139,16 +145,18 @@ public class ExcelWriter {
 	private void createBody(Sheet sheet, List<List<String>> bodyList, List<Integer> list) {
 		Font font = workbook.createFont();
 		font.setFontName("맑은고딕");
-		
+
 		CellStyle style = workbook.createCellStyle();
 		style.setVerticalAlignment(VerticalAlignment.CENTER);
 		style.setFont(font);
-		
+		style.setWrapText(true);
+
 		CellStyle style2 = workbook.createCellStyle();
 		style2.setVerticalAlignment(VerticalAlignment.CENTER);
 		style2.setFillForegroundColor(IndexedColors.LEMON_CHIFFON.getIndex());
 		style2.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 		style2.setFont(font);
+		style.setWrapText(true);
 		
 		
 		int rowSize = bodyList.size();
