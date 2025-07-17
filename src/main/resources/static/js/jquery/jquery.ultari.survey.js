@@ -100,7 +100,7 @@ Survey.prototype._appendSurvey = function(question) {
 	
 	// 질문 내용
 	var $th_title = $('<th style="width:140px" class="th_0px_yellow2">');
-	var $p_title = $('<p class="q question_num">').text('질문' + num);
+	var $p_title = $('<p class="q question_num">').html('<span style="color:red">* </span>' + '질문' + num);
 	
 	$th_title.append($p_title);
 	$tr_title.append($th_title);
@@ -134,7 +134,7 @@ Survey.prototype._appendSurvey = function(question) {
 	$tr_title.append($td_contents);
 	
 	// 기타 옵션
-	var $th_options_title = $('<th class="th_0px_yellow2">').text('기타옵션');
+	var $th_options_title = $('<th class="th_0px_yellow2">').html('<span style="color:red">* </span>' +'기타옵션');
 	var $td_options_contents = $('<td>');
 	var $table_options_contents = $('<table style="width:100%">');
 	var $tr_options_contents = $('<tr>');
@@ -179,7 +179,7 @@ Survey.prototype._appendSurvey = function(question) {
 	$tr_options.append($th_options_title).append($td_options_contents);
 	
 	// 항목입력
-	var $th_items_title = $('<th class="th_0px_yellow2">').text('항목 입력');
+	var $th_items_title = $('<th class="th_0px_yellow2">').html('<span style="color:red">* </span>' +'항목 입력');
 	var $btn_add_items = $('<span class="button button_gray2 btn-item">')
 							.text('항목 추가  ')
 							.data('key', 'items_' + code)

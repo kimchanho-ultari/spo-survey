@@ -9,4 +9,7 @@ public class SurveyMember {
 	private String deptName;
 	private String isComplete;
 	private String surveyCode;
+	private String userId;
+	private String parentOrg;
+	private String posName;
 }

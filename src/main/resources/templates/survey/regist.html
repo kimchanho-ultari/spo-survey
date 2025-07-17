@@ -49,17 +49,18 @@
 		<div th:include="survey/header :: header"></div>
 
 		<div id="contents">
+			<span style="color:red">*</span> 표시는 필수 입력 항목입니다.
 			<div id="view">
 				<table style="width:100%">
 					<tr>
-						<th width="150">제목</th>
+						<th width="150"><span style="color:red">*</span> 제목</th>
 						<td width="850" colspan="3" class="th_subject">
 							<input name="survey_title" type="text" id="survey_title" value="" placeholder="제목을 입력하세요."
 								autocomplete="off" />
 						</td>
 					</tr>
 					<tr>
-						<th width="150" class="th_0px_gray">참여자</th>
+						<th width="150" class="th_0px_gray"><span style="color:red">*</span> 참여자</th>
 						<td width="850" colspan="3">
 							<table style="width:100%">
 								<tr>
@@ -83,7 +84,7 @@
 				</tr>
 				-->
 					<tr>
-						<th class="th_0px_gray">시작일시</th>
+						<th class="th_0px_gray"><span style="color:red">*</span> 시작일시</th>
 						<td>
 							<table style="width:100%">
 								<tr>
@@ -99,7 +100,7 @@
 								</tr>
 							</table>
 						</td>
-						<th class="th_0px_gray">마감일시</th>
+						<th class="th_0px_gray"><span style="color:red">*</span> 마감일시</th>
 						<td>
 							<table style="width:100%">
 								<tr>
@@ -118,7 +119,7 @@
 						</td>
 					</tr>
 					<tr>
-						<th class="th_0px_gray">투표 종료 알람 여부</th>
+						<th class="th_0px_gray"><span style="color:red">*</span> 투표 종료 알람 여부</th>
 						<td colspan="3">
 							<label><input type="radio" name="endAlarm" value="Y"
 									style="width:15px;height:15px;vertical-align:bottom" checked="checked"> 알림 받음</label>
@@ -127,7 +128,7 @@
 						</td>
 					</tr>
 					<tr>
-						<th class="th_0px_gray">현황 공개 여부</th>
+						<th class="th_0px_gray"><span style="color:red">*</span> 현황 공개 여부</th>
 						<td colspan="3">
 							<label><input type="radio" name="isOpen" value="Y"
 									style="width:15px;height:15px;vertical-align:bottom" checked="checked"> 공개</label>
@@ -223,7 +224,9 @@
 										<tr>
 											<th style="width:30px"><input name="input" type="checkbox" value=""
 													class="chkAll" /></th>
+											<th>아이디</th>
 											<th>이름</th>
+											<th>소속청</th>
 											<th>부서</th>
 											<th>직위</th>
 										</tr>
@@ -251,7 +254,9 @@
 										<tr>
 											<th style="width:30px"><input name="input" type="checkbox" value=""
 													class="chkAll" /></th>
+											<th>아이디</th>
 											<th>이름</th>
+											<th>소속청</th>
 											<th>부서</th>
 											<th>직위</th>
 										</tr>

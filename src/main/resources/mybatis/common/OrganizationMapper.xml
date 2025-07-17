@@ -19,6 +19,7 @@
 		<result property="password" column="PASSWORD"/>
 		<result property="sort" column="SORT"/>
 		<result property="type" column="USER_TYPE"/>
+		<result property="parentOrg" column="parent_org"/>
 	</resultMap>
 	<select id="totalCntForMemberByDeptId" resultType="int">
 SELECT

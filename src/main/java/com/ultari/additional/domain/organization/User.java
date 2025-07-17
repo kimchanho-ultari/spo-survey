@@ -15,6 +15,7 @@ public class User {
 	private String password;
 	private String sort;
 	private String type;
+	private String parentOrg;
 	
 	private String decUserId;
 }

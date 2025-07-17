@@ -1082,6 +1082,8 @@ function appendMemberList(list) {
 		var deptName = item.deptName;
 		var posName = item.posName;
 		posName = nvl(posName, '');
+		var userId = item.userId;
+		var parentOrg = item.parentOrg
 
 		var $tr = $('<tr>');
 		var $td_checkbox = $('<td>');
@@ -1089,16 +1091,19 @@ function appendMemberList(list) {
 		var $td_title = $('<td>').text(title);
 		var $td_deptname = $('<td>').text(deptName);
 		var $td_posname = $('<td>').text(posName);
+		var $td_userId = $('<td>').text(userId);
+		var $td_parentOrg = $('<td>').text(parentOrg);
 
 		var $checkbox = $('<input type="checkbox">')
 			.addClass('chkItem')
 			.data('key', key)
+			.data('userId', userId)
 			.data('title', title)
+			.data('parentOrg', parentOrg)
 			.data('deptName', deptName)
-			.data('posName', posName);
-
+			.data('posName', posName)
 		$td_checkbox.append($checkbox);
-		$tr.append($td_checkbox).append($td_title).append($td_deptname).append($td_posname);
+		$tr.append($td_checkbox).append($td_userId).append($td_title).append($td_parentOrg).append($td_deptname).append($td_posname);
 		body.append($tr);
 	});
 
@@ -1158,6 +1163,8 @@ function appendParticipantsList(list) {
 			var title = item.title;
 			var deptName = item.deptName;
 			var posName = item.posName;
+			var userId = item.userId;
+			var parentOrg = item.parentOrg
 
 			var $tr = $('<tr>');
 			var $td_checkbox = $('<td>');
@@ -1165,16 +1172,20 @@ function appendParticipantsList(list) {
 			var $td_title = $('<td>').text(title);
 			var $td_deptname = $('<td>').text(deptName);
 			var $td_posname = $('<td>').text(posName);
+			var $td_userId = $('<td>').text(userId);
+			var $td_parentOrg = $('<td>').text(parentOrg);
 
 			var $checkbox = $('<input type="checkbox">')
 				.addClass('chkItem')
 				.data('key', key)
+				.data('userId', userId)
 				.data('title', title)
+				.data('parentOrg', parentOrg)
 				.data('deptName', deptName)
-				.data('posName', posName);
+				.data('posName', posName)
 
 			$td_checkbox.append($checkbox);
-			$tr.append($td_checkbox).append($td_title).append($td_deptname).append($td_posname);
+			$tr.append($td_checkbox).append($td_userId).append($td_title).append($td_parentOrg).append($td_deptname).append($td_posname);
 			body.append($tr);
 		}
 	});

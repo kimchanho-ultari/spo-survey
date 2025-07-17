@@ -164,7 +164,7 @@
 								<label style="margin-left:20px"><input type="radio" name="isOpen" value="N"
 										style="width:15px;height:15px;vertical-align:bottom"> 비공개</label>
 							</div>
-							<div th:if="${survey.getStatus()} != 'N'">
+							<div th:if="${survey.getIsWriter()} != 'Y' or (${survey.getIsWriter()} == 'Y' and ${survey.getStatus()} != 'N')">
 								<span th:if="${survey.getIsOpen() } == 'Y' or ${survey.getIsOpen() } == null">공개</span>
 								<span th:if="${survey.getIsOpen()} == 'N'">비공개</span>
 							</div>
@@ -338,8 +338,11 @@
 										<tr>
 											<th style="width:30px"><input name="input" type="checkbox" value=""
 													class="chkAll" /></th>
+											<th>아이디</th>
 											<th>이름</th>
+											<th>소속청</th>
 											<th>부서</th>
+											<th>직위</th>
 										</tr>
 									</thead>
 									<tbody></tbody>
@@ -366,8 +369,11 @@
 										<tr>
 											<th style="width:30px"><input name="input" type="checkbox" value=""
 													class="chkAll" /></th>
+											<th>아이디</th>
 											<th>이름</th>
+											<th>소속청</th>
 											<th>부서</th>
+											<th>직위</th>
 										</tr>
 									</thead>
 									<tbody></tbody>

@@ -36,6 +36,9 @@
 		<result property="deptName" column="DEPT_NAME"/>
 		<result property="isComplete" column="IS_COMPLETE"/>
 		<result property="surveyCode" column="SURVEY_CODE"/>
+		<result property="posName" column="POS_NAME"/>
+		<result property="userId" column="USER_ID"/>
+		<result property="parentOrg" column="PARENT_ORG"/>
 	</resultMap>
 	<resultMap type="SurveyQuestion" id="surveyQuestion">
 		<id property="questionCode" column="QUESTION_CODE"/>
@@ -212,8 +215,7 @@ LIMIT #{startRowNo}, #{pageSize}
 	<select id="surveyMemberList" resultMap="surveyMember">
 SELECT
 		  A.*
-		, B.USER_NAME
-		, B.DEPT_NAME
+		, B.*
 FROM SURVEY_MEMBER A
 LEFT OUTER JOIN MSG_USER_VW B ON A.USER_ID=B.USER_ID
 WHERE
