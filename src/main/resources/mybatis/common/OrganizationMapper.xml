@@ -7,6 +7,13 @@
 		<result property="pId" column="P_DEPT_ID"/>
 		<result property="sort" column="SORT"/>
 	</resultMap>
+	<resultMap type="Buddy" id="buddy">
+		<id property="key" column="BUDDY_ID"/>
+		<result property="userId" column="USER_ID"/>
+		<result property="title" column="BUDDY_NAME"/>
+		<result property="pId" column="BUDDY_PARENT"/>
+		<result property="sort" column="BUDDY_ORDER"/>
+	</resultMap>
 	<resultMap type="User" id="user">
 		<id property="userId" column="USER_ID"/>
 		<result property="userName" column="USER_NAME"/>
@@ -64,6 +71,15 @@ WHERE
 ORDER BY
 			SORT
 	</select>
+	<select id="buddyListByPid" resultMap="buddy">
+		SELECT
+			*
+		FROM MSG_BUDDY
+		WHERE
+			BUDDY_PARENT=#{key} AND BUDDY_TYPE=6 AND USER_ID=#{userId}
+		ORDER BY
+			BUDDY_ORDER
+	</select>
 	<select id="memberById" resultMap="user">
 SELECT
 		*
@@ -91,6 +107,20 @@ FROM MSG_USER_VW
 </trim>
 ORDER BY 
 			USER_TYPE DESC, SORT
+	</select>
+	<select id="memberByBuddyId" resultMap="user">
+		SELECT
+			B.*,
+			U.*
+		FROM MSG_BUDDY B
+					 JOIN MSG_USER_VW U ON B.USER_ID = U.USER_ID
+		WHERE
+			B.BUDDY_PARENT = #{key}
+			AND B.BUDDY_TYPE = 0
+			AND B.USER_ID = #{userId}
+		ORDER BY
+			B.BUDDY_TYPE DESC,
+			B.BUDDY_ORDER
 	</select>
 	<select id="memberByDeptIdList" resultMap="user">
 SELECT

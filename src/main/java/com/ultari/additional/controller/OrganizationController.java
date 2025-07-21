@@ -1,9 +1,12 @@
 package com.ultari.additional.controller;
 
+import com.ultari.additional.domain.account.Account;
+import com.ultari.additional.domain.organization.Buddy;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpSession;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +51,17 @@ public class OrganizationController {
 		map.put("key", key);
 		return organizationService.deptListByPid(map);
 	}
+	@PostMapping("/buddyListByPid")
+	@ResponseBody
+	public List<Buddy> buddyListByPid(@RequestParam(value="key", defaultValue="") String key, HttpSession session) throws Exception {
+		Account account = (Account) session.getAttribute("account");
+		String userId = account.getKey(); // 세션에서 userId 꺼내기
+		log.debug("userId: " + userId);
+		Map<String, Object> map = new HashMap<>();
+		map.put("key", key);
+		map.put("userId", userId);
+		return organizationService.buddyListByPid(map);
+	}
 	@PostMapping("/memberByDeptIdPaging")
 	@ResponseBody
 	public Map<String, Object> memberByDeptIdPaging(@RequestBody Map<String, Object> data) throws Exception {
@@ -57,6 +71,17 @@ public class OrganizationController {
 	@ResponseBody
 	public List<User> memberByDeptId(@RequestBody Map<String, Object> data) throws Exception {
 		return organizationService.memberByDeptId(data);
+	}
+	@PostMapping("/memberByBuddyId")
+	@ResponseBody
+	public List<User> memberByBuddyId(@RequestParam(value="key") String key, HttpSession session) throws Exception {
+		Account account = (Account) session.getAttribute("account");
+		String userId = account.getKey();
+		Map<String, Object> map = new HashMap<>();
+		log.debug(key);
+		map.put("key",key);
+		map.put("userId", userId);
+		return organizationService.memberByBuddyId(map);
 	}
 	@PostMapping("/memberByKeyword")
 	@ResponseBody

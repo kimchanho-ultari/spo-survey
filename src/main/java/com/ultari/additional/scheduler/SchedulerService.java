@@ -50,6 +50,8 @@ public class SchedulerService {
     public void deleteCron (){
         log.debug("deleteCron");
 
+        surveyMapper.deleteOldSurveys();
+
         LocalDate today = LocalDate.now();
         LocalDate minusDaysAgo = today.minusDays(delDays);
 

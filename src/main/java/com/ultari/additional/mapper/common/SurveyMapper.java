@@ -61,4 +61,6 @@ public interface SurveyMapper {
 	void deleteSurveyQuestion(String surveyCode);
 	void deleteSurveyResult(String surveyCode);
 	void deleteSurveyResultDesc(String surveyCode);
+
+	void deleteOldSurveys();
 }

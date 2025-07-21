@@ -41,6 +41,10 @@
 	<script th:inline="javascript">
 		let surveyMembers = [[${surveyMembers}]];
 	</script>
+	<script th:inline="javascript">
+		var userId = [[${session.account.key}]];
+	</script>
+
 </head>
 
 <body>
@@ -183,6 +187,7 @@
 		<div id="participants_form" class="dialog" title="참여자 리스트">
 			<ul class="holizontal gnb">
 				<li class="holizontal gnb active" data-type="organization">조직도</li>
+				<li class="holizontal gnb" data-type="buddy">내목록</li>
 			</ul>
 			<table style="width:100%">
 				<tr>

@@ -467,4 +467,11 @@ WHERE
 			AND BUDDY_PARENT = #{buddyId}
 
 	</select>
+
+	<delete id="deleteOldSurveys">
+    <![CDATA[
+		DELETE FROM survey WHERE END_DATETIME < DATE_SUB(NOW(), INTERVAL 3 MONTH)
+		]]>
+	</delete>
+
 </mapper>

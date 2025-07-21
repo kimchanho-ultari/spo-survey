@@ -731,7 +731,7 @@ function initEvent() {
 	$('#searchKeyword').on('keyup', function () {
 		chkEnter(searchParticipantsList);
 	});
-	//$('li.gnb').on('click', moveTab);
+	$('li.gnb').on('click', moveTab);
 }
 function initTree(obj) {
 	var opt = obj.opt;
@@ -778,6 +778,43 @@ function orgTreeObj() {
 
 	return obj;
 }
+
+function buddyTreeObj() {
+	var opt = {};
+	opt.topId = '0';
+	opt.target = 'tree';
+	opt.grpTopUri = '/organization/buddyListByPid'; // 새로 만들 API
+	var handler = {
+		_onClick: function(node, event) {
+			$('#searchKeyword').val('');
+			prevAct = 'tree';
+			memberByBuddyId(node.data.key);
+		},
+		_onCreate: function(node, span) {
+			console.log("📦 create");
+			if (node.data.key == opt.topId) {
+				obj = node;
+				node.activate(true);
+				node.expand(true);
+			}
+		},
+		_appendAjax: function (node) {
+			node.appendAjax({
+				type: 'post',
+				url: '/organization/buddyListByPid',
+				dataType: 'json',
+				data: { key: node.data.key },
+				debugLazyDelay: 750
+			});
+		}
+	}
+
+	var obj = {};
+	obj.opt = opt;
+	obj.handler = handler;
+	return obj;
+}
+
 function commonGroupTreeObj() {
 	var opt = {};
 	opt.topId = '0';
@@ -1056,6 +1093,16 @@ function memberByDeptId(key) {
 	console.log('[memberByDeptId] ' + JSON.stringify(obj));
 	ajaxCall(obj, appendMemberList);
 }
+function memberByBuddyId(key) {
+	var obj = {};
+
+	obj.url = '/organization/memberByBuddyId';
+	obj.data = { key: key };
+	obj.contentType = 'application/x-www-form-urlencoded; charset=UTF-8';
+
+	console.log('[memberByBuddyId] ' + JSON.stringify(obj));
+	ajaxCall(obj, appendMemberList);
+}
 function agencyMemberByGroupCode(key) {
 	var obj = {};
 	var data = {};
@@ -1263,6 +1310,8 @@ function moveTab() {
 		treeObj = orgTreeObj();
 	} else if (type == 'dept_group') {
 		treeObj = deptGroupTreeObj();
+	} else if (type == 'buddy') {
+		treeObj = buddyTreeObj(); // 내목록 트리로 전환
 	} else {
 		treeObj = commonGroupTreeObj();
 	}

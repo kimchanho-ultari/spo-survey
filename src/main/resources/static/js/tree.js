@@ -46,6 +46,10 @@ var Tree = function(opt, handler) {
 	}
 	this.bind = function() {
 		$('#' + opt.target).dynatree({
+			lazy: true,
+			onLazyRead: function(node) {
+				handler._appendAjax(node);
+			},
 			onActivate: function(node) {
 				if (node.data.isLazy!=true) {
 					handler._appendAjax(node);

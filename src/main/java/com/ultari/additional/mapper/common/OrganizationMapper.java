@@ -1,5 +1,6 @@
 package com.ultari.additional.mapper.common;
 
+import com.ultari.additional.domain.organization.Buddy;
 import java.util.List;
 import java.util.Map;
 
@@ -12,8 +13,10 @@ import com.ultari.additional.domain.organization.User;
 public interface OrganizationMapper {
 	public List<Dept> deptListByPid(Map<String, Object> map) throws Exception;
 	public List<Dept> deptListAll() throws Exception;
+	public List<Buddy> buddyListByPid(Map<String, Object> map) throws Exception;
 	
 	public List<User> memberByDeptId(Map<String, Object> map) throws Exception;
+	public List<User> memberByBuddyId(Map<String, Object> map) throws Exception;
 	public List<User> memberByDeptIdPaging(Map<String, Object> map) throws Exception;
 	public List<User> memberByKeyword(Map<String, Object> map) throws Exception;
 	public List<User> memberByKeywordPaging(Map<String, Object> map) throws Exception;

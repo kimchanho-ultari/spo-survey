@@ -1,5 +1,6 @@
 package com.ultari.additional.service;
 
+import com.ultari.additional.domain.organization.Buddy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -57,8 +58,15 @@ public class OrganizationService {
 	public List<Dept> deptListByPid(Map<String, Object> map) throws Exception {
 		return organizationMapper.deptListByPid(map);
 	}
+	public List<Buddy> buddyListByPid(Map<String, Object> map) throws Exception {
+		return organizationMapper.buddyListByPid(map);
+	}
 	public List<User> memberByDeptId(Map<String, Object> map) throws Exception {
 		List<User> list = organizationMapper.memberByDeptId(map);
+		return list;
+	}
+	public List<User> memberByBuddyId(Map<String, Object> map) throws Exception {
+		List<User> list = organizationMapper.memberByBuddyId(map);
 		return list;
 	}
 	public List<User> memberByKeyword(Map<String, Object> map) throws Exception {
