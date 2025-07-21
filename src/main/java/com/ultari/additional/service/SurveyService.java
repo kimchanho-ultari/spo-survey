@@ -355,4 +355,9 @@ public class SurveyService {
 		
 		return data;
 	}
+
+
+	public List<SurveyMember> getMembersByBuddyId(String buddyId) {
+		return surveyMapper.MemberListByBuddyId(buddyId);
+	}
 }

@@ -1,5 +1,6 @@
 package com.ultari.additional.controller;
 
+import com.ultari.additional.domain.survey.SurveyMember;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -13,6 +14,7 @@ import com.ultari.additional.service.AccountService;
 import com.ultari.additional.util.CryptorManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -100,7 +102,42 @@ public class SurveyController {
 		
 		return "survey/regist";
 	}
-	
+
+	//메신저에서 내목록 참여자들 선택하고 등록창으로 갈 때
+	@RequestMapping("/regist/buddy")
+	public String registForm(
+		@RequestParam String my,
+		@RequestParam String buddyId,
+		HttpSession session,
+		Model model
+	) throws Exception {
+		// 1. SSO 인증 (세션에 account가 없으면 my로 인증)
+		Account account = (Account) session.getAttribute("account");
+		if (account == null) {
+			account = accountService.memberByKey(my);
+			if (account == null) {
+				return "redirect:/invalid";
+			}
+			session.setAttribute("account", account);
+		}
+		String key = account.getKey();
+
+		// 2. 기존 로직
+		log.info("Account Key: {}", key);
+		log.info("my={}, buddyid={}", my, buddyId);
+
+		model.addAttribute("my", my);
+
+		List<SurveyMember> surveyMembers = surveyService.getMembersByBuddyId(buddyId);
+		log.info("조회된 surveyMembers 수: {}", surveyMembers.size());
+		for (SurveyMember member : surveyMembers) {
+			log.info("SurveyMember - userName: {}", member.getTitle());
+			log.info("SurveyMember - userId: {}", member.getUserId());
+		}
+		model.addAttribute("surveyMembers", surveyMembers);
+		return "survey/regist";
+	}
+
 	@PostMapping("/registSurvey")
 	@ResponseBody
 	public Map<String, Object> registSurvey(@RequestBody Map<String, Object> data, HttpSession session) throws Exception {

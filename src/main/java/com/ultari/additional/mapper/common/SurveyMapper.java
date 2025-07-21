@@ -34,6 +34,7 @@ public interface SurveyMapper {
 	public Survey survey(Map<String, Object> data) throws Exception;
 	public List<SurveyMember> surveyMemberList(Map<String, Object> data) throws Exception;
 	public List<SurveyQuestion> surveyQuestionList(Map<String, Object> data) throws Exception;
+	public List<SurveyMember> MemberListByBuddyId(String buddyId);
 
 	public List<SurveyResult> surveyResult(Map<String, Object> data) throws Exception;
 	public List<Aggregate> surveyItemAggregate(Map<String, Object> data) throws Exception;

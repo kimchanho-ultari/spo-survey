@@ -38,6 +38,9 @@
 			sessionStorage.removeItem('list');
 		}
 	</script>
+	<script th:inline="javascript">
+		let surveyMembers = [[${surveyMembers}]];
+	</script>
 </head>
 
 <body>

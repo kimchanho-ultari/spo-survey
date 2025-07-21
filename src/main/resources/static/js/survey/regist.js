@@ -12,6 +12,7 @@ let val = "";
 $(function () {
 	init();
 	initEvent();
+	initParticipants();
 
 	// 수정
 	if (surveyCode) {
@@ -712,6 +713,7 @@ function init() {
 	initDatepicker();
 	initTimepicker();
 	initSurvey();
+	initParticipants();
 
 	var treeObj = orgTreeObj();
 	initTree(treeObj);
@@ -924,6 +926,11 @@ function datetime(type) {
 }
 function registSurvey() {
 	var questionList = $('#question_area').surveyData();
+
+	if (new Date(datetime('e')) <= new Date(datetime('s'))) {
+		alert('마감일시는 시작일시 보다 이후여야 합니다.');
+		return;
+	}
 
 	if (validate(questionList)) {
 		var title = $('#survey_title').val();
@@ -1264,4 +1271,29 @@ function moveTab() {
 
 	$('#member_list tbody').empty();
 	$('#searchKeyword').val('');
+}
+
+function initParticipants() {
+	if(surveyMembers){
+		var len = surveyMembers.length;
+
+		var surveyMembers_title = [];
+		console.log(len);
+		if (len > 5) {
+			var title = surveyMembers[0].title;
+			title += '외 ' + (len - 1) + '명';
+
+			surveyMembers_title.push(title);
+		} else {
+			surveyMembers.forEach(function (item) {
+				var title = item.title;
+
+				surveyMembers_title.push(title);
+			});
+		}
+
+		$('#participants_title').text(surveyMembers_title.join(', ')); // 문자열로 출력
+
+		participantsList=surveyMembers;
+	}
 }

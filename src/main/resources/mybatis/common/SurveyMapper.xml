@@ -88,6 +88,13 @@
 		<result property="userName" column="USER_NAME"/>
 		<result property="deptName" column="DEPT_NAME"/>
 	</resultMap>
+	<resultMap id="buddySurveyMember" type="SurveyMember">
+		<result property="userId" column="USER_ID"/>
+		<result property="title" column="USER_NAME"/>
+		<result property="deptName" column="DEPT_NAME"/>
+		<result property="posName" column="POS_NAME"/>
+		<result property="parentOrg" column="PARENT_ORG"/>
+	</resultMap>
 	<insert id="registSurvey">
 INSERT INTO SURVEY(SURVEY_CODE, SURVEY_TITLE, SURVEY_CONTENTS, USER_ID, START_DATETIME, END_DATETIME, IS_OPEN, END_ALARM)
 VALUES (
@@ -197,7 +204,8 @@ LIMIT #{startRowNo}, #{pageSize}
 	<sql id="search">
 		<bind name="pattern" value="'%' + keyword + '%'"/>
 		<trim prefix="WHERE" prefixOverrides="AND|OR">
-			(
+			A.REG_DATETIME >= DATE_SUB(NOW(), INTERVAL 3 MONTH)
+			AND (
 				A.USER_ID=#{userId}
 				OR SURVEY_CODE IN (
 					SELECT 
@@ -451,4 +459,12 @@ WHERE
 	<delete id="deleteSurveyResultDesc">
 		DELETE FROM SURVEY_RESULT_DESC WHERE SURVEY_CODE=#{surveyCode}
 	</delete>
+	<select id="MemberListByBuddyId" parameterType="string" resultMap="buddySurveyMember">
+		SELECT *
+		FROM msg_buddy A
+		LEFT OUTER JOIN MSG_USER_VW B ON A.USER_ID=B.USER_ID
+		WHERE BUDDY_TYPE = 0
+			AND BUDDY_PARENT = #{buddyId}
+
+	</select>
 </mapper>
