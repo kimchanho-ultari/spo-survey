@@ -2068,6 +2068,7 @@ A.link_adress_list:hover {
     scrollbar-width: none;
     height: 100%;
     max-height: 84.5%;
+    margin-top: 10px;
 }
 
 .emotion-info-pc {
@@ -2311,7 +2312,7 @@ A.link_adress_list:hover {
 }
 
 .txt-vote {
-    color: red;
+    color: #535353;
     font-weight: 500;
     font-size: 12px;
 }
@@ -2332,4 +2333,17 @@ A.link_adress_list:hover {
 
 .th_0px_yellow2 {
     font-size: 15px;
+}
+
+.red {
+    margin-right: 2px;
+    color: red;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+@media screen and (max-width: 1500px) {
+    .ui-dialog {
+        top: 95px !important;
+    }
 }
