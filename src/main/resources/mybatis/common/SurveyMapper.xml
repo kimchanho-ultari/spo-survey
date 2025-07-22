@@ -327,7 +327,9 @@ SET
 		  SURVEY_TITLE=#{surveyTitle}
 		, SURVEY_CONTENTS=#{surveyContents}
 		, END_DATETIME=STR_TO_DATE(#{endDatetime}, '%Y-%m-%d %H:%i:%s')
-		, IS_OPEN=#{isOpen}
+		<if test="isOpen != null">
+			, IS_OPEN = #{isOpen}
+		</if>
 WHERE
 		SURVEY_CODE=#{surveyCode}
 	</update>
