@@ -185,8 +185,7 @@ FROM SURVEY_VW A
 LEFT OUTER JOIN MSG_USER_VW B ON A.USER_ID=B.USER_ID
 <include refid="search"></include>
 ORDER BY
-		  A.SORT
-		, A.REG_DATETIME DESC
+			A.REG_DATETIME DESC
 LIMIT #{startRowNo}, #{pageSize}
 	</select>
 		<select id="surveyListMobile" resultMap="surveySummary">

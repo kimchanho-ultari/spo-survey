@@ -1298,11 +1298,13 @@ function init() {
 	initDatepicker();		  // 달력
 	initTime();				    // 시간
 	initParticipants();		// 참여자 목록
-	initTree();				    // 참여자 트리
 	chkSubmitBtn();			  // 제출하기 버튼
 	initSurvey();			    // 막대바, 인원
 	replyListPc();			  // 댓글
 	emotionPc();			    // 감정표현
+
+	var treeObj = orgTreeObj();
+	initTree(treeObj);
 
 	$('#member_list').chkbox();
 	$('#participants_list').chkbox();
@@ -1358,8 +1360,127 @@ function initEvent() {
 	$('#exportStatistics').on('click', exportStatistics);
 
 	$('#btnNotiForm').on('click', notiForm);
+
+	$('li.gnb').on('click', moveTab);
 }
 
+function moveTab() {
+	var type = $(this).data('type');
+
+	var tab = $('li.gnb');
+	tab.each(function () {
+		var item = $(this);
+		var itemType = item.data('type');
+
+		item.removeClass('active');
+
+		if (type == itemType) {
+			item.addClass('active');
+		}
+	});
+	console.log("movetab불림");
+	var treeObj;
+	if (type == 'organization') {
+		console.log("organiztionBuddy불림");
+		treeObj = orgTreeObj();
+	} else if (type == 'dept_group') {
+		treeObj = deptGroupTreeObj();
+	} else if (type == 'buddy') {
+		console.log("movetabBuddy불림");
+		treeObj = buddyTreeObj(); // 내목록 트리로 전환
+	} else {
+		treeObj = commonGroupTreeObj();
+	}
+
+	initTree(treeObj);
+
+	$('#member_list tbody').empty();
+	$('#searchKeyword').val('');
+}
+
+function orgTreeObj() {
+	var opt = {};
+	opt.topId = '0';
+	opt.target = 'tree';
+	opt.grpTopUri = '/organization/deptListByPid';
+
+	var handler = {
+		_onClick: function (node, event) {
+			$('#searchKeyword').val('');
+			prevAct = 'tree';
+
+			memberByDeptId(node.data.key);
+		},
+		_onCreate: function (node, span) {
+			if (node.data.key == opt.topId) {
+				obj = node;
+				node.activate(true);
+				node.expand(true);
+			}
+		},
+		_appendAjax: function (node) {
+			node.appendAjax({
+				type: 'post',
+				url: '/organization/deptListByPid',
+				dataType: 'json',
+				data: { key: node.data.key },
+				debugLazyDelay: 750
+			});
+		}
+	};
+
+	var obj = {};
+	obj.opt = opt;
+	obj.handler = handler;
+
+	return obj;
+}
+
+function buddyTreeObj() {
+	var opt = {};
+	opt.topId = '0';
+	opt.target = 'tree';
+	opt.grpTopUri = '/organization/buddyListByPid'; // 새로 만들 API
+	var handler = {
+		_onClick: function(node, event) {
+			$('#searchKeyword').val('');
+			prevAct = 'tree';
+			memberByBuddyId(node.data.key);
+		},
+		_onCreate: function(node, span) {
+			console.log("📦 create");
+			if (node.data.key == opt.topId) {
+				obj = node;
+				node.activate(true);
+				node.expand(true);
+			}
+		},
+		_appendAjax: function (node) {
+			node.appendAjax({
+				type: 'post',
+				url: '/organization/buddyListByPid',
+				dataType: 'json',
+				data: { key: node.data.key },
+				debugLazyDelay: 750
+			});
+		}
+	}
+
+	var obj = {};
+	obj.opt = opt;
+	obj.handler = handler;
+	return obj;
+}
+function memberByBuddyId(key) {
+	var obj = {};
+
+	obj.url = '/organization/memberByBuddyId';
+	obj.data = { key: key };
+	obj.contentType = 'application/x-www-form-urlencoded; charset=UTF-8';
+
+	console.log('[memberByBuddyId] ' + JSON.stringify(obj));
+	ajaxCall(obj, appendMemberList);
+}
 function getExcelDown() {
 	$.ajax({
 		url: '/survey/export?surveyCode=' + surveyCode,
@@ -2162,39 +2283,13 @@ function initParticipants() {
 		tmpParticipants.push(item);
 	});
 }
-function initTree() {
-	var opt = {};
-	opt.topId = '0';
-	opt.target = 'tree';
-	opt.grpTopUri = '/organization/deptListByPid';
-
-	var handler = {
-		_onClick: function (node, event) {
-			$('#searchKeyword').val('');
-			prevAct = 'tree';
-
-			memberByDeptId(node.data.key);
-		},
-		_onCreate: function (node, span) {
-			if (node.data.key == opt.topId) {
-				obj = node;
-				node.activate(true);
-				node.expand(true);
-			}
-		},
-		_appendAjax: function (node) {
-			node.appendAjax({
-				type: 'post',
-				url: '/organization/deptListByPid',
-				dataType: 'json',
-				data: { key: node.data.key },
-				debugLazyDelay: 750
-			});
-		}
-	};
-
+function initTree(obj) {
+	var opt = obj.opt;
+	var handler = obj.handler;
 	tree = new Tree(opt, handler);
 	tree.bind();
+
+	tree.reload();
 }
 function initSurvey() {
 	$('input:radio[name="isOpen"]:radio').prop('checked', false);
@@ -2227,9 +2322,6 @@ function chkSubmitBtn() {
 	const now = new Date();
 	const end = new Date(datetime('e'));
 
-	console.log(now);
-	console.log(end);
-	console.log(end<now);
 
 	// 제출 마감 시간 지난 경우
 	if (end < now) {
@@ -5385,6 +5477,12 @@ function saveSurvey() {
 
 		var startDatetime = datetime('s');
 		var endDatetime = datetime('e');
+
+		if (new Date(endDatetime) <= new Date()) {
+			alert('마감일시는 현재 시각 보다 이후여야 합니다.');
+			return;
+		}
+
 
 		var obj = {};
 		var data = {};
