@@ -179,7 +179,7 @@ Survey.prototype._appendSurvey = function(question) {
 	$tr_options.append($th_options_title).append($td_options_contents);
 	
 	// 항목입력
-	var $th_items_title = $('<th class="th_0px_yellow2">').html('<span style="color:red">* </span>' +'항목 입력');
+	var $th_items_title = $('<th class="th_0px_yellow2">').html('<span class="red">* </span> 답변 <br>');
 	var $btn_add_items = $('<span class="button button_gray2 btn-item">')
 							.text('항목 추가  ')
 							.data('key', 'items_' + code)

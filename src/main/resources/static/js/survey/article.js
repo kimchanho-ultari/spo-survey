@@ -5478,8 +5478,9 @@ function saveSurvey() {
 		var startDatetime = datetime('s');
 		var endDatetime = datetime('e');
 
-		if (new Date(endDatetime) <= new Date()) {
-			alert('마감일시는 현재 시각 보다 이후여야 합니다.');
+		console.log("endDate="+endDate)
+		if (new Date(endDate) <= new Date()) {
+			alert('마감일이 이미 지난 설문은 수정할 수 없습니다.');
 			return;
 		}
 

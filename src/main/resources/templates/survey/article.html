@@ -25,6 +25,7 @@
 	<script type="text/javascript" th:src="@{/js/survey/article.js}"></script>
 	<script type="text/javascript" th:src="@{/js/tree.js}"></script>
 	<script type="text/javascript" th:src="@{/js/survey/popup.js}"></script>
+
 	<script th:inline="javascript">
 		var userId = [[${ session.account.key }]];
 		var surveyCode = [[${ survey.surveyCode }]];
@@ -44,6 +45,7 @@
 		var sMinute = [[${ #dates.format(survey.startDatetime, 'mm') }]];
 		var eHour = [[${ #dates.format(survey.endDatetime, 'HH') }]];
 		var eMinute = [[${ #dates.format(survey.endDatetime, 'mm') }]];
+		var endDate = [[${#dates.format(survey.endDatetime, 'yyyy-MM-dd HH:mm:ss')}]]
 	</script>
 </head>
 

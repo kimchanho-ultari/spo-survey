@@ -425,7 +425,7 @@ input[type=checkbox] {
     height: 45px;
     background: #fff7d1;
     color: #222222;
-    font-size: 13px;
+    font-size: 16px;
     text-align: center;
     font-weight: 400;
     border-top: #c9c9c9 1px solid;
@@ -436,16 +436,15 @@ input[type=checkbox] {
 #view td {
     height: 45px;
     background: #ffffff;
-    color: #222222;
-    font-size: 14px;
+    color: #000000; /* 글씨색 진하게 */
+    font-size: 14px; /* 폰트 조금 키우기 */
     text-align: left;
-    font-weight: 100;
+    font-weight: 300; /* 기본 굵기 정도로 (100은 너무 얇음) */
     border-top: #c9c9c9 0px solid;
     border-left: #c9c9c9 0px solid;
     border-bottom: #c9c9c9 1px solid;
-    padding-left: 20px
+    padding-left: 20px;
 }
-
 #view .td_topline {
     height: 45px;
     background: #ffffff;
@@ -478,7 +477,7 @@ input[type=checkbox] {
     color: #222222;
     font-size: 14px;
     text-align: left;
-    font-weight: 100;
+    font-weight: 300;
     border-top: #c9c9c9 0px solid;
     border-left: #c9c9c9 0px solid;
     border-bottom: #c9c9c9 0px solid;
@@ -517,7 +516,7 @@ input[type=checkbox] {
     color: #222222;
     font-size: 14px;
     text-align: left;
-    font-weight: 100;
+    font-weight: 300;
     border-top: #c9c9c9 0px solid;
     border-left: #c9c9c9 0px solid;
     border-bottom: #c9c9c9 1px solid;
