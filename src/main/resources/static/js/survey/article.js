@@ -2362,11 +2362,11 @@ function initSurveyResult() {
 		let questionCode = "";
 		let replyNum = '';
 
-		$(function () {
-			init();
-			initEvent();
-			mobileInit();
-		});
+		// $(function () {
+		// 	init();
+		// 	initEvent();
+		// 	mobileInit();
+		// });
 
 		function mobileInit() {
 			replyList();						// 댓글
