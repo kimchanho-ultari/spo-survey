@@ -110,10 +110,19 @@ ORDER BY
 	</select>
 	<select id="memberByBuddyId" resultMap="user">
 		SELECT
-			B.*,
-			U.*
+			B.BUDDY_ID AS USER_ID,
+			U.USER_NAME,
+			U.DEPT_ID,
+			U.DEPT_NAME,
+			U.POS_NAME,
+			U.PHONE,
+			U.MOBILE,
+			U.PASSWORD,
+			U.SORT,
+			U.USER_TYPE,
+			U.PARENT_ORG
 		FROM MSG_BUDDY B
-					 JOIN MSG_USER_VW U ON B.USER_ID = U.USER_ID
+					 JOIN MSG_USER_VW U ON B.BUDDY_ID = U.USER_ID
 		WHERE
 			B.BUDDY_PARENT = #{key}
 			AND B.BUDDY_TYPE = 0

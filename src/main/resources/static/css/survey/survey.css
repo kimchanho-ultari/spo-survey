@@ -2335,12 +2335,12 @@ A.link_adress_list:hover {
 }
 
 .red {
-    margin-right: 2px;
-    color: red;
-    font-size: 16px;
-    font-weight: 700;
+    margin-right: 2px !important;
+    color: red !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
 }
 
 .ui-dialog {
-    top: 95px !important;
+    top: 100px !important;
 }
