@@ -61,6 +61,9 @@ public interface SurveyMapper {
 	void deleteSurveyQuestion(String surveyCode);
 	void deleteSurveyResult(String surveyCode);
 	void deleteSurveyResultDesc(String surveyCode);
-
 	void deleteOldSurveys();
+	void deleteParticipants(Map<String, Object> deleteParams);
+
+	public List<String> selectParticipantUserIds(String surveyCode);
+
 }

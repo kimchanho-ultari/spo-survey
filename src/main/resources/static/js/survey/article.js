@@ -4996,6 +4996,7 @@ function initSurveyResult() {
 					var posName = item.posName;
 					var userId = item.userId;
 					var parentOrg = item.parentOrg
+					var initUser = item.initUser;
 
 					var $tr = $('<tr>');
 					var $td_checkbox = $('<td>');
@@ -5014,8 +5015,9 @@ function initSurveyResult() {
 					.data('parentOrg', parentOrg)
 					.data('deptName', deptName)
 					.data('posName', posName)
+					.data('initUser', initUser)
 
-					if (hasOriginParticipants(key) && status != 'W') {
+					if ( initUser == 1) {
 						$checkbox.prop('disabled', true);
 					}
 					$td_checkbox.append($checkbox);
@@ -5173,7 +5175,14 @@ function initSurveyResult() {
 		function removeParticipantsList() {
 			if (isChecked('participants_list')) {
 				$('.chkItem:checked').each(function () {
+					var key = $(this).data('key');
 					$(this).parent().parent().remove();
+
+					// tmpParticipants 배열에서도 제거
+					tmpParticipants = tmpParticipants.filter(function(item) {
+						return item.key !== key;
+					});
+
 				});
 
 				resetChkItems('participants_list');
@@ -5189,8 +5198,11 @@ function initSurveyResult() {
 			var lookupObj = {};
 
 			for (var i in originArray) {
-				var key = originArray[i].key;
-				lookupObj[originArray[i][prop]] = originArray[i];
+				if (lookupObj.hasOwnProperty(key)) {
+					continue;
+				}
+
+				lookupObj[key] = originArray[i];
 			}
 
 			for (i in lookupObj) {
@@ -5735,7 +5747,8 @@ function appendParticipantsList(list) {
 			var deptName = item.deptName;
 			var posName = item.posName;
 			var userId = item.userId;
-			var parentOrg = item.parentOrg
+			var parentOrg = item.parentOrg;
+			var initUser = item.initUser;
 
 			var $tr = $('<tr>');
 			var $td_checkbox = $('<td>');
@@ -5754,8 +5767,9 @@ function appendParticipantsList(list) {
 				.data('parentOrg', parentOrg)
 				.data('deptName', deptName)
 				.data('posName', posName)
+				.data('initUser', initUser)
 
-			if (hasOriginParticipants(key) && status != 'W') {
+			if (initUser == 1) {
 				$checkbox.prop('disabled', true);
 			}
 			$td_checkbox.append($checkbox);
@@ -5913,7 +5927,14 @@ function validateAppendDataToParticipantsList() {
 function removeParticipantsList() {
 	if (isChecked('participants_list')) {
 		$('.chkItem:checked').each(function () {
+			var key = $(this).data('key');
+			// 화면에서 제거
 			$(this).parent().parent().remove();
+			
+			// tmpParticipants 배열에서도 제거
+			tmpParticipants = tmpParticipants.filter(function(item) {
+				return item.key !== key;
+			});
 		});
 
 		resetChkItems('participants_list');
@@ -5930,7 +5951,11 @@ function removeDuplicates(originArray, prop) {
 
 	for (var i in originArray) {
 		var key = originArray[i].key;
-		lookupObj[originArray[i][prop]] = originArray[i];
+		if (lookupObj.hasOwnProperty(key)) {
+			continue;
+		}
+
+		lookupObj[key] = originArray[i];
 	}
 
 	for (i in lookupObj) {

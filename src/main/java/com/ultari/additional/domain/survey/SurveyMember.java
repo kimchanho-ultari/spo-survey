@@ -12,4 +12,5 @@ public class SurveyMember {
 	private String userId;
 	private String parentOrg;
 	private String posName;
+	private boolean initUser;
 }

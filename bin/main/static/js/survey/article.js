@@ -592,6 +592,7 @@ function appendParticipantsList(list) {
 			var key = item.key;
 			var title = item.title;
 			var deptName = item.deptName;
+			var initUser = item.initUser;
 
 			var $tr = $('<tr>');
 			var $td_checkbox = $('<td>');
@@ -605,7 +606,7 @@ function appendParticipantsList(list) {
 				.data('title', title)
 				.data('deptName', deptName);
 
-			if (hasOriginParticipants(key) && status != 'W') {
+			if ((hasOriginParticipants(key) && status != 'W') || initUser == 1) {
 				$checkbox.prop('disabled', true);
 			}
 			$td_checkbox.append($checkbox);
@@ -740,6 +741,10 @@ function validateAppendDataToParticipantsList() {
 
 	if (isChk) {
 		var memberList = getChkItemList('member_list');
+		// 새로 추가되는 사용자에게 initUser = 1 설정
+		memberList.forEach(function(item) {
+			item.initUser = 1;
+		});
 		var participantsList = getItemList('participants_list');
 
 		var tmp = $.merge(participantsList, memberList);

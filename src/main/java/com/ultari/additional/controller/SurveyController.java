@@ -148,6 +148,7 @@ public class SurveyController {
 		log.info(key);
 		
 		data.put("userId", key);
+		data.put("initUser", 1);
 		
 		try {
 			surveyService.registSurvey(data);
@@ -190,6 +191,7 @@ public class SurveyController {
 		Account account = (Account) session.getAttribute("account");
 		String key = account.getKey();
 		data.put("userId", key);
+		data.put("initUser", 0);
 		
 		String surveyCode = (String) data.get("surveyCode");
 		String surveyTitle = (String) data.get("surveyTitle");

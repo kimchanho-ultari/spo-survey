@@ -5,6 +5,7 @@ import java.util.*;
 
 import com.ultari.additional.mapper.common.AlertMapper;
 import com.ultari.additional.mapper.common.OrganizationMapper;
+import java.util.stream.Collectors;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -142,11 +143,44 @@ public class SurveyService {
 
 		return map;
 	}
-	
+
 	@Transactional
 	public void saveSurvey(Map<String, Object> data) throws Exception {
 		surveyMapper.saveSurvey(data);
-		surveyMapper.registParticipants(data);
+
+		// 새 참가자 리스트 추출
+		List<Map<String, Object>> participantsList = (List<Map<String, Object>>) data.get("participantsList");
+		String surveyCode = (String) data.get("surveyCode");
+
+		// 새 참가자 userId 목록
+		Set<String> newUserIds = participantsList.stream()
+			.map(p -> (String) p.get("userId"))
+			.collect(Collectors.toSet());
+
+		// 기존 DB에서 참가자 userId 조회
+		List<String> existingUserIds = surveyMapper.selectParticipantUserIds(surveyCode);
+
+		// 삭제 대상: 기존에 있었지만 지금은 없는 사용자
+		List<String> usersToDelete = existingUserIds.stream()
+			.filter(id -> !newUserIds.contains(id))
+			.collect(Collectors.toList());
+
+		if (!usersToDelete.isEmpty()) {
+			Map<String, Object> deleteParams = new HashMap<>();
+			deleteParams.put("surveyCode", surveyCode);
+			deleteParams.put("list", usersToDelete);
+			surveyMapper.deleteParticipants(deleteParams);
+		}
+		//추가대상: 새 참가자 리스트 중 기존에 없던 사용자
+		List<Map<String, Object>> newParticipantsToInsert = participantsList.stream()
+			.filter(p -> !existingUserIds.contains((String) p.get("userId")))
+			.collect(Collectors.toList());
+
+		if (!newParticipantsToInsert.isEmpty()) {
+			Map<String, Object> insertParams = new HashMap<>(data);
+			insertParams.put("participantsList", newParticipantsToInsert);
+			surveyMapper.registParticipants(insertParams);
+		}
 	}
 	
 	public void removeSurvey(Map<String, Object> data) throws Exception {

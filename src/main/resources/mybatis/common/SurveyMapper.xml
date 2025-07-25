@@ -122,12 +122,13 @@ ON DUPLICATE KEY UPDATE
 	, IS_OPEN=#{isOpen}
 	</insert>
 	<insert id="registParticipants" parameterType="map">
-INSERT INTO SURVEY_MEMBER(USER_ID, SURVEY_CODE) 
+INSERT INTO SURVEY_MEMBER(USER_ID, SURVEY_CODE, INITUSER)
 VALUES 
 <foreach collection="participantsList" item="item" index="index" separator=",">
 (
 	  #{item.key}
 	, #{surveyCode}
+	, #{initUser}
 )
 </foreach>
 ON DUPLICATE KEY UPDATE
@@ -474,5 +475,20 @@ WHERE
 		DELETE FROM survey WHERE END_DATETIME < DATE_SUB(NOW(), INTERVAL 3 MONTH)
 		]]>
 	</delete>
+
+	<delete id="deleteParticipants">
+		DELETE FROM SURVEY_MEMBER
+		WHERE SURVEY_CODE = #{surveyCode}
+		AND USER_ID IN
+		<foreach item="id" collection="list" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<select id="selectParticipantUserIds" resultType="string" parameterType="string">
+		SELECT USER_ID
+		FROM SURVEY_MEMBER
+		WHERE SURVEY_CODE = #{surveyCode}
+	</select>
 
 </mapper>
