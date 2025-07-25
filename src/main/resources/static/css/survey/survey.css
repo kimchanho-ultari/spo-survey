@@ -437,9 +437,9 @@ input[type=checkbox] {
     height: 45px;
     background: #ffffff;
     color: #000000; /* 글씨색 진하게 */
-    font-size: 14px; /* 폰트 조금 키우기 */
+    font-size: 16px; /* 폰트 조금 키우기 */
     text-align: left;
-    font-weight: 300; /* 기본 굵기 정도로 (100은 너무 얇음) */
+    font-weight: 500; /* 기본 굵기 정도로 (100은 너무 얇음) */
     border-top: #c9c9c9 0px solid;
     border-left: #c9c9c9 0px solid;
     border-bottom: #c9c9c9 1px solid;
@@ -475,9 +475,9 @@ input[type=checkbox] {
     height: 10px;
     background: #ffffff;
     color: #222222;
-    font-size: 14px;
+    font-size: 16px;
     text-align: left;
-    font-weight: 300;
+    font-weight: 500;
     border-top: #c9c9c9 0px solid;
     border-left: #c9c9c9 0px solid;
     border-bottom: #c9c9c9 0px solid;
@@ -536,9 +536,9 @@ input[type=checkbox] {
     height: 25px;
     line-height: 24px;
     padding: 0px 0px;
-    color: #666666;
+    color: #000000;
     border: 0px #f3f3f3 solid;
-    font-size: 14px
+    font-size: 16px
 }
 
 #view .input_contents {

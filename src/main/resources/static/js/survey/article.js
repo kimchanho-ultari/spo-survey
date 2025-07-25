@@ -5198,10 +5198,10 @@ function initSurveyResult() {
 			var lookupObj = {};
 
 			for (var i in originArray) {
+				var key = originArray[i][prop];
 				if (lookupObj.hasOwnProperty(key)) {
 					continue;
 				}
-
 				lookupObj[key] = originArray[i];
 			}
 
@@ -5950,13 +5950,12 @@ function removeDuplicates(originArray, prop) {
 	var lookupObj = {};
 
 	for (var i in originArray) {
-		var key = originArray[i].key;
-		if (lookupObj.hasOwnProperty(key)) {
-			continue;
-		}
-
-		lookupObj[key] = originArray[i];
+	var key = originArray[i][prop];
+	if (lookupObj.hasOwnProperty(key)) {
+		continue;
 	}
+	lookupObj[key] = originArray[i];
+}
 
 	for (i in lookupObj) {
 		newArray.push(lookupObj[i]);
