@@ -13,7 +13,6 @@
 		<!-- <result property="status" column="STATUS"/> -->
 		<result property="status" column="IS_COMPLETE"/>
 		<result property="isOpen" column="IS_OPEN"/>
-		<collection property="memberList" ofType="SurveyMember" column="SURVEY_CODE" select="surveyMemberList"/>
 		<collection property="totalComplete" ofType="int" column="SURVEY_CODE" select="totalComplete"/>
 	</resultMap>
 	<resultMap type="Survey" id="survey">
@@ -28,7 +27,6 @@
 		<!-- <result property="status" column="STATUS"/> -->
 		<result property="status" column="IS_COMPLETE"/>
 		<result property="isOpen" column="IS_OPEN"/>
-		<collection property="memberList" ofType="SurveyMember" column="SURVEY_CODE" select="surveyMemberList"/>
 	</resultMap>
 	<resultMap type="SurveyMember" id="surveyMember">
 		<id property="key" column="USER_ID"/>
@@ -39,6 +37,7 @@
 		<result property="posName" column="POS_NAME"/>
 		<result property="userId" column="USER_ID"/>
 		<result property="parentOrg" column="PARENT_ORG"/>
+		<result property="initUser" column="INITUSER"/>
 	</resultMap>
 	<resultMap type="SurveyQuestion" id="surveyQuestion">
 		<id property="questionCode" column="QUESTION_CODE"/>
@@ -179,26 +178,16 @@ SELECT COUNT(*) FROM SURVEY_VW A
 <include refid="search"></include>
 	</select>
 	<select id="surveyList" resultMap="surveySummary">
-SELECT
-		  A.*
-		, B.USER_NAME
-FROM SURVEY_VW A
-LEFT OUTER JOIN MSG_USER_VW B ON A.USER_ID=B.USER_ID
-<include refid="search"></include>
-ORDER BY
-			A.REG_DATETIME DESC
-LIMIT #{startRowNo}, #{pageSize}
-	</select>
-		<select id="surveyListMobile" resultMap="surveySummary">
 		SELECT
-		A.*
-		, B.USER_NAME
+		A.*,
+		B.USER_NAME
 		FROM SURVEY_VW A
-		LEFT OUTER JOIN MSG_USER_VW B ON A.USER_ID=B.USER_ID
-		<include refid="search"></include>
-		ORDER BY
-		A.SORT
-		, A.REG_DATETIME DESC
+		LEFT OUTER JOIN MSG_USER_VW B ON A.USER_ID = B.USER_ID
+		<include refid="search"/>
+		ORDER BY A.REG_DATETIME DESC
+		<if test="startRowNo != null and pageSize != null">
+			LIMIT #{startRowNo}, #{pageSize}
+		</if>
 	</select>
 
 	<sql id="search">
@@ -220,15 +209,6 @@ LIMIT #{startRowNo}, #{pageSize}
 			</if>
 		</trim>
 	</sql>
-	<select id="surveyMemberList" resultMap="surveyMember">
-SELECT
-		  A.*
-		, B.*
-FROM SURVEY_MEMBER A
-LEFT OUTER JOIN MSG_USER_VW B ON A.USER_ID=B.USER_ID
-WHERE
-		A.SURVEY_CODE=#{surveyCode}
-	</select>
 	<select id="totalComplete" resultType="int">
 SELECT
 		COUNT(*)
@@ -462,12 +442,21 @@ WHERE
 		DELETE FROM SURVEY_RESULT_DESC WHERE SURVEY_CODE=#{surveyCode}
 	</delete>
 	<select id="MemberListByBuddyId" parameterType="string" resultMap="buddySurveyMember">
-		SELECT *
-		FROM msg_buddy A
-		LEFT OUTER JOIN MSG_USER_VW B ON A.USER_ID=B.USER_ID
-		WHERE BUDDY_TYPE = 0
-			AND BUDDY_PARENT = #{buddyId}
-
+		SELECT
+			B.BUDDY_ID AS USER_ID,
+			U.USER_NAME,
+			U.DEPT_NAME,
+			U.POS_NAME,
+			U.PARENT_ORG
+		FROM MSG_BUDDY B
+					 JOIN MSG_USER_VW U ON B.BUDDY_ID = U.USER_ID
+		WHERE
+			B.BUDDY_PARENT = #{buddyId}
+			AND B.BUDDY_TYPE = 0
+			AND B.USER_ID = #{key}
+		ORDER BY
+			B.BUDDY_TYPE DESC,
+			B.BUDDY_ORDER
 	</select>
 
 	<delete id="deleteOldSurveys">
@@ -491,4 +480,15 @@ WHERE
 		WHERE SURVEY_CODE = #{surveyCode}
 	</select>
 
+	<select id="surveyMemberListBySurveyCodes" resultMap="surveyMember">
+		SELECT
+		A.*,
+		B.*
+		FROM SURVEY_MEMBER A
+		LEFT JOIN MSG_USER_VW B ON A.USER_ID = B.USER_ID
+		WHERE A.SURVEY_CODE IN
+		<foreach item="code" collection="list" open="(" separator="," close=")">
+			#{code}
+		</foreach>
+	</select>
 </mapper>

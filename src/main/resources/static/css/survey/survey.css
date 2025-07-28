@@ -20,8 +20,9 @@ input {
 }
 
 body {
-    font-size: 13px;
-    color: #222222
+    font-size: 15px;
+    font-weight: 400;
+    color: #222222;
 }
 
 /*body{font-family:'맑은고딕','Malgun Gothic', '돋움', Arial, sans-serif;font-size:12px;color:#525252} */
@@ -163,7 +164,7 @@ input[type=checkbox] {
 
 /* 컨텐츠 영역 */
 #contents {
-    width: 1000px;
+    width: 1100px;
     margin: 0 auto;
     padding: 30px 0 0px 0;
     display: block;
@@ -267,10 +268,10 @@ input[type=checkbox] {
     height: 45px;
     background: #ffffff;
     color: #222222;
-    font-size: 14px;
+    font-size: 16px;
     text-align: left;
     align: left;
-    font-weight: 300;
+    font-weight: 400;
     border-top: #c9c9c9 0px solid;
     border-left: #ffffff 0px solid;
     border-bottom: #c9c9c9 1px solid;
@@ -281,12 +282,13 @@ input[type=checkbox] {
     height: 45px;
     background: #ffffff;
     color: #222222;
-    font-size: 14px;
+    font-size: 16px;
     text-align: center;
-    font-weight: 300;
+    font-weight: 400;
     border-top: #c9c9c9 0px solid;
     border-left: #c9c9c9 0px solid;
-    border-bottom: #c9c9c9 1px solid
+    border-bottom: #c9c9c9 1px solid;
+    padding-right: 10px;
 }
 
 #list .td_graytext {
@@ -364,9 +366,9 @@ input[type=checkbox] {
     height: 45px;
     background: #f7f7f7;
     color: #222222;
-    font-size: 13px;
+    font-size: 15px;
     text-align: center;
-    font-weight: 400;
+    font-weight: 600;
     border-top: #0460ae 2px solid;
     border-left: #c9c9c9 0px solid;
     border-bottom: #c9c9c9 1px solid
@@ -389,9 +391,9 @@ input[type=checkbox] {
     height: 45px;
     background: #f7f7f7;
     color: #222222;
-    font-size: 13px;
+    font-size: 15px;
     text-align: center;
-    font-weight: 400;
+    font-weight: 600;
     border-top: #c9c9c9 0px solid;
     border-left: #c9c9c9 0px solid;
     border-bottom: #c9c9c9 1px solid
@@ -516,7 +518,7 @@ input[type=checkbox] {
     color: #222222;
     font-size: 14px;
     text-align: left;
-    font-weight: 300;
+    font-weight: 500;
     border-top: #c9c9c9 0px solid;
     border-left: #c9c9c9 0px solid;
     border-bottom: #c9c9c9 1px solid;
@@ -538,7 +540,8 @@ input[type=checkbox] {
     padding: 0px 0px;
     color: #000000;
     border: 0px #f3f3f3 solid;
-    font-size: 16px
+    font-size: 16px;
+    font-weight: 500;
 }
 
 #view .input_contents {
@@ -696,6 +699,7 @@ input[type=checkbox] {
     height: 32px;
     line-height: 32px;
     font-size: 15px;
+    font-weight: 500;
     color: #333333;
     border: 1px solid #c8c8c8;
     background: #f8f8f8
@@ -712,6 +716,7 @@ input[type=checkbox] {
     height: 32px;
     line-height: 32px;
     font-size: 15px;
+    font-weight: 500;
     color: #155697;
     border: 1px solid #99b9d9;
     background: #bbd8f5
@@ -1352,7 +1357,7 @@ A.link_paging_active:hover {
 }
 
 .t_gray {
-    color: #aaaaaa
+    color: #000000
 }
 
 .t_gray2 {
@@ -1763,8 +1768,11 @@ A.link_adress_list:hover {
     position: absolute;
     right: 0;
     top: 0;
-    height: 27px;
-    color: #999999;
+    width: 60px;
+    height: 35px;
+    color: #000000;
+    font-size: 15px;
+    font-weight: 400;
 }
 
 #reply {

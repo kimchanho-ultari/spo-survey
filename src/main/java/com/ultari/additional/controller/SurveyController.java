@@ -128,7 +128,11 @@ public class SurveyController {
 
 		model.addAttribute("my", my);
 
-		List<SurveyMember> surveyMembers = surveyService.getMembersByBuddyId(buddyId);
+		Map<String, Object> map = new HashMap<>();
+		map.put("key",key);
+		map.put("buddyId", buddyId);
+
+		List<SurveyMember> surveyMembers = surveyService.getMembersByBuddyId(map);
 		log.info("조회된 surveyMembers 수: {}", surveyMembers.size());
 		for (SurveyMember member : surveyMembers) {
 			log.info("SurveyMember - userName: {}", member.getTitle());

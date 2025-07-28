@@ -29,12 +29,11 @@ public interface SurveyMapper {
 	
 	public int numberOfList(Map<String, Object> data) throws Exception;
 	public List<Survey> surveyList(Map<String, Object> data) throws Exception;
-	public List<Survey> surveyListMobile(Map<String, Object> data) throws Exception;
 	
 	public Survey survey(Map<String, Object> data) throws Exception;
 	public List<SurveyMember> surveyMemberList(Map<String, Object> data) throws Exception;
 	public List<SurveyQuestion> surveyQuestionList(Map<String, Object> data) throws Exception;
-	public List<SurveyMember> MemberListByBuddyId(String buddyId);
+	public List<SurveyMember> MemberListByBuddyId(Map<String, Object> map);
 
 	public List<SurveyResult> surveyResult(Map<String, Object> data) throws Exception;
 	public List<Aggregate> surveyItemAggregate(Map<String, Object> data) throws Exception;
@@ -66,4 +65,5 @@ public interface SurveyMapper {
 
 	public List<String> selectParticipantUserIds(String surveyCode);
 
+	List<SurveyMember> surveyMemberListBySurveyCodes(List<String> surveyCodes);
 }

@@ -64,15 +64,24 @@ public class SurveyService {
 		data.put("pageSize", pageManager.getPageSize());
 		
 		List<Survey> list = surveyMapper.surveyList(data);
-		List<Survey> mobileList = surveyMapper.surveyListMobile(data);
-		
-		for (Survey survey : mobileList) {
+
+		List<String> surveyCodes = list.stream()
+			.map(Survey::getSurveyCode)
+			.collect(Collectors.toList());
+
+		List<SurveyMember> members = surveyMapper.surveyMemberListBySurveyCodes(surveyCodes);
+		Map<String, List<SurveyMember>> memberMap = members.stream()
+			.collect(Collectors.groupingBy(SurveyMember::getSurveyCode));
+
+
+		for (Survey survey : list) {
+			survey.setMemberList(memberMap.getOrDefault(survey.getSurveyCode(), Collections.emptyList()));
 			collectAdditionalInformation(survey, userId);
 		}
 		
 		Map<String, Object> map = new HashMap<>();
 		map.put("list", list);
-		map.put("mobileList", mobileList);
+		map.put("mobileList", list);
 		map.put("pageManager", pageManager);
 		
 		return map;
@@ -99,6 +108,14 @@ public class SurveyService {
 		String userId = (String) data.get("userId");
 		
 		Survey survey = surveyMapper.survey(data);
+
+		String surveyCode = survey.getSurveyCode();
+		List<SurveyMember> members = surveyMapper.surveyMemberListBySurveyCodes(Collections.singletonList(surveyCode));
+
+		Map<String, List<SurveyMember>> memberMap = members.stream()
+			.collect(Collectors.groupingBy(SurveyMember::getSurveyCode));
+
+		survey.setMemberList(memberMap.getOrDefault(surveyCode, Collections.emptyList()));
 		List<SurveyQuestion> surveyQuestionList = surveyMapper.surveyQuestionList(data);
 		//20250707 KHJ start
 		for(SurveyQuestion surveyQuestion : surveyQuestionList) {
@@ -265,13 +282,15 @@ public class SurveyService {
 		List<SurveyMember> memberList = survey.getMemberList();
 		String isMember = "N";
 		String isDone = "N";
-		for (SurveyMember member : memberList) {
-			String key = member.getKey();
-			if (key.equals(userId)) {
-				isMember = "Y";
-				isDone = member.getIsComplete();
+		if (memberList != null) {
+			for (SurveyMember member : memberList) {
+				String key = member.getKey();
+				if (key.equals(userId)) {
+					isMember = "Y";
+					isDone = member.getIsComplete();
+				}
 			}
-		}
+			}
 		
 		String isWriter = "N";
 		String uid = survey.getUserId();
@@ -391,7 +410,7 @@ public class SurveyService {
 	}
 
 
-	public List<SurveyMember> getMembersByBuddyId(String buddyId) {
-		return surveyMapper.MemberListByBuddyId(buddyId);
+	public List<SurveyMember> getMembersByBuddyId(Map<String, Object> map) {
+		return surveyMapper.MemberListByBuddyId(map);
 	}
 }
