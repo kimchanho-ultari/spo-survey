@@ -4,7 +4,7 @@ import com.ultari.additional.domain.account.Account;
 import com.ultari.additional.domain.reaction.ContentReaction;
 import com.ultari.additional.service.ReactionService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.websocket.AuthenticationException;
+import javax.naming.AuthenticationException;
 import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
