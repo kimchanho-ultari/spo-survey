@@ -46,6 +46,14 @@
 		var eHour = [[${ #dates.format(survey.endDatetime, 'HH') }]];
 		var eMinute = [[${ #dates.format(survey.endDatetime, 'mm') }]];
 		var endDate = [[${#dates.format(survey.endDatetime, 'yyyy-MM-dd HH:mm:ss')}]]
+		var startDatetime = [[${#dates.format(survey.startDatetime, 'yyyy-MM-dd HH:mm:ss')}]];
+		var endDatetime = [[${#dates.format(survey.endDatetime, 'yyyy-MM-dd HH:mm:ss')}]];
+
+		function datetime(type) {
+			if (type === 's') return startDatetime;
+			if (type === 'e') return endDatetime;
+			return null;
+		}
 	</script>
 </head>
 

@@ -219,7 +219,16 @@ WHERE
 	</select>
 	<select id="survey" resultMap="survey">
 SELECT
-		A.*, B.USER_NAME
+	A.SURVEY_CODE,
+	A.SURVEY_TITLE,
+	A.SURVEY_CONTENTS,
+	A.REG_DATETIME,
+	A.START_DATETIME,
+	A.END_DATETIME,
+	A.IS_COMPLETE,
+	A.USER_ID,
+	B.USER_NAME,
+	A.IS_OPEN
 FROM SURVEY_VW A
 LEFT OUTER JOIN MSG_USER_VW B ON A.USER_ID=B.USER_ID
 WHERE
@@ -491,4 +500,16 @@ WHERE
 			#{code}
 		</foreach>
 	</select>
+
+	<select id="surveyMemberList" resultMap="surveyMember">
+		SELECT
+			A.*
+				 , B.USER_NAME
+				 , B.DEPT_NAME
+		FROM SURVEY_MEMBER A
+					 LEFT OUTER JOIN MSG_USER_VW B ON A.USER_ID=B.USER_ID
+		WHERE
+			A.SURVEY_CODE=#{surveyCode}
+	</select>
+
 </mapper>

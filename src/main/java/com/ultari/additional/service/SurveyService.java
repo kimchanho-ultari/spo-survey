@@ -359,6 +359,10 @@ public class SurveyService {
 	
 	public Map<String, Object> export(Map<String, Object> map) throws Exception {
 		Survey survey = surveyMapper.survey(map);
+
+		List<SurveyMember> members = surveyMapper.surveyMemberList(map);
+		survey.setMemberList(members);
+
 		List<SurveyQuestion> surveyQuestionList = surveyMapper.surveyQuestionListWithoutItems(map);
 
 		List<SurveyItem> surveyItemList = surveyMapper.surveyItemListBySurveyCode(map);
