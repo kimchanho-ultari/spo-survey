@@ -9,10 +9,10 @@ spring:
     active: local
   common:
     datasource:
-      driver-class-name: com.mysql.jdbc.Driver
-      jdbc-url: jdbc:mysql://10.0.0.91:3306/jeju?useUnicode=true&characterEncoding=UTF8&serverTimezone=UTC
-      username: msger
-      password: msger
+      driver-class-name: cubrid.jdbc.driver.CUBRIDDriver
+      jdbc-url: "jdbc:cubrid:127.0.0.1:30000:demodb:survey::"
+      username: survey
+      password:
   migration:
     from:
       datasource:
@@ -56,7 +56,7 @@ common:
     survey-noti-domain: http://127.0.0.1:8080/
   organization:
     top-dept-id: ultari1
-    
+
 #admin 조직도 동기화에 사용
 #주석 처리 요망
 rest-template:

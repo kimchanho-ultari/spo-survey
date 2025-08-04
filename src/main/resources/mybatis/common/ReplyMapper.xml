@@ -31,6 +31,6 @@
         DELETE FROM MSG_CONTENT_REPLY WHERE REPLY_ID = #{replyId}
     </delete>
     <insert id="save">
-        INSERT INTO MSG_CONTENT_REPLY (REPLY_ID, CONTENT_ID, USER_ID, REPLY) VALUES(#{replyId}, #{contentId}, #{userId}, #{reply}) ON DUPLICATE KEY UPDATE REPLY = #{reply}
+        INSERT INTO MSG_CONTENT_REPLY (REPLY_ID, CONTENT_ID, USER_ID, REPLY, REGIST_DATE) VALUES(#{replyId}, #{contentId}, #{userId}, #{reply}, NOW()) ON DUPLICATE KEY UPDATE REPLY = #{reply}
     </insert>
 </mapper>

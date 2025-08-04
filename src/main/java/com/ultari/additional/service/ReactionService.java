@@ -33,7 +33,7 @@ public class ReactionService {
         List<Map<String, String>> list = reactionMapper.findReactionCountByContentId(contentId);
         for(Map<String, String> map:list){
             String name = map.get("name");
-            String count = map.get("count");
+            String count = map.get("cnt");
 
             reactions.setReactionCount(name, count);
         }

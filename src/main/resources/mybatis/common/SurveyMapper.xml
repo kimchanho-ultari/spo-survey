@@ -95,43 +95,62 @@
 		<result property="parentOrg" column="PARENT_ORG"/>
 	</resultMap>
 	<insert id="registSurvey">
-INSERT INTO SURVEY(SURVEY_CODE, SURVEY_TITLE, SURVEY_CONTENTS, USER_ID, START_DATETIME, END_DATETIME, IS_OPEN, END_ALARM)
-VALUES (
-	  #{surveyCode}
-	, #{surveyTitle}
-	, #{surveyContents}
-	, #{userId}
-	, STR_TO_DATE(#{startDatetime}, '%Y-%m-%d %H:%i:%s')
-	<choose>
-		<when test="endDatetime != null">
-			, STR_TO_DATE(#{endDatetime}, '%Y-%m-%d %H:%i:%s')
-		</when>
-		<otherwise>
-			, null
-		</otherwise>
-	</choose>
-	, #{isOpen}
-	,#{endAlarm}
-)
-ON DUPLICATE KEY UPDATE
-	  SURVEY_TITLE=#{surveyTitle}
-	, SURVEY_CONTENTS=#{surveyContents}
-	, START_DATETIME=STR_TO_DATE(#{startDatetime}, '%Y-%m-%d %H:%i:%s')
-	, END_DATETIME=STR_TO_DATE(#{endDatetime}, '%Y-%m-%d %H:%i:%s')
-	, IS_OPEN=#{isOpen}
+		MERGE INTO SURVEY T
+		USING (
+		SELECT
+		#{surveyCode} AS SURVEY_CODE,
+		#{surveyTitle} AS SURVEY_TITLE,
+		#{surveyContents} AS SURVEY_CONTENTS,
+		#{userId} AS USER_ID,
+		STR_TO_DATE(#{startDatetime}, '%Y-%m-%d %H:%i:%s') AS START_DATETIME,
+		<choose>
+			<when test="endDatetime != null">
+				STR_TO_DATE(#{endDatetime}, '%Y-%m-%d %H:%i:%s') AS END_DATETIME,
+			</when>
+			<otherwise>
+				NULL AS END_DATETIME,
+			</otherwise>
+		</choose>
+		#{isOpen} AS IS_OPEN,
+		#{endAlarm} AS END_ALARM
+		FROM db_root
+		) S
+		ON (T.SURVEY_CODE = S.SURVEY_CODE)
+		WHEN MATCHED THEN
+		UPDATE SET
+		T.SURVEY_TITLE = S.SURVEY_TITLE,
+		T.SURVEY_CONTENTS = S.SURVEY_CONTENTS,
+		T.START_DATETIME = S.START_DATETIME,
+		T.END_DATETIME = S.END_DATETIME,
+		T.IS_OPEN = S.IS_OPEN,
+		T.END_ALARM = S.END_ALARM
+		WHEN NOT MATCHED THEN
+		INSERT (
+		SURVEY_CODE, SURVEY_TITLE, SURVEY_CONTENTS, USER_ID,
+		START_DATETIME, END_DATETIME, IS_OPEN, END_ALARM, REG_DATETIME
+		)
+		VALUES (
+		S.SURVEY_CODE, S.SURVEY_TITLE, S.SURVEY_CONTENTS, S.USER_ID,
+		S.START_DATETIME, S.END_DATETIME, S.IS_OPEN, S.END_ALARM, NOW()
+		)
 	</insert>
 	<insert id="registParticipants" parameterType="map">
-INSERT INTO SURVEY_MEMBER(USER_ID, SURVEY_CODE, INITUSER)
-VALUES 
-<foreach collection="participantsList" item="item" index="index" separator=",">
-(
-	  #{item.key}
-	, #{surveyCode}
-	, #{initUser}
-)
-</foreach>
-ON DUPLICATE KEY UPDATE
-	USER_ID=VALUES(USER_ID)
+		<foreach collection="participantsList" item="item" index="index" separator=";">
+			MERGE INTO SURVEY_MEMBER T
+			USING (
+			SELECT
+			#{item.key} AS USER_ID,
+			#{surveyCode} AS SURVEY_CODE,
+			#{initUser} AS INITUSER
+			FROM db_root
+			) S
+			ON (T.USER_ID = S.USER_ID AND T.SURVEY_CODE = S.SURVEY_CODE)
+			WHEN MATCHED THEN
+			UPDATE SET T.INITUSER = S.INITUSER
+			WHEN NOT MATCHED THEN
+			INSERT (USER_ID, SURVEY_CODE, INITUSER)
+			VALUES (S.USER_ID, S.SURVEY_CODE, S.INITUSER)
+		</foreach>
 	</insert>
 	<insert id="registQuestions" parameterType="map">
 INSERT INTO SURVEY_QUESTION (
