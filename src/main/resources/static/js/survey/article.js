@@ -2322,8 +2322,6 @@ function chkSubmitBtn() {
 	const now = new Date();
 	const end = new Date(datetime('e'));
 
-	console.log(now);
-	console.log(end);
 
 	// 제출 마감 시간 지난 경우
 	if (end < now) {

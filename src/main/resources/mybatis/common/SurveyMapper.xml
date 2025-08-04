@@ -495,10 +495,17 @@ WHERE
 		B.*
 		FROM SURVEY_MEMBER A
 		LEFT JOIN MSG_USER_VW B ON A.USER_ID = B.USER_ID
-		WHERE A.SURVEY_CODE IN
-		<foreach item="code" collection="list" open="(" separator="," close=")">
-			#{code}
-		</foreach>
+		<where>
+			<if test="list != null and list.size() > 0">
+				A.SURVEY_CODE IN
+				<foreach item="code" collection="list" open="(" separator="," close=")">
+					#{code}
+				</foreach>
+			</if>
+			<if test="list == null or list.size() == 0">
+				1 = 0  <!-- 아무것도 안 나오게 처리 -->
+			</if>
+		</where>>
 	</select>
 
 	<select id="surveyMemberList" resultMap="surveyMember">
