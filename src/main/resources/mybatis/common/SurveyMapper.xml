@@ -505,7 +505,7 @@ WHERE
 			<if test="list == null or list.size() == 0">
 				1 = 0  <!-- 아무것도 안 나오게 처리 -->
 			</if>
-		</where>>
+		</where>
 	</select>
 
 	<select id="surveyMemberList" resultMap="surveyMember">
