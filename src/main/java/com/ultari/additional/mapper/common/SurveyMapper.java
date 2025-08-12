@@ -19,17 +19,17 @@ public interface SurveyMapper {
 	public void registParticipants(Map<String, Object> data) throws Exception;
 	public void registQuestions(Map<String, Object> data) throws Exception;
 	public void registQuestionsItems(Map<String, Object> data) throws Exception;
-	
+
 	public void saveSurvey(Map<String, Object> data) throws Exception;
 	public void removeSurvey(Map<String, Object> data) throws Exception;
-	
+
 	public void submitSurvey(Map<String, Object> data) throws Exception;
 	public void submitSurveyDesc(Map<String, Object> data) throws Exception;
 	public void submitSurveyMember(Map<String, Object> data) throws Exception;
-	
+
 	public int numberOfList(Map<String, Object> data) throws Exception;
 	public List<Survey> surveyList(Map<String, Object> data) throws Exception;
-	
+
 	public Survey survey(Map<String, Object> data) throws Exception;
 	public List<SurveyMember> surveyMemberList(Map<String, Object> data) throws Exception;
 	public List<SurveyQuestion> surveyQuestionList(Map<String, Object> data) throws Exception;
@@ -38,14 +38,14 @@ public interface SurveyMapper {
 	public List<SurveyResult> surveyResult(Map<String, Object> data) throws Exception;
 	public List<Aggregate> surveyItemAggregate(Map<String, Object> data) throws Exception;
 	public List<SurveyResultDesc> surveyResultDesc(Map<String, Object> data) throws Exception;
-	
+
 	public List<SurveyResult> surveyItemResultMember(Map<String, Object> data) throws Exception;
-	
+
 	public List<String> surveyMemberIdUncompleteBySurveyCode(Map<String, Object> data) throws Exception;
-	
+
 	public void removeQuestions(Map<String, Object> data) throws Exception;
 	public void removeItems(Map<String, Object> data) throws Exception;
-	
+
 	public List<SurveyQuestion> surveyQuestionListWithoutItems(Map<String, Object> data) throws Exception;
 	public List<SurveyItem> surveyItemListBySurveyCode(Map<String, Object> data) throws Exception;
 	public List<SurveyResult> surveyResultBySurveyCode(Map<String, Object> data) throws Exception;
@@ -66,4 +66,8 @@ public interface SurveyMapper {
 	public List<String> selectParticipantUserIds(String surveyCode);
 
 	List<SurveyMember> surveyMemberListBySurveyCodes(List<String> surveyCodes);
+
+	void registEndAlarm(Map<String, Object> alarmData);
+
+	void deleteEndAlarmsForParticipants(Map<String, Object> deleteParams);
 }

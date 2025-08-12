@@ -1,11 +1,16 @@
 package com.ultari.additional.controller;
 
+import com.ultari.additional.domain.account.Account;
+import com.ultari.additional.domain.account.SsoRequest;
+import com.ultari.additional.domain.account.TokenData;
+import com.ultari.additional.service.AccountService;
+import com.ultari.additional.util.AuthenticationTokenManager;
+import com.ultari.additional.util.CryptorManager;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
@@ -18,14 +23,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import com.ultari.additional.domain.account.Account;
-import com.ultari.additional.domain.account.TokenData;
-import com.ultari.additional.service.AccountService;
-import com.ultari.additional.util.AuthenticationTokenManager;
-import com.ultari.additional.util.CryptorManager;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Controller
@@ -44,11 +41,43 @@ public class AccountController {
 	@Value("${common.account.encrypt.use-wrapping-base64}")
 	private boolean USE_WRAPPING_BASE64;
 
-	 @RequestMapping("/{systemCode:^(?!css|js|images|static$).*$}/{key}")
+	@PostMapping(path="/sso", consumes="application/json")
+	public String sso1(@RequestBody SsoRequest req,
+		HttpSession session, @Nullable String surveyCode) throws Exception {
+		String systemCode = req.getSystemCode();
+		String key = req.getKey();
+		log.debug("systemCode=" + systemCode + ", key=" + key);
+		log.debug("USE_CRYPT=" + USE_CRYPT);
+		String userId = key;
+		if (USE_CRYPT) {
+			userId = CryptorManager.crypt(key, CRYPT_DRIVER, ENCRYPT_METHOD, false, USE_WRAPPING_BASE64);
+		}
+		log.debug("userId=" + userId);
+
+		TokenData tokenData = new TokenData();
+		tokenData.setKey(userId);
+		tokenData.setSystemCode(systemCode);
+		tokenData.setSurveyCode(surveyCode);
+
+		Map<String, Object> map = accountInfo(tokenData);
+		Account account = (Account) map.get("account");
+		String uri = (String) map.get("uri");
+		if (!uri.contains("invalid")) {
+			account.setDecKey(key);
+			session.setAttribute("account", account);
+		}
+
+		return uri;
+	}
+
+	 @GetMapping("/{systemCode:^(?!css|js|images|static$).*$}/{key}")
 	public String sso(@PathVariable("systemCode") String systemCode,
 			@PathVariable("key") String key,
 			RedirectAttributes attr,
-			HttpSession session, @Nullable String surveyCode) throws Exception {
+			HttpSession session, @Nullable String surveyCode,HttpServletRequest request) throws Exception {
+
+		request.getQueryString();
+		request.getParameter("surveyCode");
 		log.debug("systemCode=" + systemCode + ", key=" + key);
 		log.debug("USE_CRYPT=" + USE_CRYPT);
 		String userId = key;

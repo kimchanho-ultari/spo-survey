@@ -538,4 +538,37 @@ WHERE
 			A.SURVEY_CODE=#{surveyCode}
 	</select>
 
+	<insert id="registEndAlarm" parameterType="map">
+		REPLACE INTO MSG_ALARM (
+		MSG_ID
+		, ID
+		, PUSH_TIME
+		, SUBJECT
+		, CONTENT
+		, SURVEY_ID
+		, STATUS
+		) VALUES
+		<foreach collection="participantsList" item="item" index="index" separator=",">
+			(
+			#{item.key}
+			, #{id}
+			, #{pushTime}
+			, #{subject}
+			, #{content}
+			, #{surveyId}
+			, ''
+			)
+		</foreach>
+	</insert>
+
+	<delete id="deleteEndAlarmsForParticipants">
+		DELETE FROM MSG_ALARM
+		WHERE
+		survey_id = #{surveyCode}
+		AND
+		MSG_ID IN
+		<foreach collection="list" item="msgId" open="(" separator="," close=")">
+			#{msgId}
+		</foreach>
+	</delete>
 </mapper>

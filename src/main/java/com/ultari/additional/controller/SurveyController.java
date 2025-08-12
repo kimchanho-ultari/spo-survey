@@ -1,6 +1,7 @@
 package com.ultari.additional.controller;
 
 import com.ultari.additional.domain.survey.SurveyMember;
+import com.ultari.additional.util.AtMessengerCommunicator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -163,7 +164,7 @@ public class SurveyController {
 		
 		Map<String, Object> map = new HashMap<>();
 		map.put("code", code);
-		
+
 		return map;
 	}
 	

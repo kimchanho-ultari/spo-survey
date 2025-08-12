@@ -197,7 +197,8 @@ $(function () {
 				if (val) {
 					const dt = new Date(val);
 					tempSelectedDate = dt;
-					$(".date2 span").text(formatDateTime(dt));
+					$(".date2>span").text(formatDateTime(dt));
+					console.log(formatDateTime(dt));
 				}
 			}
 		});
