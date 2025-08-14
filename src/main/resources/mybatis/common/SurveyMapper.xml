@@ -540,23 +540,33 @@ WHERE
 
 	<insert id="registEndAlarm" parameterType="map">
 		REPLACE INTO MSG_ALARM (
-		MSG_ID
-		, ID
+		ID
+		, MSG_ID
 		, PUSH_TIME
 		, SUBJECT
 		, CONTENT
 		, SURVEY_ID
 		, STATUS
+		, URL
+		, BEGINT
+		, ENDT
+		, GROUP_ID
+		, RTYPE
 		) VALUES
 		<foreach collection="participantsList" item="item" index="index" separator=",">
 			(
 			#{item.key}
-			, #{id}
+			, #{msgId}
 			, #{pushTime}
 			, #{subject}
 			, #{content}
 			, #{surveyId}
 			, ''
+			, #{url}
+			, #{pushTime}
+			, #{pushTime}
+			, 'spo'
+			, '01'
 			)
 		</foreach>
 	</insert>

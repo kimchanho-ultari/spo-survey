@@ -1,5 +1,6 @@
 package com.ultari.additional.service;
 
+import com.ultari.additional.util.AmCodec;
 import com.ultari.additional.util.AtMessengerCommunicator;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -93,6 +94,10 @@ public class SurveyService {
 	public void registSurvey(Map<String, Object> data) throws Exception {
 		transSurvey(data);
 
+		LocalDateTime now = LocalDateTime.now();
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+		String currentTime = now.format(formatter);
+
 		if (data.containsKey("type")) {
 			surveyMapper.removeQuestions(data);
 			surveyMapper.removeItems(data);
@@ -103,42 +108,69 @@ public class SurveyService {
 		surveyMapper.registQuestions(data);
 		surveyMapper.registQuestionsItems(data);
 
+		Map<String, String> jsonMap = new HashMap<>();
+		jsonMap.put("userid", (String) data.get("userId"));
+		jsonMap.put("targetid", "");
+		jsonMap.put("time", currentTime);
+		jsonMap.put("type", "ALARM");
+		jsonMap.put("auth", "");
+		jsonMap.put("U", "https://spo.go.kr/survey/article?surveyCode="+ data.get("surveyCode")+"&my="+(String) data.get("userId"));
+		// AmCodec을 사용하여 JSON 문자열을 암호화
+		String jsonString = new JSONObject(jsonMap).toString();
+		String encryptedInfo = new AmCodec().EncryptSEED(jsonString);
+		String directUrl = "https://spo.go.kr/relay/relay.jsp?info=" + encryptedInfo;
+		data.put("url", directUrl);
+
 		alertSurvey(data);
 
 		// 마감 알림 등록 로직 추가
 		if (data.containsKey("endDatetime")) {
 			// 마감 시간 String을 LocalDateTime으로 변환
 			String endDatetimeStr = (String) data.get("endDatetime");
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd H:mm:ss");
+			formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd H:mm:ss");
 			LocalDateTime endDatetime = LocalDateTime.parse(endDatetimeStr, formatter);
 
-			// 마감 5분 전 알림 시간 계산
-			LocalDateTime fiveMinutesBeforeEnd = endDatetime.minusMinutes(10);
+			// 마감 10분 전 알림 시간 계산
+			LocalDateTime tenMinutesBeforeEnd = endDatetime.minusMinutes(10);
 
 			// 'YYYYMMDDHHmm' 형식의 문자열로 변환
 			DateTimeFormatter alarmFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
-			String fiveMinutesBeforeEndAlarmStr = fiveMinutesBeforeEnd.format(alarmFormatter);
+			String tenMinutesBeforeEndAlarmStr = tenMinutesBeforeEnd.format(alarmFormatter);
 			String endDatetimeAlarmStr = endDatetime.format(alarmFormatter);
+
+
+			jsonMap.put("time", tenMinutesBeforeEndAlarmStr + "00");
+			jsonString = new JSONObject(jsonMap).toString();
+			encryptedInfo = new AmCodec().EncryptSEED(jsonString);
+			String tenMinutesBeforeUrl = "https://spo.go.kr/relay/relay.jsp?info=" + encryptedInfo;
 
 			// 참가자 리스트 가져오기
 			List<Map<String, String>> participantsList = (List<Map<String, String>>) data.get("participantsList");
-
 			// 마감 알림을 위한 데이터 맵 생성 및 등록
 			Map<String, Object> alarmData = new HashMap<>();
+			alarmData.put("msgId", java.util.UUID.randomUUID().toString());
 			alarmData.put("surveyId", data.get("surveyCode"));
 			alarmData.put("id", data.get("userId")); // 보내는 사람 (설문 생성자)
 			alarmData.put("subject", "미니투표 "+data.get("surveyTitle") +" 마감 10분전입니다." );
 			alarmData.put("content", "미니투표 "+data.get("surveyTitle") +" 마감 10분전입니다." );
+//			alarmData.put("url", " https://spo.go.kr/relay/relay.jsp?");
+			alarmData.put("url", tenMinutesBeforeUrl);
 
-			// 1. 마감 5분 전 알림 등록
-			alarmData.put("pushTime", fiveMinutesBeforeEndAlarmStr);
+			// 1. 마감 10분 전 알림 등록
+			alarmData.put("pushTime", tenMinutesBeforeEndAlarmStr);
 			alarmData.put("participantsList", participantsList);
 			surveyMapper.registEndAlarm(alarmData);
+
+			jsonMap.put("time", endDatetimeAlarmStr + "00");
+			jsonString = new JSONObject(jsonMap).toString();
+			encryptedInfo = new AmCodec().EncryptSEED(jsonString);
+			String endTimeURL = "https://spo.go.kr/relay/relay.jsp?info=" + encryptedInfo;
 
 			// 2. 마감 즉시 알림 등록
 			alarmData.put("pushTime", endDatetimeAlarmStr);
 			alarmData.put("subject", "미니투표 "+data.get("surveyTitle") +"이 종료되었습니다." );
 			alarmData.put("content", "미니투표 "+data.get("surveyTitle") +"이 종료되었습니다." );
+			alarmData.put("url", endTimeURL);
 			surveyMapper.registEndAlarm(alarmData);
 		}
 	}
@@ -242,7 +274,6 @@ public class SurveyService {
 			Map<String, Object> insertParams = new HashMap<>(data);
 			insertParams.put("participantsList", newParticipantsToInsert);
 			surveyMapper.registParticipants(insertParams);
-			alertSurvey(insertParams);
 
 			// 알림 추가 로직 추가
 			if (data.containsKey("endDatetime")) {
@@ -261,6 +292,7 @@ public class SurveyService {
 
 				// 알림 등록을 위한 데이터 맵 생성 및 등록
 				Map<String, Object> alarmData = new HashMap<>();
+				alarmData.put("msgId", java.util.UUID.randomUUID().toString());
 				alarmData.put("surveyId", surveyCode);
 				alarmData.put("id", data.get("userId")); // 보내는 사람 (설문 생성자)
 
@@ -276,6 +308,9 @@ public class SurveyService {
 				alarmData.put("subject", "미니투표 "+data.get("surveyTitle") +"이 종료되었습니다." );
 				alarmData.put("content", "미니투표 "+data.get("surveyTitle") +"이 종료되었습니다." );
 				surveyMapper.registEndAlarm(alarmData);
+
+				alarmData.put("url", "www.ultari.co.kr");
+				alarmData.put("msgId", java.util.UUID.randomUUID().toString());
 			}
 		}
 	}
@@ -347,6 +382,7 @@ public class SurveyService {
 		String userId = (String) data.get("userId");
 		String sndName = organizationMapper.memberById(userId).getUserName();
 		String surveyCode = (String) data.get("surveyCode");
+		String url=data.get("url").toString();
 
 //		log.debug(surveyTitle+" "+userId);
 //
@@ -356,11 +392,11 @@ public class SurveyService {
 //
 //			alertMapper.registAlert(userId, surveyTitle, surveyCode, StringUtil.castNowDate(LocalDateTime.now(),"yyyyMMddHHmmss"), member, sndName, "SURVEY", "0");
 //		}
-		AtMessengerCommunicator atmc = new AtMessengerCommunicator("10.0.0.177", 1234, 1); //이부분 spo에 맞춰서 build해야함.
+		AtMessengerCommunicator atmc = new AtMessengerCommunicator("192.168.100.173", 1234, 1);
 		for(Map<String, Object> map : participantsList) {
 			String member = (String) map.get("key");
 			String message = "미니투표 '" + surveyTitle + "'이 생성되었습니다.";
-			atmc.addMessage(member,  userId, message,"www.ultari.co.kr",message,"12345");
+			atmc.addMessage(member,  userId, message,url,message,"12345");
 		}
 		atmc.send();
 	}

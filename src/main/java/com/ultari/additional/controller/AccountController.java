@@ -1,18 +1,16 @@
 package com.ultari.additional.controller;
 
-import com.ultari.additional.domain.account.Account;
 import com.ultari.additional.domain.account.SsoRequest;
-import com.ultari.additional.domain.account.TokenData;
-import com.ultari.additional.service.AccountService;
-import com.ultari.additional.util.AuthenticationTokenManager;
-import com.ultari.additional.util.CryptorManager;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +21,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.ultari.additional.domain.account.Account;
+import com.ultari.additional.domain.account.TokenData;
+import com.ultari.additional.service.AccountService;
+import com.ultari.additional.util.AuthenticationTokenManager;
+import com.ultari.additional.util.CryptorManager;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Controller
@@ -41,11 +47,21 @@ public class AccountController {
 	@Value("${common.account.encrypt.use-wrapping-base64}")
 	private boolean USE_WRAPPING_BASE64;
 
-	@PostMapping(path="/sso", consumes="application/json")
-	public String sso1(@RequestBody SsoRequest req,
-		HttpSession session, @Nullable String surveyCode) throws Exception {
-		String systemCode = req.getSystemCode();
-		String key = req.getKey();
+	@PostMapping(value = "/sso", consumes = MediaType.APPLICATION_JSON_VALUE)
+	public String ssoJson(@RequestBody SsoRequest req, HttpSession session,
+		@RequestParam(required = false) String surveyCode) throws Exception {
+		return doSso(req.getSystemCode(), req.getKey(), surveyCode, session);
+	}
+
+	@PostMapping(value = "/sso", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+	public String ssoForm(@RequestParam String systemCode, @RequestParam String key,
+		@RequestParam(required = false) String surveyCode,
+		HttpSession session) throws Exception {
+		return doSso(systemCode, key, surveyCode, session);
+	}
+
+	private String doSso(String systemCode, String key, String surveyCode, HttpSession session) throws Exception {
+		log.debug("systemCode=" + systemCode + ", key=" + key);
 		log.debug("systemCode=" + systemCode + ", key=" + key);
 		log.debug("USE_CRYPT=" + USE_CRYPT);
 		String userId = key;
@@ -70,11 +86,53 @@ public class AccountController {
 		return uri;
 	}
 
-	 @GetMapping("/{systemCode:^(?!css|js|images|static$).*$}/{key}")
+//	@PostMapping("/sso")
+//	public String sso1(
+//		@RequestBody(required = false) SsoRequest jsonReq, // JSON일 때
+//		@RequestParam(required = false) String systemCode, // URL-encoded일 때
+//		@RequestParam(required = false) String key,
+//		HttpSession session,
+//		@RequestParam(required = false) String surveyCode
+//	) throws Exception {
+//
+//		// JSON이면 jsonReq에서 꺼내고, 아니면 @RequestParam에서 꺼냄
+//		if (jsonReq != null) {
+//			systemCode = jsonReq.getSystemCode();
+//			key = jsonReq.getKey();
+//		}else if (systemCode != null && key != null) {
+//			systemCode = URLDecoder.decode(systemCode, "UTF-8");
+//			key = URLDecoder.decode(key, "UTF-8");
+//		}
+//
+//		log.debug("systemCode=" + systemCode + ", key=" + key);
+//		log.debug("USE_CRYPT=" + USE_CRYPT);
+//		String userId = key;
+//		if (USE_CRYPT) {
+//			userId = CryptorManager.crypt(key, CRYPT_DRIVER, ENCRYPT_METHOD, false, USE_WRAPPING_BASE64);
+//		}
+//		log.debug("userId=" + userId);
+//
+//		TokenData tokenData = new TokenData();
+//		tokenData.setKey(userId);
+//		tokenData.setSystemCode(systemCode);
+//		tokenData.setSurveyCode(surveyCode);
+//
+//		Map<String, Object> map = accountInfo(tokenData);
+//		Account account = (Account) map.get("account");
+//		String uri = (String) map.get("uri");
+//		if (!uri.contains("invalid")) {
+//			account.setDecKey(key);
+//			session.setAttribute("account", account);
+//		}
+//
+//		return uri;
+//	}
+
+	@GetMapping("/{systemCode:^(?!css|js|images|static$).*$}/{key}")
 	public String sso(@PathVariable("systemCode") String systemCode,
-			@PathVariable("key") String key,
-			RedirectAttributes attr,
-			HttpSession session, @Nullable String surveyCode,HttpServletRequest request) throws Exception {
+		@PathVariable("key") String key,
+		RedirectAttributes attr,
+		HttpSession session, @Nullable String surveyCode,HttpServletRequest request) throws Exception {
 
 		request.getQueryString();
 		request.getParameter("surveyCode");
@@ -104,9 +162,9 @@ public class AccountController {
 
 	@RequestMapping("/ssa/{token}")
 	public String ssa(@PathVariable("token") String token,
-			RedirectAttributes attr,
-			HttpServletRequest request,
-			HttpSession session) throws Exception {
+		RedirectAttributes attr,
+		HttpServletRequest request,
+		HttpSession session) throws Exception {
 		String uri = "redirect:/invalid";
 
 		try {
@@ -118,7 +176,7 @@ public class AccountController {
 				String userId = "";
 				try {
 					userId = CryptorManager.crypt(tokenData.getKey(), CRYPT_DRIVER, DECRYPT_METHOD, false,
-							USE_WRAPPING_BASE64);
+						USE_WRAPPING_BASE64);
 				} catch (Exception e) {
 					userId = tokenData.getKey();
 					log.error("", e);
@@ -142,8 +200,8 @@ public class AccountController {
 
 	@RequestMapping("/redirect/{key}")
 	public String redirect(@PathVariable("key") String key,
-			@RequestParam("redirect") String redirect,
-			HttpSession session) throws Exception {
+		@RequestParam("redirect") String redirect,
+		HttpSession session) throws Exception {
 
 		TokenData tokenData = new TokenData();
 		tokenData.setKey(key);
@@ -218,7 +276,7 @@ public class AccountController {
 	@PostMapping("/adm/account")
 	@ResponseBody
 	private Map<String, Object> login(@RequestBody Map<String, Object> data,
-			HttpSession session) throws Exception {
+		HttpSession session) throws Exception {
 		String userId = (String) data.get("userId");
 		String password = (String) data.get("password");
 

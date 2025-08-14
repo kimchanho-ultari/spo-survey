@@ -13,26 +13,6 @@ spring:
       jdbc-url: "jdbc:cubrid:127.0.0.1:30000:demodb:survey::"
       username: survey
       password:
-  migration:
-    from:
-      datasource:
-        driver-class-name: com.mysql.jdbc.Driver
-        jdbc-url: jdbc:mysql://10.0.0.91:3306/MSGADM?useUnicode=true&characterEncoding=UTF8&serverTimezone=UTC
-        username: msger
-        password: msger
-    to:
-      datasource:
-        driver-class-name: com.mysql.jdbc.Driver
-        jdbc-url: jdbc:mysql://10.0.0.91:3306/jeju?useUnicode=true&characterEncoding=UTF8&serverTimezone=UTC
-        username: msger
-        password: msger
-  datasource:
-    tomcat:
-      test-while-idle: true
-      time-between-eviction-runs-millis: 3600000
-      min-evictable-idle-time-millis: 7200000
-      test-on-borrow: true
-      validation-query: SELECT 1 from dual
 
 mybatis:
   type-aliases-package: com.ultari
