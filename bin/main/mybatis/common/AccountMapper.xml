@@ -9,30 +9,30 @@
 		<result property="mobile" column="MOBILE"/>
 		<result property="deptId" column="DEPT_ID"/>
 		<result property="deptName" column="DEPT_NAME"/>
-		<result property="role" column="ROLE"/>
+		<result property="role" column="USER_ROLE"/>
 	</resultMap>
 	<select id="memberByKey" resultMap="account">
 		SELECT
-				  USER_ID
-				, PASSWORD
-				, USER_NAME
-				, PHONE
-				, MOBILE
-				, DEPT_ID
-				, DEPT_NAME
-				, "USER" AS ROLE
+			USER_ID
+				 , PASSWORD
+				 , USER_NAME
+				 , PHONE
+				 , MOBILE
+				 , DEPT_ID
+				 , DEPT_NAME
+				 , 'USER' AS USER_ROLE
 		FROM MSG_USER_VW
 		WHERE
-				USER_ID=#{key}
+			USER_ID=#{key}
 	</select>
 	<select id="managerByKey" resultMap="account">
 		SELECT
-				  USER_ID
-				, PASSWORD
-				, USER_NAME
-				, "MANAGER" AS ROLE
+			USER_ID
+				 , PASSWORD
+				 , USER_NAME
+				 , 'MANAGER' AS USER_ROLE
 		FROM MSG_ADMIN
 		WHERE
-				USER_ID=#{key}
+			USER_ID=#{key}
 	</select>
 </mapper>

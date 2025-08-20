@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <g id="ic_chat_recattion_small_08" transform="translate(-33 -25.999)">
+    <rect id="area" width="16" height="16" transform="translate(33 25.999)" fill="none"/>
+    <rect id="circle" width="16" height="16" rx="8" transform="translate(33 25.999)" fill="#f93aba"/>
+    <path id="패스_83196" data-name="패스 83196" d="M97-22h1.794v5.381H97Zm9.864,4.932a.9.9,0,0,1-.9.9h-2.829l.426,2.049.013.143a.675.675,0,0,1-.2.475l-.475.471-2.95-2.955a.877.877,0,0,1-.265-.632V-21.1a.9.9,0,0,1,.9-.9h4.035a.891.891,0,0,1,.825.547l1.354,3.161a.886.886,0,0,1,.063.327v.856l0,0Z" transform="translate(-60.932 51.516)" fill="#fff"/>
+  </g>
+</svg>

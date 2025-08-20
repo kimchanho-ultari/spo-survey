@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ultari.additional.mapper.common.AlertMapper">
+	<insert id="registAlert" parameterType="String">
+		INSERT INTO ULT_MSG_ALERT (MSG_ID, DOC_DESC, DOC_TITLE, DOC_URL, INPUT_DATE, RECV_ID, SND_USER, SYS_NAME, ALERT_TYPE, SEND_YN)
+		VALUES(ult_msg_alert_seq.NEXT_VALUE,'미니투표가 등록되었습니다.',#{title}, CONCAT('http://127.0.0.1:8081/sso/survey/',#{recvId},'?surveyCode=',#{url}), #{inputDate}, #{recvId}, #{sndUser}, #{sysName}, #{alertType}, 'N')	</insert>
+	<insert id="endAlert" parameterType="String">
+		INSERT INTO ULT_MSG_ALERT (DOC_DESC, DOC_TITLE, DOC_URL, INPUT_DATE, RECV_ID, SND_USER, SYS_NAME, ALERT_TYPE, SEND_YN)
+		VALUES('미니투표 종료가 30분 남았습니다.',#{title}, CONCAT('http://127.0.0.1:8081/survey/survey/',#{recvId},'?surveyCode=',#{url}), #{inputDate}, #{recvId}, '미니투표', #{sysName}, #{alertType}, 'N')
+	</insert>
+	<select id="selectEnd30min" resultType="Map">
+		<![CDATA[
+		SELECT A.SURVEY_CODE as code
+			, A.SURVEY_TITLE as title
+			, A.USER_ID as userId
+			, A.END_DATETIME as endDateTime
+			, B.USER_ID as member
+		FROM SURVEY A LEFT OUTER JOIN SURVEY_MEMBER B ON A.SURVEY_CODE = B.SURVEY_CODE
+		WHERE NOW() BETWEEN DATE_SUB(A.END_DATETIME, INTERVAL 31 MINUTE) AND DATE_SUB(A.END_DATETIME, INTERVAL 30 MINUTE) AND END_ALARM = 'Y'
+		]]>
+	</select>
+</mapper>

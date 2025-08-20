@@ -4,9 +4,12 @@
 		<div th:fragment="header">
 			<div id="gnb">
 				<div id="gnb_width">
-					<div id="logo"><a href=""><img th:src="@{/images/logo_common.png}" style="width:180px;height:70px" alt=""/></a></div>
+					<div id="logo">
+						<!-- <a href=""><img th:src="@{/images/logo_common.png}" style="width:180px;height:70px" alt=""/></a> -->
+						<a href="/survey/"><img src="/images/survey/icon-ultari.png" style="width:180px; height:50px; margin-top: 6px;" /></a>
+					</div>
 				</div>
-				<div style="position:absolute;top:10px;right:30px;font-weight:bold;color:#fff" th:text="${session.account.title}"></div>
+				<div style="position:absolute; top:10px; right:30px; font-weight:bold; color:#fff;" th:text="${session.account.title}"></div>
 			</div>
 			<div id="title">
 				<div id="title_width">

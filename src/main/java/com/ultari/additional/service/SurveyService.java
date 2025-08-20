@@ -166,6 +166,14 @@ public class SurveyService {
 
 			List<Map<String, String>> participantsList = (List<Map<String, String>>) data.get("participantsList");
 
+
+			Map<String, String> writer = new HashMap<>();
+			writer.put("key", userId);       // DB의 ID 컬럼에 들어갈 값
+			participantsList.add(writer);
+			System.out.println("participantsList: " + participantsList);
+			System.out.println("wrtier"+writer);
+
+
 			System.out.println("participantsList: " + participantsList);
 			System.out.println("tenMinutesBeforeUrl: " + tenMinutesBeforeUrl);
 			System.out.println("endDatetimeAlarmStr: " + endDatetimeAlarmStr);

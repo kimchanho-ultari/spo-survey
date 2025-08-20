@@ -1211,33 +1211,38 @@ function removeDuplicates(originArray, prop) {
 function appendParticipantsList(list) {
 	console.log(list);
 	var body = $('#participants_list tbody');
-	body.empty();
+
 	list.forEach(function (item) {
 		if (typeof item == 'object') {
+			var userId = item.userId;
+
+			// 이미 같은 userId가 있으면 append 안 함
+			if (body.find('td:contains(' + userId + ')').length > 0) {
+				return;
+			}
+
 			var key = item.key;
 			var title = item.title;
 			var deptName = item.deptName;
 			var posName = item.posName;
-			var userId = item.userId;
-			var parentOrg = item.parentOrg
+			var parentOrg = item.parentOrg;
 
 			var $tr = $('<tr>');
 			var $td_checkbox = $('<td>');
-
+			var $td_userId = $('<td>').text(userId);
 			var $td_title = $('<td>').text(title);
+			var $td_parentOrg = $('<td>').text(parentOrg);
 			var $td_deptname = $('<td>').text(deptName);
 			var $td_posname = $('<td>').text(posName);
-			var $td_userId = $('<td>').text(userId);
-			var $td_parentOrg = $('<td>').text(parentOrg);
 
 			var $checkbox = $('<input type="checkbox">')
-				.addClass('chkItem')
-				.data('key', key)
-				.data('userId', userId)
-				.data('title', title)
-				.data('parentOrg', parentOrg)
-				.data('deptName', deptName)
-				.data('posName', posName)
+			.addClass('chkItem')
+			.data('key', key)
+			.data('userId', userId)
+			.data('title', title)
+			.data('parentOrg', parentOrg)
+			.data('deptName', deptName)
+			.data('posName', posName);
 
 			$td_checkbox.append($checkbox);
 			$tr.append($td_checkbox).append($td_userId).append($td_title).append($td_parentOrg).append($td_deptname).append($td_posname);
@@ -1247,7 +1252,6 @@ function appendParticipantsList(list) {
 
 	resetChkItems('participants_list');
 	resetChkItems('member_list');
-
 	setCount('participants_list', 'participantsCnt');
 }
 function removeParticipantsList() {
@@ -1345,6 +1349,12 @@ function initParticipants() {
 		$('#participants_title').text(surveyMembers_title.join(', ')); // 문자열로 출력
 
 		participantsList=surveyMembers;
-		selectedUsers=surveyMembers;
+		appendMemberList(surveyMembers)
+
+		// var list = $('#participants_list tbody');
+		// $list.empty(); // 기존 데이터 초기화
+		// participantsList.forEach(function(item) {
+		// 	$list.append('<li>' + item.title + '</li>');
+		// });
 	}
 }

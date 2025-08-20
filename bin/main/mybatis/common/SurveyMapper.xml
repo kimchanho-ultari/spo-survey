@@ -10,9 +10,9 @@
 		<result property="regDatetime" column="REG_DATETIME"/>
 		<result property="startDatetime" column="START_DATETIME"/>
 		<result property="endDatetime" column="END_DATETIME"/>
-		<result property="status" column="STATUS"/>
+		<!-- <result property="status" column="STATUS"/> -->
+		<result property="status" column="IS_COMPLETE"/>
 		<result property="isOpen" column="IS_OPEN"/>
-		<collection property="memberList" ofType="SurveyMember" column="SURVEY_CODE" select="surveyMemberList"/>
 		<collection property="totalComplete" ofType="int" column="SURVEY_CODE" select="totalComplete"/>
 	</resultMap>
 	<resultMap type="Survey" id="survey">
@@ -24,9 +24,9 @@
 		<result property="regDatetime" column="REG_DATETIME"/>
 		<result property="startDatetime" column="START_DATETIME"/>
 		<result property="endDatetime" column="END_DATETIME"/>
-		<result property="status" column="STATUS"/>
+		<!-- <result property="status" column="STATUS"/> -->
+		<result property="status" column="IS_COMPLETE"/>
 		<result property="isOpen" column="IS_OPEN"/>
-		<collection property="memberList" ofType="SurveyMember" column="SURVEY_CODE" select="surveyMemberList"/>
 	</resultMap>
 	<resultMap type="SurveyMember" id="surveyMember">
 		<id property="key" column="USER_ID"/>
@@ -34,6 +34,10 @@
 		<result property="deptName" column="DEPT_NAME"/>
 		<result property="isComplete" column="IS_COMPLETE"/>
 		<result property="surveyCode" column="SURVEY_CODE"/>
+		<result property="posName" column="POS_NAME"/>
+		<result property="userId" column="USER_ID"/>
+		<result property="parentOrg" column="PARENT_ORG"/>
+		<result property="initUser" column="INITUSER"/>
 	</resultMap>
 	<resultMap type="SurveyQuestion" id="surveyQuestion">
 		<id property="questionCode" column="QUESTION_CODE"/>
@@ -83,42 +87,70 @@
 		<result property="userName" column="USER_NAME"/>
 		<result property="deptName" column="DEPT_NAME"/>
 	</resultMap>
+	<resultMap id="buddySurveyMember" type="BuddySurveyMember">
+		<result property="userId" column="USER_ID"/>
+		<result property="title" column="USER_NAME"/>
+		<result property="deptName" column="DEPT_NAME"/>
+		<result property="posName" column="POS_NAME"/>
+		<result property="parentOrg" column="PARENT_ORG"/>
+	</resultMap>
 	<insert id="registSurvey">
-INSERT INTO SURVEY(SURVEY_CODE, SURVEY_TITLE, SURVEY_CONTENTS, USER_ID, START_DATETIME, END_DATETIME, IS_OPEN)
-VALUES (
-	  #{surveyCode}
-	, #{surveyTitle}
-	, #{surveyContents}
-	, #{userId}
-	, STR_TO_DATE(#{startDatetime}, '%Y-%m-%d %H:%i:%s')
-	<choose>
-		<when test="endDatetime != null">
-			, STR_TO_DATE(#{endDatetime}, '%Y-%m-%d %H:%i:%s')
-		</when>
-		<otherwise>
-			, null
-		</otherwise>
-	</choose>
-	, #{isOpen}
-)
-ON DUPLICATE KEY UPDATE
-	  SURVEY_TITLE=#{surveyTitle}
-	, SURVEY_CONTENTS=#{surveyContents}
-	, START_DATETIME=STR_TO_DATE(#{startDatetime}, '%Y-%m-%d %H:%i:%s')
-	, END_DATETIME=STR_TO_DATE(#{endDatetime}, '%Y-%m-%d %H:%i:%s')
-	, IS_OPEN=#{isOpen}
+		MERGE INTO SURVEY T
+		USING (
+		SELECT
+		#{surveyCode} AS SURVEY_CODE,
+		#{surveyTitle} AS SURVEY_TITLE,
+		#{surveyContents} AS SURVEY_CONTENTS,
+		#{userId} AS USER_ID,
+		STR_TO_DATE(#{startDatetime}, '%Y-%m-%d %H:%i:%s') AS START_DATETIME,
+		<choose>
+			<when test="endDatetime != null">
+				STR_TO_DATE(#{endDatetime}, '%Y-%m-%d %H:%i:%s') AS END_DATETIME,
+			</when>
+			<otherwise>
+				NULL AS END_DATETIME,
+			</otherwise>
+		</choose>
+		#{isOpen} AS IS_OPEN,
+		#{endAlarm} AS END_ALARM
+		FROM db_root
+		) S
+		ON (T.SURVEY_CODE = S.SURVEY_CODE)
+		WHEN MATCHED THEN
+		UPDATE SET
+		T.SURVEY_TITLE = S.SURVEY_TITLE,
+		T.SURVEY_CONTENTS = S.SURVEY_CONTENTS,
+		T.START_DATETIME = S.START_DATETIME,
+		T.END_DATETIME = S.END_DATETIME,
+		T.IS_OPEN = S.IS_OPEN,
+		T.END_ALARM = S.END_ALARM
+		WHEN NOT MATCHED THEN
+		INSERT (
+		SURVEY_CODE, SURVEY_TITLE, SURVEY_CONTENTS, USER_ID,
+		START_DATETIME, END_DATETIME, IS_OPEN, END_ALARM, REG_DATETIME
+		)
+		VALUES (
+		S.SURVEY_CODE, S.SURVEY_TITLE, S.SURVEY_CONTENTS, S.USER_ID,
+		S.START_DATETIME, S.END_DATETIME, S.IS_OPEN, S.END_ALARM, NOW()
+		)
 	</insert>
 	<insert id="registParticipants" parameterType="map">
-INSERT INTO SURVEY_MEMBER(USER_ID, SURVEY_CODE) 
-VALUES 
-<foreach collection="participantsList" item="item" index="index" separator=",">
-(
-	  #{item.key}
-	, #{surveyCode}
-)
-</foreach>
-ON DUPLICATE KEY UPDATE
-	USER_ID=VALUES(USER_ID)
+		<foreach collection="participantsList" item="item" index="index" separator=";">
+			MERGE INTO SURVEY_MEMBER T
+			USING (
+			SELECT
+			#{item.userId} AS USER_ID,
+			#{surveyCode} AS SURVEY_CODE,
+			#{initUser} AS INITUSER
+			FROM db_root
+			) S
+			ON (T.USER_ID = S.USER_ID AND T.SURVEY_CODE = S.SURVEY_CODE)
+			WHEN MATCHED THEN
+			UPDATE SET T.INITUSER = S.INITUSER
+			WHEN NOT MATCHED THEN
+			INSERT (USER_ID, SURVEY_CODE, INITUSER, "DATETIME")
+			VALUES (S.USER_ID, S.SURVEY_CODE, S.INITUSER, NOW())
+		</foreach>
 	</insert>
 	<insert id="registQuestions" parameterType="map">
 INSERT INTO SURVEY_QUESTION (
@@ -165,21 +197,23 @@ SELECT COUNT(*) FROM SURVEY_VW A
 <include refid="search"></include>
 	</select>
 	<select id="surveyList" resultMap="surveySummary">
-SELECT
-		  A.*
-		, B.USER_NAME
-FROM SURVEY_VW A
-LEFT OUTER JOIN MSG_USER_VW B ON A.USER_ID=B.USER_ID
-<include refid="search"></include>
-ORDER BY
-		  A.SORT
-		, A.REG_DATETIME DESC
-LIMIT #{startRowNo}, #{pageSize}
+		SELECT
+		A.*,
+		B.USER_NAME
+		FROM SURVEY_VW A
+		LEFT OUTER JOIN MSG_USER_VW B ON A.USER_ID = B.USER_ID
+		<include refid="search"/>
+		ORDER BY A.REG_DATETIME DESC
+		<if test="startRowNo != null and pageSize != null">
+			LIMIT #{startRowNo}, #{pageSize}
+		</if>
 	</select>
+
 	<sql id="search">
 		<bind name="pattern" value="'%' + keyword + '%'"/>
 		<trim prefix="WHERE" prefixOverrides="AND|OR">
-			(
+			A.REG_DATETIME >= DATE_SUB(NOW(), INTERVAL 3 MONTH)
+			AND (
 				A.USER_ID=#{userId}
 				OR SURVEY_CODE IN (
 					SELECT 
@@ -194,16 +228,6 @@ LIMIT #{startRowNo}, #{pageSize}
 			</if>
 		</trim>
 	</sql>
-	<select id="surveyMemberList" resultMap="surveyMember">
-SELECT
-		  A.*
-		, B.USER_NAME
-		, B.DEPT_NAME
-FROM SURVEY_MEMBER A
-LEFT OUTER JOIN MSG_USER_VW B ON A.USER_ID=B.USER_ID
-WHERE
-		A.SURVEY_CODE=#{surveyCode}
-	</select>
 	<select id="totalComplete" resultType="int">
 SELECT
 		COUNT(*)
@@ -214,7 +238,16 @@ WHERE
 	</select>
 	<select id="survey" resultMap="survey">
 SELECT
-		A.*, B.USER_NAME
+	A.SURVEY_CODE,
+	A.SURVEY_TITLE,
+	A.SURVEY_CONTENTS,
+	A.REG_DATETIME,
+	A.START_DATETIME,
+	A.END_DATETIME,
+	A.IS_COMPLETE,
+	A.USER_ID,
+	B.USER_NAME,
+	A.IS_OPEN
 FROM SURVEY_VW A
 LEFT OUTER JOIN MSG_USER_VW B ON A.USER_ID=B.USER_ID
 WHERE
@@ -275,9 +308,11 @@ SELECT
 		, B.ITEM_DESC
 		, C.ITEM_TYPE
 		, C.SORT
+		, D.USER_NAME
 FROM SURVEY_RESULT A
 LEFT OUTER JOIN SURVEY_RESULT_DESC B ON A.ITEM_CODE=B.ITEM_CODE AND A.USER_ID=B.USER_ID
 LEFT OUTER JOIN SURVEY_ITEM C ON A.ITEM_CODE=C.ITEM_CODE
+LEFT OUTER JOIN msg_user D ON A.USER_ID = D.USER_ID
 WHERE
 		A.SURVEY_CODE=#{surveyCode}
 		
@@ -301,7 +336,9 @@ SET
 		  SURVEY_TITLE=#{surveyTitle}
 		, SURVEY_CONTENTS=#{surveyContents}
 		, END_DATETIME=STR_TO_DATE(#{endDatetime}, '%Y-%m-%d %H:%i:%s')
-		, IS_OPEN=#{isOpen}
+		<if test="isOpen != null">
+			, IS_OPEN = #{isOpen}
+		</if>
 WHERE
 		SURVEY_CODE=#{surveyCode}
 	</update>
@@ -406,4 +443,156 @@ WHERE
 		SURVEY_CODE=#{surveyCode}
 		AND IS_COMPLETE='N'
 	</select>
+	<update id="savePicture">
+		UPDATE SURVEY_ITEM SET PICTURE_PATH = #{filePath} WHERE ITEM_CODE=#{itemCode}
+	</update>
+	<select id="findDeleteSurveyList" resultType="String">
+		<![CDATA[
+		SELECT SURVEY_CODE AS surveyCode FROM SURVEY WHERE REG_DATETIME < #{deleteDays}
+		]]>
+	</select>
+	<delete id="deleteSurvey">
+		DELETE FROM SURVEY WHERE SURVEY_CODE=#{surveyCode}
+	</delete>
+	<delete id="deleteSurveyItem">
+		DELETE FROM SURVEY_ITEM WHERE SURVEY_CODE=#{surveyCode}
+	</delete>
+	<delete id="deleteSurveyMember">
+		DELETE FROM SURVEY_MEMBER WHERE SURVEY_CODE=#{surveyCode}
+	</delete>
+	<delete id="deleteSurveyQuestion">
+		DELETE FROM SURVEY_QUESTION WHERE SURVEY_CODE=#{surveyCode}
+	</delete>
+	<delete id="deleteSurveyResult">
+		DELETE FROM SURVEY_RESULT WHERE SURVEY_CODE=#{surveyCode}
+	</delete>
+	<delete id="deleteSurveyResultDesc">
+		DELETE FROM SURVEY_RESULT_DESC WHERE SURVEY_CODE=#{surveyCode}
+	</delete>
+	<select id="MemberListByBuddyId" parameterType="string" resultMap="buddySurveyMember">
+		SELECT
+			B.BUDDY_ID AS USER_ID,
+			B.BUDDY_ID AS "key",
+			U.USER_NAME,
+			U.DEPT_NAME,
+			U.POS_NAME,
+			U.PARENT_ORG
+		FROM MSG_BUDDY B
+					 JOIN MSG_USER_VW U ON B.BUDDY_ID = U.USER_ID
+		WHERE
+			B.BUDDY_PARENT = #{buddyId}
+			AND B.BUDDY_TYPE = 0
+			AND B.USER_ID = #{key}
+		ORDER BY
+			B.BUDDY_TYPE DESC,
+			B.BUDDY_ORDER
+	</select>
+
+	<delete id="deleteOldSurveys">
+    <![CDATA[
+		DELETE FROM survey WHERE END_DATETIME < DATE_SUB(NOW(), INTERVAL 3 MONTH)
+		]]>
+	</delete>
+
+	<delete id="deleteParticipants">
+		DELETE FROM SURVEY_MEMBER
+		WHERE SURVEY_CODE = #{surveyCode}
+		AND USER_ID IN
+		<foreach item="id" collection="list" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<select id="selectParticipantUserIds" resultType="string" parameterType="string">
+		SELECT USER_ID
+		FROM SURVEY_MEMBER
+		WHERE SURVEY_CODE = #{surveyCode}
+	</select>
+
+	<select id="surveyMemberListBySurveyCodes" resultMap="surveyMember">
+		SELECT
+		A.*,
+		B.*
+		FROM SURVEY_MEMBER A
+		LEFT JOIN MSG_USER_VW B ON A.USER_ID = B.USER_ID
+		<where>
+			<if test="list != null and list.size() > 0">
+				A.SURVEY_CODE IN
+				<foreach item="code" collection="list" open="(" separator="," close=")">
+					#{code}
+				</foreach>
+			</if>
+			<if test="list == null or list.size() == 0">
+				1 = 0  <!-- 아무것도 안 나오게 처리 -->
+			</if>
+		</where>
+	</select>
+
+	<select id="surveyMemberList" resultMap="surveyMember">
+		SELECT
+			A.*
+				 , B.USER_NAME
+				 , B.DEPT_NAME
+		FROM SURVEY_MEMBER A
+					 LEFT OUTER JOIN MSG_USER_VW B ON A.USER_ID=B.USER_ID
+		WHERE
+			A.SURVEY_CODE=#{surveyCode}
+	</select>
+
+	<insert id="registEndAlarm" parameterType="map">
+		REPLACE INTO MSG_ALARM (
+		ID
+		, MSG_ID
+		, PUSH_TIME
+		, SUBJECT
+		, CONTENT
+		, SURVEY_ID
+		, STATUS
+		, URL
+		, BEGINT
+		, ENDT
+		, GROUP_ID
+		, RTYPE
+		) VALUES
+		<foreach collection="participantsList" item="item" index="index" separator=",">
+			(
+			#{item.key}
+			, #{surveyId}
+			, #{pushTime}
+			, #{subject}
+			, #{content}
+			, #{before10m}
+			, 'a'
+			, #{url}
+			, #{pushTime}
+			, #{pushTime}
+			, 'spo'
+			, '01'
+			)
+		</foreach>
+	</insert>
+
+	<delete id="deleteEndAlarmsForParticipants">
+		DELETE FROM MSG_ALARM
+		WHERE
+		survey_id = #{surveyCode}
+		AND ID IN
+		<foreach collection="list" item="userId" open="(" separator="," close=")">
+			#{userId}
+		</foreach>
+	</delete>
+
+	<delete id="removeAlarm">
+		DELETE FROM MSG_ALARM
+		WHERE
+		survey_id = #{surveyCode}
+	</delete>
+
+	<update id="updateEndAlarm" parameterType="map">
+		UPDATE MSG_ALARM
+		SET PUSH_TIME = #{pushTime},
+		    URL=#{url}
+		WHERE MSG_ID = #{surveyId}
+		AND SURVEY_ID = #{before10m}
+	</update>
 </mapper>

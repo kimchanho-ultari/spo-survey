@@ -472,6 +472,7 @@ WHERE
 	<select id="MemberListByBuddyId" parameterType="string" resultMap="buddySurveyMember">
 		SELECT
 			B.BUDDY_ID AS USER_ID,
+			B.BUDDY_ID AS "key",
 			U.USER_NAME,
 			U.DEPT_NAME,
 			U.POS_NAME,
@@ -553,22 +554,8 @@ WHERE
 		, GROUP_ID
 		, RTYPE
 		) VALUES
-		(
-		#{id}
-		, #{surveyId}
-		, #{pushTime}
-		, #{subject}
-		, #{content}
-		, #{before10m}
-		, 'a'
-		, #{url}
-		, #{pushTime}
-		, #{pushTime}
-		, 'spo'
-		, '01'
-		)
 		<foreach collection="participantsList" item="item" index="index" separator=",">
-			,(
+			(
 			#{item.key}
 			, #{surveyId}
 			, #{pushTime}

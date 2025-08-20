@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30">
+  <g id="img_profile_add_reaction" transform="translate(-20 -761)">
+    <g id="타원_80" data-name="타원 80" transform="translate(20 761)" fill="rgba(232,236,242,0.5)" stroke="#0072ff" stroke-width="1.5">
+      <circle cx="15" cy="15" r="15" stroke="none"/>
+      <circle cx="15" cy="15" r="14.25" fill="none"/>
+    </g>
+    <path id="패스_995" data-name="패스 995" d="M36.673,31.859a.344.344,0,0,1-.344.344H32.2v4.126a.344.344,0,0,1-.344.344h-.688a.344.344,0,0,1-.344-.344V32.2H26.7a.344.344,0,0,1-.344-.344v-.688a.344.344,0,0,1,.344-.344h4.126V26.7a.344.344,0,0,1,.344-.344h.688a.344.344,0,0,1,.344.344v4.126h4.126a.344.344,0,0,1,.344.344Z" transform="translate(3.485 744.485)" fill="#0072ff" fill-rule="evenodd"/>
+  </g>
+</svg>
