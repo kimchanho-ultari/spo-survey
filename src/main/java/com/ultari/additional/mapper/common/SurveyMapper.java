@@ -1,5 +1,6 @@
 package com.ultari.additional.mapper.common;
 
+import com.ultari.additional.domain.survey.BuddySurveyMember;
 import java.util.List;
 import java.util.Map;
 
@@ -33,7 +34,7 @@ public interface SurveyMapper {
 	public Survey survey(Map<String, Object> data) throws Exception;
 	public List<SurveyMember> surveyMemberList(Map<String, Object> data) throws Exception;
 	public List<SurveyQuestion> surveyQuestionList(Map<String, Object> data) throws Exception;
-	public List<SurveyMember> MemberListByBuddyId(Map<String, Object> map);
+	public List<BuddySurveyMember> MemberListByBuddyId(Map<String, Object> map);
 
 	public List<SurveyResult> surveyResult(Map<String, Object> data) throws Exception;
 	public List<Aggregate> surveyItemAggregate(Map<String, Object> data) throws Exception;
@@ -70,4 +71,8 @@ public interface SurveyMapper {
 	void registEndAlarm(Map<String, Object> alarmData);
 
 	void deleteEndAlarmsForParticipants(Map<String, Object> deleteParams);
+
+	void removeAlarm(Map<String, Object> data);
+
+	void updateEndAlarm(Map<String, Object> alarmData);
 }

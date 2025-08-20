@@ -1,7 +1,9 @@
 package com.ultari.additional.controller;
 
 import com.ultari.additional.domain.organization.BuddyRequest;
+import com.ultari.additional.domain.survey.BuddySurveyMember;
 import com.ultari.additional.domain.survey.SurveyMember;
+import com.ultari.additional.util.AmCodec;
 import com.ultari.additional.util.AtMessengerCommunicator;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -106,46 +108,7 @@ public class SurveyController {
 		return "survey/regist";
 	}
 
-	@PostMapping("/regist/buddy")
-	public String registFormPost(
-		@RequestBody BuddyRequest req,
-		HttpSession session,
-		Model model
-	) throws Exception {
-		String my = req.getMy();
-		String buddyId = req.getBuddyId();
 
-		// 1. SSO 인증 (세션에 account가 없으면 my로 인증)
-		Account account = (Account) session.getAttribute("account");
-		if (account == null) {
-			account = accountService.memberByKey(my);
-			if (account == null) {
-				return "redirect:/invalid";
-			}
-			session.setAttribute("account", account);
-		}
-		String key = account.getKey();
-
-		// 2. 기존 로직
-		log.info("Account Key: {}", key);
-		log.info("my={}, buddyid={}", my, buddyId);
-
-		model.addAttribute("my", my);
-
-		Map<String, Object> map = new HashMap<>();
-		map.put("key", key);
-		map.put("buddyId", buddyId);
-
-		List<SurveyMember> surveyMembers = surveyService.getMembersByBuddyId(map);
-		log.info("조회된 surveyMembers 수: {}", surveyMembers.size());
-		for (SurveyMember member : surveyMembers) {
-			log.info("SurveyMember - userName: {}", member.getTitle());
-			log.info("SurveyMember - userId: {}", member.getUserId());
-		}
-		model.addAttribute("surveyMembers", surveyMembers);
-
-		return "survey/regist";
-	}
 
 	// JSON 요청 처리
 	@PostMapping(value = "/regist/buddy", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -191,9 +154,9 @@ public class SurveyController {
 		map.put("key", key);
 		map.put("buddyId", buddyId);
 
-		List<SurveyMember> surveyMembers = surveyService.getMembersByBuddyId(map);
+		List<BuddySurveyMember> surveyMembers = surveyService.getMembersByBuddyId(map);
 		log.info("조회된 surveyMembers 수: {}", surveyMembers.size());
-		for (SurveyMember member : surveyMembers) {
+		for (BuddySurveyMember member : surveyMembers) {
 			log.info("SurveyMember - userName: {}", member.getTitle());
 			log.info("SurveyMember - userId: {}", member.getUserId());
 		}
@@ -248,10 +211,11 @@ public class SurveyController {
 		return "survey/article";
 	}
 
-	@PostMapping("/article")
-	public String alarmArticle(@RequestBody Map<String, Object> data, HttpSession session, Model model) throws Exception {
-		String surveyCode = (String) data.get("surveyCode");
-		String my = (String) data.get("my");
+	@PostMapping(value="/article", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+	public String alarmArticle(@RequestParam("surveyCode") String surveyCode,
+		@RequestParam("my") String my,
+		HttpSession session,
+		Model model) throws Exception {
 		Account account = (Account) session.getAttribute("account");
 		if (account == null) {
 			account = accountService.memberByKey(my);

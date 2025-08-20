@@ -1,7 +1,13 @@
 package com.ultari.additional.service;
 
+import static org.apache.commons.codec.CharEncoding.UTF_8;
+
+import com.ultari.additional.domain.survey.BuddySurveyMember;
 import com.ultari.additional.util.AmCodec;
 import com.ultari.additional.util.AtMessengerCommunicator;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -90,6 +96,30 @@ public class SurveyService {
 		return map;
 	}
 
+//	private static final String SPO_HOST = "https://spo.go.kr";
+	private static final String SPO_HOST = "localhost:8888/spo/relay.jsp";
+
+
+	private Map<String, String> buildBaseAlarmPayload(String userId, String surveyCode) {
+		Map<String, String> payload = new HashMap<>();
+		payload.put("userid", userId);
+		payload.put("targetid", surveyCode);
+		payload.put("type", "POLLALARM");
+		payload.put("auth", "");
+		payload.put("U", "localhost:8080/survey/article");
+		return payload;
+	}
+
+	private String buildEncryptedRelayUrl(Map<String, String> basePayload, String time)
+		throws UnsupportedEncodingException {
+		Map<String, String> payload = new HashMap<>(basePayload); // 부작용 방지
+		payload.put("time", time);
+		String jsonString = new JSONObject(payload).toString();
+		String encryptedInfo = new AmCodec().EncryptSEED(jsonString);
+		String encodedInfo = URLEncoder.encode(encryptedInfo, UTF_8);
+		return SPO_HOST + "?info=" + encodedInfo;
+	}
+
 	@Transactional(rollbackFor = Exception.class)
 	public void registSurvey(Map<String, Object> data) throws Exception {
 		transSurvey(data);
@@ -108,69 +138,61 @@ public class SurveyService {
 		surveyMapper.registQuestions(data);
 		surveyMapper.registQuestionsItems(data);
 
-		Map<String, String> jsonMap = new HashMap<>();
-		jsonMap.put("userid", (String) data.get("userId"));
-		jsonMap.put("targetid", "");
-		jsonMap.put("time", currentTime);
-		jsonMap.put("type", "ALARM");
-		jsonMap.put("auth", "");
-		jsonMap.put("U", "https://spo.go.kr/survey/article?surveyCode="+ data.get("surveyCode")+"&my="+(String) data.get("userId"));
-		// AmCodec을 사용하여 JSON 문자열을 암호화
-		String jsonString = new JSONObject(jsonMap).toString();
-		String encryptedInfo = new AmCodec().EncryptSEED(jsonString);
-		String directUrl = "https://spo.go.kr/relay/relay.jsp?info=" + encryptedInfo;
+		// 공통 payload 생성
+		String userId = (String) data.get("userId");
+		String surveyCode = String.valueOf(data.get("surveyCode"));
+		Map<String, String> basePayload = buildBaseAlarmPayload(userId, surveyCode);
+
+		// 최초 안내 URL (msg/relay.jsp)
+		String directUrl = buildEncryptedRelayUrl(basePayload, currentTime);
 		data.put("url", directUrl);
 
 		alertSurvey(data);
 
-		// 마감 알림 등록 로직 추가
+		// 마감 알림 등록 로직
 		if (data.containsKey("endDatetime")) {
-			// 마감 시간 String을 LocalDateTime으로 변환
 			String endDatetimeStr = (String) data.get("endDatetime");
-			formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd H:mm:ss");
+			formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 			LocalDateTime endDatetime = LocalDateTime.parse(endDatetimeStr, formatter);
 
-			// 마감 10분 전 알림 시간 계산
 			LocalDateTime tenMinutesBeforeEnd = endDatetime.minusMinutes(10);
 
-			// 'YYYYMMDDHHmm' 형식의 문자열로 변환
 			DateTimeFormatter alarmFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
 			String tenMinutesBeforeEndAlarmStr = tenMinutesBeforeEnd.format(alarmFormatter);
 			String endDatetimeAlarmStr = endDatetime.format(alarmFormatter);
 
+			// 10분 전 URL (relay/relay.jsp)
+			String tenMinutesBeforeUrl = buildEncryptedRelayUrl(basePayload, tenMinutesBeforeEndAlarmStr + "00");
 
-			jsonMap.put("time", tenMinutesBeforeEndAlarmStr + "00");
-			jsonString = new JSONObject(jsonMap).toString();
-			encryptedInfo = new AmCodec().EncryptSEED(jsonString);
-			String tenMinutesBeforeUrl = "https://spo.go.kr/relay/relay.jsp?info=" + encryptedInfo;
-
-			// 참가자 리스트 가져오기
 			List<Map<String, String>> participantsList = (List<Map<String, String>>) data.get("participantsList");
-			// 마감 알림을 위한 데이터 맵 생성 및 등록
+
+			System.out.println("participantsList: " + participantsList);
+			System.out.println("tenMinutesBeforeUrl: " + tenMinutesBeforeUrl);
+			System.out.println("endDatetimeAlarmStr: " + endDatetimeAlarmStr);
+
 			Map<String, Object> alarmData = new HashMap<>();
 			alarmData.put("msgId", java.util.UUID.randomUUID().toString());
 			alarmData.put("surveyId", data.get("surveyCode"));
-			alarmData.put("id", data.get("userId")); // 보내는 사람 (설문 생성자)
-			alarmData.put("subject", "미니투표 "+data.get("surveyTitle") +" 마감 10분전입니다." );
-			alarmData.put("content", "미니투표 "+data.get("surveyTitle") +" 마감 10분전입니다." );
-//			alarmData.put("url", " https://spo.go.kr/relay/relay.jsp?");
+			alarmData.put("id", userId);
+			alarmData.put("subject", "미니투표 " + data.get("surveyTitle") + " 마감 10분전입니다.");
+			alarmData.put("content", "미니투표 " + data.get("surveyTitle") + " 마감 10분전입니다.");
 			alarmData.put("url", tenMinutesBeforeUrl);
+			alarmData.put("before10m", "1");
 
 			// 1. 마감 10분 전 알림 등록
 			alarmData.put("pushTime", tenMinutesBeforeEndAlarmStr);
 			alarmData.put("participantsList", participantsList);
 			surveyMapper.registEndAlarm(alarmData);
 
-			jsonMap.put("time", endDatetimeAlarmStr + "00");
-			jsonString = new JSONObject(jsonMap).toString();
-			encryptedInfo = new AmCodec().EncryptSEED(jsonString);
-			String endTimeURL = "https://spo.go.kr/relay/relay.jsp?info=" + encryptedInfo;
+			// 마감 즉시 URL (relay/relay.jsp)
+			String endTimeURL = buildEncryptedRelayUrl(basePayload, endDatetimeAlarmStr + "00");
 
 			// 2. 마감 즉시 알림 등록
 			alarmData.put("pushTime", endDatetimeAlarmStr);
-			alarmData.put("subject", "미니투표 "+data.get("surveyTitle") +"이 종료되었습니다." );
-			alarmData.put("content", "미니투표 "+data.get("surveyTitle") +"이 종료되었습니다." );
+			alarmData.put("subject", "미니투표 " + data.get("surveyTitle") + "이 종료되었습니다.");
+			alarmData.put("content", "미니투표 " + data.get("surveyTitle") + "이 종료되었습니다.");
 			alarmData.put("url", endTimeURL);
+			alarmData.put("before10m", "0");
 			surveyMapper.registEndAlarm(alarmData);
 		}
 	}
@@ -270,53 +292,71 @@ public class SurveyService {
 			.filter(p -> !existingUserIds.contains((String) p.get("userId")))
 			.collect(Collectors.toList());
 
+
+		// currentTime 생성
+		LocalDateTime now = LocalDateTime.now();
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+		String currentTime = now.format(formatter);
+
+		// 공통 payload 생성
+		String userId = (String) data.get("userId");
+		Map<String, String> basePayload = buildBaseAlarmPayload(userId, surveyCode);
+
+		// 최초 안내 URL
+		String directUrl = buildEncryptedRelayUrl(basePayload, currentTime);
+		data.put("url", directUrl);
+
+		// 추가대상: 새 참가자
 		if (!newParticipantsToInsert.isEmpty()) {
 			Map<String, Object> insertParams = new HashMap<>(data);
 			insertParams.put("participantsList", newParticipantsToInsert);
 			surveyMapper.registParticipants(insertParams);
+		}
 
-			// 알림 추가 로직 추가
-			if (data.containsKey("endDatetime")) {
-				// 마감 시간 String을 LocalDateTime으로 변환
-				String endDatetimeStr = (String) data.get("endDatetime");
-				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd H:mm:ss");
-				LocalDateTime endDatetime = LocalDateTime.parse(endDatetimeStr, formatter);
+		if (data.containsKey("endDatetime")) {
+			String endDatetimeStr = (String) data.get("endDatetime");
+			DateTimeFormatter dtFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+			LocalDateTime endDatetime = LocalDateTime.parse(endDatetimeStr, dtFormatter);
 
-				// 마감 10분 전 알림 시간 계산
-				LocalDateTime tenMinutesBeforeEnd = endDatetime.minusMinutes(10);
+			LocalDateTime tenMinutesBeforeEnd = endDatetime.minusMinutes(10);
+			DateTimeFormatter alarmFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+			String tenMinutesBeforeEndAlarmStr = tenMinutesBeforeEnd.format(alarmFormatter);
+			String endDatetimeAlarmStr = endDatetime.format(alarmFormatter);
 
-				// 'YYYYMMDDHHmm' 형식의 문자열로 변환
-				DateTimeFormatter alarmFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
-				String tenMinutesBeforeEndAlarmStr = tenMinutesBeforeEnd.format(alarmFormatter);
-				String endDatetimeAlarmStr = endDatetime.format(alarmFormatter);
 
-				// 알림 등록을 위한 데이터 맵 생성 및 등록
-				Map<String, Object> alarmData = new HashMap<>();
-				alarmData.put("msgId", java.util.UUID.randomUUID().toString());
-				alarmData.put("surveyId", surveyCode);
-				alarmData.put("id", data.get("userId")); // 보내는 사람 (설문 생성자)
+			Map<String, Object> alarmData = new HashMap<>();
+			alarmData.put("msgId", java.util.UUID.randomUUID().toString());
+			alarmData.put("surveyId", surveyCode);
+			alarmData.put("id", data.get("userId"));
 
-				// 1. 마감 10분 전 알림 등록
-				alarmData.put("pushTime", tenMinutesBeforeEndAlarmStr);
-				alarmData.put("subject", "미니투표 "+data.get("surveyTitle") +" 마감 10분전입니다." );
-				alarmData.put("content", "미니투표 "+data.get("surveyTitle") +" 마감 10분전입니다." );
-				alarmData.put("participantsList", newParticipantsToInsert); // 새 참가자 리스트만 전달
-				surveyMapper.registEndAlarm(alarmData);
+			alertSurvey(data);
 
-				// 2. 마감 즉시 알림 등록
-				alarmData.put("pushTime", endDatetimeAlarmStr);
-				alarmData.put("subject", "미니투표 "+data.get("surveyTitle") +"이 종료되었습니다." );
-				alarmData.put("content", "미니투표 "+data.get("surveyTitle") +"이 종료되었습니다." );
-				surveyMapper.registEndAlarm(alarmData);
+			// 1. 마감 10분 전 URL + 알림 등록
+			String tenMinutesBeforeUrl = buildEncryptedRelayUrl(basePayload, tenMinutesBeforeEndAlarmStr + "00");
+			alarmData.put("url", tenMinutesBeforeUrl);
+			alarmData.put("pushTime", tenMinutesBeforeEndAlarmStr);
+			alarmData.put("subject", "미니투표 " + data.get("surveyTitle") + " 마감 10분전입니다.");
+			alarmData.put("content", "미니투표 " + data.get("surveyTitle") + " 마감 10분전입니다.");
+			alarmData.put("participantsList", newParticipantsToInsert);
+			alarmData.put("before10m", "1");
+			surveyMapper.updateEndAlarm(alarmData);
+			surveyMapper.registEndAlarm(alarmData);
 
-				alarmData.put("url", "www.ultari.co.kr");
-				alarmData.put("msgId", java.util.UUID.randomUUID().toString());
-			}
+			// 2. 마감 즉시 URL + 알림 등록
+			String endTimeUrl = buildEncryptedRelayUrl(basePayload, endDatetimeAlarmStr + "00");
+			alarmData.put("url", endTimeUrl);
+			alarmData.put("pushTime", endDatetimeAlarmStr);
+			alarmData.put("subject", "미니투표 " + data.get("surveyTitle") + "이 종료되었습니다.");
+			alarmData.put("content", "미니투표 " + data.get("surveyTitle") + "이 종료되었습니다.");
+			alarmData.put("before10m", "0");
+			surveyMapper.updateEndAlarm(alarmData);
+			surveyMapper.registEndAlarm(alarmData);
 		}
 	}
 
 	public void removeSurvey(Map<String, Object> data) throws Exception {
 		surveyMapper.removeSurvey(data);
+		surveyMapper.removeAlarm(data);
 	}
 
 	@SuppressWarnings({ "unchecked" })
@@ -383,6 +423,7 @@ public class SurveyService {
 		String sndName = organizationMapper.memberById(userId).getUserName();
 		String surveyCode = (String) data.get("surveyCode");
 		String url=data.get("url").toString();
+		String message = "미니투표 '" + surveyTitle + "'이 생성되었습니다.";
 
 //		log.debug(surveyTitle+" "+userId);
 //
@@ -395,9 +436,9 @@ public class SurveyService {
 		AtMessengerCommunicator atmc = new AtMessengerCommunicator("192.168.100.173", 1234, 1);
 		for(Map<String, Object> map : participantsList) {
 			String member = (String) map.get("key");
-			String message = "미니투표 '" + surveyTitle + "'이 생성되었습니다.";
 			atmc.addMessage(member,  userId, message,url,message,"12345");
 		}
+		atmc.addMessage(userId,  userId, message,url,message,"12345");
 		atmc.send();
 	}
 
@@ -537,7 +578,7 @@ public class SurveyService {
 	}
 
 
-	public List<SurveyMember> getMembersByBuddyId(Map<String, Object> map) {
+	public List<BuddySurveyMember> getMembersByBuddyId(Map<String, Object> map) {
 		return surveyMapper.MemberListByBuddyId(map);
 	}
 }

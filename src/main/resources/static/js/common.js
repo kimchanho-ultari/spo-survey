@@ -102,11 +102,12 @@ function lpad(str, len, pad) {
 function makeHour(target) {
 	var tag = '<option value="_time">_time</option>';
 	var option = '';
-	
-	for (var i = 9; i <= 18; i++) {
-		option += tag.replaceAll('_time', i);
+
+	for (var i = 0; i <= 23; i++) {
+		var val = (i < 10 ? '0' + i : i); // zero padding
+		option += tag.replaceAll('_time', val);
 	}
-	
+
 	$('#' + target).empty();
 	$('#' + target).append(option);
 }

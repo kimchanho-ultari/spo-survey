@@ -2185,9 +2185,6 @@ function initTime() {
 	var tmpSHour = sHour;
 	var tmpEHour = eHour;
 
-	if (tmpSHour < 10) tmpSHour = 9;
-	if (tmpEHour < 10) tmpEHour = 9;
-
 	$('#sHour').val(tmpSHour);
 	$('#eHour').val(tmpEHour);
 	$('#sMinute').val(sMinute);
@@ -4422,8 +4419,8 @@ function initSurveyResult() {
 			var tmpSHour = sHour;
 			var tmpEHour = eHour;
 
-			if (tmpSHour < 10) tmpSHour = 9;
-			if (tmpEHour < 10) tmpEHour = 9;
+
+
 
 			$('#sHour').val(tmpSHour);
 			$('#eHour').val(tmpEHour);
@@ -5488,14 +5485,17 @@ function saveSurvey() {
 		var isOpen = $('input[name=isOpen]:checked').val();
 
 		var startDatetime = datetime('s');
-		var endDatetime = datetime('e');
 
-		console.log("endDate="+endDate)
+		var endDate = $('#eDate').val();
+		var endHour = $('#eHour').val() || '09';
+		var endMinute = $('#eMinute').val() || '00';
+		var endDatetime = endDate + ' '
+				+ ('0' + parseInt(endHour, 10)).slice(-2) + ':'
+				+ ('0' + parseInt(endMinute, 10)).slice(-2) + ':00';
 		if (new Date(endDate) <= new Date()) {
 			alert('마감일이 이미 지난 설문은 수정할 수 없습니다.');
 			return;
 		}
-
 
 		var obj = {};
 		var data = {};
@@ -5634,12 +5634,17 @@ function validate(list) {
 	return val;
 }
 function datetime(type) {
+	console.log("datetime 진입");
 	var date = $('#' + type + 'Date').val();
+	console.log("datetime1 진입");
 	var hour = $('#' + type + 'Hour').val();
+	console.log("datetime2 진입");
 	var minute = $('#' + type + 'Minute').val();
 
 	hour = (isEmpty(hour)) ? '09' : hour;
 	minute = (isEmpty(minute)) ? '00' : minute;
+
+	console.log("hour="+hour);
 
 	var datetime = '';
 	if (date != '') {

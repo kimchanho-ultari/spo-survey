@@ -1345,5 +1345,6 @@ function initParticipants() {
 		$('#participants_title').text(surveyMembers_title.join(', ')); // 문자열로 출력
 
 		participantsList=surveyMembers;
+		selectedUsers=surveyMembers;
 	}
 }
