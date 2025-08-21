@@ -275,98 +275,95 @@
 
 
 		<!-- + 참여자 -->
-		<div id="participants_form" class="dialog" title="참여자 추가">
-			<table style="width:100%">
-				<tr>
-					<td class="selectuser_lt">
-						<span class="t_13px t_bold t_black" style="vertical-align:middle">- 검색 : </span>
-						<input type="text" name="" id="searchKeyword" class="selectuser_input"
-							style="vertical-align:top" placeholder="이름, 부서영" />
-						<img id="btnMemberByKeyword" src="/images/btn_search2.png" alt="찾기"
-							style="width:47px;height:22px;vertical-align:top" />
-					</td>
-					<td rowspan="5" class="selectuser_padding">
-						<img id="btnAppendParticipantsList" src="/images/btn_selectuser_add.png"
-							style="width:48px;height:23px;cursor:pointer" title="추가" />
-						<img id="btnRemoveParticipantsList" src="/images/btn_selectuser_del.png"
-							style="width:48px;height:23px;cursor:pointer;margin-top:10px" title="삭제" />
-					</td>
-					<td class="selectuser_rt">
-						<table style="width:100%">
-							<tr>
-								<td class="t_12px t_bold t_black">참여인원 <span id="participantsCnt">0</span>명</td>
-								<td align="right">&nbsp;</td>
-							</tr>
-						</table>
-					</td>
-				</tr>
+	<div id="participants_form" class="dialog" title="참여자 리스트">
+
+
+		<div class="selectuser-wrapper">
+			<!-- 왼쪽: 조직도 -->
+			<div class="selectuser_lt">
+				<!-- 탭 -->
 				<ul class="holizontal gnb">
 					<li class="holizontal gnb active" data-type="organization">조직도</li>
 					<li class="holizontal gnb" data-type="buddy">내목록</li>
 				</ul>
-				<tr>
-					<td class="selectuser_group adress_group">
-						<div id="tree" style="height:200px"></div>
-					</td>
-					<td rowspan="3" class="selectuser_user_notop address_list">
-						<div class="table-box-wrap">
-							<div class="table-box" style="height:542px">
-								<table id="participants_list" style="width:100%">
-									<colgroup>
-										<col class="col1">
-										<col class="col2">
-										<col class="col3">
-									</colgroup>
-									<thead>
-										<tr>
-											<th style="width:30px"><input name="input" type="checkbox" value=""
-													class="chkAll" /></th>
-											<th>아이디</th>
-											<th>이름</th>
-											<th>소속청</th>
-											<th>부서</th>
-											<th>직위</th>
-										</tr>
-									</thead>
-									<tbody></tbody>
-								</table>
-							</div>
-						</div>
+				<div class="search-box">
+					<input type="text" id="searchKeyword" class="selectuser_input" placeholder="이름 검색" autocomplete="off" />
+					<button id="btnSearchParticipantsList" class="search-btn">검색</button>
+				</div>
+				<div id="tree" class="selectuser_group adress_group"></div>
+			</div>
 
-					</td>
-				</tr>
-				<tr>
-					<td class="selectuser_subtitle">검색결과 - <span id="memberCnt">0</span>명</td>
-				</tr>
-				<tr>
-					<td class="selectuser_user_notop address_list">
-						<div class="table-box-wrap">
-							<div class="table-box">
-								<table id="member_list" style="width:100%">
-									<colgroup>
-										<col class="col1">
-										<col class="col2">
-										<col class="col3">
-									</colgroup>
-									<thead>
-										<tr>
-											<th style="width:30px"><input name="input" type="checkbox" value=""
-													class="chkAll" /></th>
-											<th>아이디</th>
-											<th>이름</th>
-											<th>소속청</th>
-											<th>부서</th>
-											<th>직위</th>
-										</tr>
-									</thead>
-									<tbody></tbody>
-								</table>
-							</div>
+			<!-- 오른쪽 -->
+			<div class="selectuser_rt">
+				<!-- 참여인원 -->
+				<div class="participants-box">
+					<div class="participants-header">
+						<span class="t_12px t_bold t_black">참여인원 <span id="participantsCnt">0</span>명</span>
+					</div>
+					<div class="table-box-wrap">
+						<div class="table-box">
+							<table id="participants_list">
+								<colgroup>
+									<col style="width:5%">
+									<col style="width:15%">
+									<col style="width:20%">
+									<col style="width:20%">
+									<col style="width:20%">
+									<col style="width:20%">
+								</colgroup>
+								<thead>
+								<tr>
+									<th><input type="checkbox" class="chkAll" /></th>
+									<th>아이디</th>
+									<th>이름</th>
+									<th>소속청</th>
+									<th>부서</th>
+									<th>직위</th>
+								</tr>
+								</thead>
+								<tbody></tbody>
+							</table>
 						</div>
-					</td>
-				</tr>
-			</table>
+					</div>
+				</div>
+
+				<div class="participants-actions">
+					<button id="btnAppendParticipantsList" class="action-btn add">추가</button>
+					<button id="btnRemoveParticipantsList" class="action-btn remove">삭제</button>
+				</div>
+				<!-- 검색결과 -->
+				<div class="member-box">
+					<div class="selectuser_subtitle">검색결과 <span id="memberCnt">0</span>명</div>
+					<div class="table-box-wrap">
+						<div class="table-box">
+							<table id="member_list">
+								<colgroup>
+									<col style="width:5%">
+									<col style="width:15%">
+									<col style="width:20%">
+									<col style="width:20%">
+									<col style="width:20%">
+									<col style="width:20%">
+								</colgroup>
+								<thead>
+								<tr>
+									<th><input type="checkbox" class="chkAll" /></th>
+									<th>아이디</th>
+									<th>이름</th>
+									<th>소속청</th>
+									<th>부서</th>
+									<th>직위</th>
+								</tr>
+								</thead>
+								<tbody></tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
+	</div>
+
 
 		<!-- 참여자 리스트 -->
 		<div id="participants_view" class="dialog" title="참여자 리스트">

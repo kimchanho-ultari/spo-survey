@@ -1,11 +1,226 @@
 ﻿@charset "utf-8";
-/* CSS Document */
-.dialog{display:none}
+/* 공통 */
+body {
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  color: #333;
+}
+.dialog {
+  display: none;
+  width: 100%; !important;
+}
 
-ul.holizontal{display:table}
-li.holizontal{box-sizing:border-box;float:left}
+/* 탭 메뉴 */
+ul.gnb {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid #c0c0c0;
+}
+li.gnb {
+  flex: 1;
+  text-align: center;
+  padding: 8px 0;
+  cursor: pointer;
+  border-right: 1px solid #c0c0c0;
+  background: #f9f9f9;
+  transition: background 0.2s;
+}
+li.gnb:last-child { border-right: none; }
+li.gnb:hover { background: #eaeaea; }
+li.active { color: #fff; font-weight: bold; background: #0c4da1; }
 
-ul.gnb{font-size:16px;font-weight:400;cursor:pointer;border:1px solid #c0c0c0;border-bottom:none}
-li.gnb{text-align:center;cursor:pointer;border-right:1px solid #c0c0c0;;padding:8px 41px}
-li.gnb:last-child{border-right:none}
-li.active{color:#fff;font-weight:900;background:#0c4da1}
+/* 참여자 선택 레이아웃 */
+.selectuser-wrapper {
+  display: flex;
+  gap: 10px;
+  height: 100%;
+}
+/* 왼쪽 영역 (조직도) */
+.selectuser_lt {
+  flex: 0 0 30%;     /* 폭 30% */
+  min-width: 200px;
+  max-width: 50%;
+  border: 1px solid #cbcbcb;
+  background: #f7f7f7;
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+}
+/* 오른쪽 영역은 flex-grow 로 자동 채움 */
+.selectuser_rt {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+
+.search-box img {
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+}
+
+/* 박스 공통 */
+.participants-box,
+.member-box {
+  border: 1px solid #cbcbcb;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.participants-header,
+.selectuser_subtitle {
+  padding: 8px 10px;
+  border-bottom: 1px solid #cbcbcb;
+  font-weight: bold;
+  font-size: 13px;
+  background: #f1f1f1;
+}
+
+/* 테이블 */
+.table-box-wrap {
+  flex: 1;
+  overflow-y: auto;
+}
+.table-box table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.table-box th,
+.table-box td {
+  border-right: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 6px 8px;
+  text-align: left;
+  font-size: 12px;
+}
+.table-box th {
+  background: #fafafa;
+  font-weight: bold;
+}
+
+#participants_list {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+#participants_list th,
+#participants_list td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+/* 버튼 영역 */
+.participants-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin: 8px 0;
+}
+.participants-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin: 8px 0;
+}
+
+.action-btn {
+  min-width: 60px;
+  height: 28px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  color: #fff;
+}
+
+.action-btn.add {
+  background: #0c4da1;
+}
+.action-btn.add:hover {
+  background: #093a7d;
+}
+
+.action-btn.remove {
+  background: #d9534f;
+}
+.action-btn.remove:hover {
+  background: #b52b27;
+}
+
+.action-btn:active {
+  transform: scale(0.95);
+}
+.participants-actions img:hover {
+  transform: scale(1.05);
+}
+
+#tree {
+  flex: 1;                 /* 부모(.selectuser_lt) 안에서 남는 공간 전부 차지 */
+  width: 94%;             /* 가로는 부모에 딱 맞춤 */
+  border: 1px solid #afafaf;
+  background: #fff;
+  overflow-y: auto;
+  min-height: 0;           /* flex-item 스크롤 버그 방지 */
+}
+
+.search-box {
+  display: flex;
+  gap: 6px;
+  margin: 8px 0;
+}
+
+.search-box input {
+  flex: 1;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.search-box .search-btn {
+  padding: 0 14px;
+  height: 34px;
+  border: none;
+  border-radius: 4px;
+  background: #0c4da1;   /* 진한 파란색 */
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.search-box .search-btn:hover {
+  background: #093a7d;   /* hover 시 조금 어둡게 */
+}
+.selectuser_lt .search-box {
+  margin-bottom: 8px;
+}
+
+/* participantslist, memberlist 공통 테이블 레이아웃 통일 */
+table.participants_list,
+table.memberlist,
+#participants_list,
+#memberlist {
+  width: 100%;
+  table-layout: fixed;          /* 컬럼 폭을 colgroup 기준으로 고정 */
+  border-collapse: collapse;
+  white-space: nowrap;       /* 줄바꿈 금지 */
+  overflow: hidden;          /* 넘치면 숨김 */
+  text-overflow: ellipsis;   /* ... 처리 */
+  content: attr(data-fulltext);  /* 원본 텍스트를 data-* 속성에서 가져옴 */
+}
+

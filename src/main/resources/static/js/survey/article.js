@@ -4897,7 +4897,7 @@ function initSurveyResult() {
 			console.log('participants');
 			$('#participants_form').dialog({
 				modal: true,
-				width: 900,
+				width: 1200,
 				buttons: {
 					'확인': setParticipants,
 					'취소': function () { $(this).dialog('close'); }
@@ -5657,7 +5657,7 @@ function participants() {
 	console.log('participants');
 	$('#participants_form').dialog({
 		modal: true,
-		width: 900,
+		width: 1200,
 		buttons: {
 			'확인': setParticipants,
 			'취소': function () { $(this).dialog('close'); }

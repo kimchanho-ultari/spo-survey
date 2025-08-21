@@ -1199,19 +1199,6 @@ A.link_paging_active:hover {
     border: #cbcbcb 1px solid
 }
 
-.selectuser_lt {
-    width: 410px;
-    border: #cbcbcb 1px solid;
-    background: #f7f7f7;
-    padding: 10px
-}
-
-.selectuser_rt {
-    width: 410px;
-    border: #cbcbcb 1px solid;
-    background: #f7f7f7;
-    padding: 10px
-}
 
 .selectuser_input {
     border: #afafaf 1px solid;
@@ -1649,17 +1636,6 @@ A.link_adress_list:hover {
     font-weight: bold
 }
 
-.selectuser_subtitle {
-    border-left: #cbcbcb 1px solid;
-    border-right: #cbcbcb 1px solid;
-    border-bottom: #cbcbcb 0px solid;
-    background: #ffffff;
-    text-indent: 10px;
-    font-size: 11px;
-    font-weight: 500;
-    padding: 3px
-}
-
 .selectuser_user_notop {
     border-left: #cbcbcb 1px solid;
     border-right: #cbcbcb 1px solid;
@@ -1713,7 +1689,7 @@ A.link_adress_list:hover {
 
 .table-box-wrap {
     position: relative;
-    padding-top: 28px
+    padding-top: 0px
 }
 
 .table-box-wrap .table-box {
@@ -1721,33 +1697,15 @@ A.link_adress_list:hover {
     height: 300px
 }
 
-.table-box-wrap .table-box table {
-    width: 100%;
-    table-layout: fixed
-}
 
-.table-box-wrap .table-box table thead tr {
-    position: absolute;
-    top: 0
-}
+/*.table-box-wrap .table-box table thead tr {*/
+/*    position: absolute;*/
+/*    top: 0*/
+/*}*/
 
-.table-box-wrap .table-box table thead tr th {
-    height: 28px
-}
-
-.table-box-wrap .table-box table td {
-    height: 28px
-}
-
-.table-box-wrap .table-box table .col1 {
-    width: 30px
-}
-
-.table-box-wrap .table-box table tr {
-    display: inline-table;
-    table-layout: fixed;
-    width: 100%
-}
+/*.table-box-wrap .table-box table .col1 {*/
+/*    width: 30px*/
+/*}*/
 
 .table-box-wrap .table-box table tbody tr {
     display: table-row
