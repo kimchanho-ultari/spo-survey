@@ -37,6 +37,7 @@ import com.ultari.additional.util.SurveyStatistics;
 
 import kr.co.ultari.noti.api2.manager.data.NotiData;
 import lombok.extern.slf4j.Slf4j;
+import sun.nio.cs.ext.EUC_KR;
 
 @Slf4j
 @Service
@@ -96,8 +97,7 @@ public class SurveyService {
 		return map;
 	}
 
-//	private static final String SPO_HOST = "https://spo.go.kr";
-	private static final String SPO_HOST = "localhost:8888/spo/relay.jsp";
+//	private static final String SPO_HOST = "https://msgdev.spo.go.kr/spo/relay.jsp";
 
 
 	private Map<String, String> buildBaseAlarmPayload(String userId, String surveyCode) {
@@ -106,7 +106,7 @@ public class SurveyService {
 		payload.put("targetid", surveyCode);
 		payload.put("type", "POLLALARM");
 		payload.put("auth", "");
-		payload.put("U", "localhost:8080/survey/article");
+		payload.put("U", "10.0.0.173:8080/survey/article");
 		return payload;
 	}
 
@@ -116,8 +116,8 @@ public class SurveyService {
 		payload.put("time", time);
 		String jsonString = new JSONObject(payload).toString();
 		String encryptedInfo = new AmCodec().EncryptSEED(jsonString);
-		String encodedInfo = URLEncoder.encode(encryptedInfo, UTF_8);
-		return SPO_HOST + "?info=" + encodedInfo;
+		String encodedInfo = URLEncoder.encode(encryptedInfo, "UTF-8");
+		return "http://10.0.0.173:8888/spo/relay.jsp?info=" + encodedInfo;
 	}
 
 	@Transactional(rollbackFor = Exception.class)
@@ -147,7 +147,8 @@ public class SurveyService {
 		String directUrl = buildEncryptedRelayUrl(basePayload, currentTime);
 		data.put("url", directUrl);
 
-		alertSurvey(data);
+		System.out.println("basepayload: " + basePayload);
+		alertSurvey(data, true);
 
 		// 마감 알림 등록 로직
 		if (data.containsKey("endDatetime")) {
@@ -314,12 +315,6 @@ public class SurveyService {
 		String directUrl = buildEncryptedRelayUrl(basePayload, currentTime);
 		data.put("url", directUrl);
 
-		// 추가대상: 새 참가자
-		if (!newParticipantsToInsert.isEmpty()) {
-			Map<String, Object> insertParams = new HashMap<>(data);
-			insertParams.put("participantsList", newParticipantsToInsert);
-			surveyMapper.registParticipants(insertParams);
-		}
 
 		if (data.containsKey("endDatetime")) {
 			String endDatetimeStr = (String) data.get("endDatetime");
@@ -337,7 +332,14 @@ public class SurveyService {
 			alarmData.put("surveyId", surveyCode);
 			alarmData.put("id", data.get("userId"));
 
-			alertSurvey(data);
+			// 추가대상: 새 참가자
+			if (!newParticipantsToInsert.isEmpty()) {
+				Map<String, Object> insertParams = new HashMap<>(data);
+				insertParams.put("participantsList", newParticipantsToInsert);
+				System.out.println("newParticipantsToInsert = " + newParticipantsToInsert);
+				surveyMapper.registParticipants(insertParams);
+				alertSurvey(insertParams, false);
+			}
 
 			// 1. 마감 10분 전 URL + 알림 등록
 			String tenMinutesBeforeUrl = buildEncryptedRelayUrl(basePayload, tenMinutesBeforeEndAlarmStr + "00");
@@ -345,7 +347,7 @@ public class SurveyService {
 			alarmData.put("pushTime", tenMinutesBeforeEndAlarmStr);
 			alarmData.put("subject", "미니투표 " + data.get("surveyTitle") + " 마감 10분전입니다.");
 			alarmData.put("content", "미니투표 " + data.get("surveyTitle") + " 마감 10분전입니다.");
-			alarmData.put("participantsList", newParticipantsToInsert);
+			alarmData.put("participantsList", participantsList);
 			alarmData.put("before10m", "1");
 			surveyMapper.updateEndAlarm(alarmData);
 			surveyMapper.registEndAlarm(alarmData);
@@ -424,7 +426,7 @@ public class SurveyService {
 	}
 
 	@Transactional
-	public void alertSurvey(Map<String, Object> data) throws Exception {
+	public void alertSurvey(Map<String, Object> data, boolean isFirstRegister) throws Exception {
 		List<Map<String, Object>> participantsList = (List<Map<String, Object>>) data.get("participantsList");
 		String surveyTitle = (String) data.get("surveyTitle");
 		String userId = (String) data.get("userId");
@@ -433,20 +435,16 @@ public class SurveyService {
 		String url=data.get("url").toString();
 		String message = "미니투표 '" + surveyTitle + "'이 생성되었습니다.";
 
-//		log.debug(surveyTitle+" "+userId);
-//
-//		for(Map<String, Object> map : participantsList) {
-//			log.debug((String) map.get("key"));
-//			String member = (String) map.get("key");
-//
-//			alertMapper.registAlert(userId, surveyTitle, surveyCode, StringUtil.castNowDate(LocalDateTime.now(),"yyyyMMddHHmmss"), member, sndName, "SURVEY", "0");
-//		}
-		AtMessengerCommunicator atmc = new AtMessengerCommunicator("192.168.100.173", 1234, 1);
+//		AtMessengerCommunicator atmc = new AtMessengerCommunicator("192.168.100.173", 1234, 1);
+		AtMessengerCommunicator atmc = new AtMessengerCommunicator("10.0.0.177", 1234, 1);
 		for(Map<String, Object> map : participantsList) {
 			String member = (String) map.get("key");
 			atmc.addMessage(member,  userId, message,url,message,"12345");
 		}
-		atmc.addMessage(userId,  userId, message,url,message,"12345");
+		// 처음 등록일 때만 작성자 알림
+		if (isFirstRegister) {
+			atmc.addMessage(userId, userId, message, url, message, "12345");
+		}
 		atmc.send();
 	}
 

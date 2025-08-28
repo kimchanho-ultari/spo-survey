@@ -129,7 +129,7 @@ ORDER BY
 			AND B.USER_ID = #{userId}
 		ORDER BY
 			B.BUDDY_TYPE DESC,
-			B.BUDDY_ORDER
+			U.USER_NAME ASC
 	</select>
 	<select id="memberByDeptIdList" resultMap="user">
 SELECT
