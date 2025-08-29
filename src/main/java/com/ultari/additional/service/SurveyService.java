@@ -54,6 +54,8 @@ public class SurveyService {
 	@Autowired
 	OrganizationMapper organizationMapper;
 
+	private static final String SURVEY_DOMAIN = "https://msgdev.spo.go.kr";
+
 	@Value("${common.api.survey-noti-domain}")
 	private String NOTI_DOMAIN;
 
@@ -97,28 +99,6 @@ public class SurveyService {
 		return map;
 	}
 
-//	private static final String SPO_HOST = "https://msgdev.spo.go.kr/spo/relay.jsp";
-
-
-	private Map<String, String> buildBaseAlarmPayload(String userId, String surveyCode) {
-		Map<String, String> payload = new HashMap<>();
-		payload.put("userid", userId);
-		payload.put("targetid", surveyCode);
-		payload.put("type", "POLLALARM");
-		payload.put("auth", "");
-		payload.put("U", "10.0.0.173:8080/survey/article");
-		return payload;
-	}
-
-	private String buildEncryptedRelayUrl(Map<String, String> basePayload, String time)
-		throws UnsupportedEncodingException {
-		Map<String, String> payload = new HashMap<>(basePayload); // 부작용 방지
-		payload.put("time", time);
-		String jsonString = new JSONObject(payload).toString();
-		String encryptedInfo = new AmCodec().EncryptSEED(jsonString);
-		String encodedInfo = URLEncoder.encode(encryptedInfo, "UTF-8");
-		return "http://10.0.0.173:8888/spo/relay.jsp?info=" + encodedInfo;
-	}
 
 	@Transactional(rollbackFor = Exception.class)
 	public void registSurvey(Map<String, Object> data) throws Exception {
@@ -141,13 +121,9 @@ public class SurveyService {
 		// 공통 payload 생성
 		String userId = (String) data.get("userId");
 		String surveyCode = String.valueOf(data.get("surveyCode"));
-		Map<String, String> basePayload = buildBaseAlarmPayload(userId, surveyCode);
 
-		// 최초 안내 URL (msg/relay.jsp)
-		String directUrl = buildEncryptedRelayUrl(basePayload, currentTime);
+		String directUrl = SURVEY_DOMAIN+"/survey/article/?my="+userId+"&"+"surveyCode="+surveyCode;
 		data.put("url", directUrl);
-
-		System.out.println("basepayload: " + basePayload);
 		alertSurvey(data, true);
 
 		// 마감 알림 등록 로직
@@ -163,21 +139,23 @@ public class SurveyService {
 			String endDatetimeAlarmStr = endDatetime.format(alarmFormatter);
 
 			// 10분 전 URL (relay/relay.jsp)
-			String tenMinutesBeforeUrl = buildEncryptedRelayUrl(basePayload, tenMinutesBeforeEndAlarmStr + "00");
+//			String tenMinutesBeforeUrl = buildEncryptedRelayUrl(basePayload, tenMinutesBeforeEndAlarmStr + "00");
 
 			List<Map<String, String>> participantsList = (List<Map<String, String>>) data.get("participantsList");
-
-
 			Map<String, String> writer = new HashMap<>();
 			writer.put("key", userId);       // DB의 ID 컬럼에 들어갈 값
 			participantsList.add(writer);
-			System.out.println("participantsList: " + participantsList);
-			System.out.println("wrtier"+writer);
+
+			for (Map<String, String> participant : participantsList) {
+				String participantId = (String) participant.get("key"); // 또는 item.key
+				String participantUrl = SURVEY_DOMAIN+"/survey/article/?my="
+					+ participantId
+					+ "&surveyCode=" + surveyCode;
+
+				participant.put("url", participantUrl);
+			}
 
 
-			System.out.println("participantsList: " + participantsList);
-			System.out.println("tenMinutesBeforeUrl: " + tenMinutesBeforeUrl);
-			System.out.println("endDatetimeAlarmStr: " + endDatetimeAlarmStr);
 
 			Map<String, Object> alarmData = new HashMap<>();
 			alarmData.put("msgId", java.util.UUID.randomUUID().toString());
@@ -185,7 +163,7 @@ public class SurveyService {
 			alarmData.put("id", userId);
 			alarmData.put("subject", "미니투표 " + data.get("surveyTitle") + " 마감 10분전입니다.");
 			alarmData.put("content", "미니투표 " + data.get("surveyTitle") + " 마감 10분전입니다.");
-			alarmData.put("url", tenMinutesBeforeUrl);
+//			alarmData.put("url", tenMinutesBeforeUrl);
 			alarmData.put("before10m", "1");
 
 			// 1. 마감 10분 전 알림 등록
@@ -194,13 +172,13 @@ public class SurveyService {
 			surveyMapper.registEndAlarm(alarmData);
 
 			// 마감 즉시 URL (relay/relay.jsp)
-			String endTimeURL = buildEncryptedRelayUrl(basePayload, endDatetimeAlarmStr + "00");
+//			String endTimeURL = buildEncryptedRelayUrl(basePayload, endDatetimeAlarmStr + "00");
 
 			// 2. 마감 즉시 알림 등록
 			alarmData.put("pushTime", endDatetimeAlarmStr);
 			alarmData.put("subject", "미니투표 " + data.get("surveyTitle") + "이 종료되었습니다.");
 			alarmData.put("content", "미니투표 " + data.get("surveyTitle") + "이 종료되었습니다.");
-			alarmData.put("url", endTimeURL);
+//			alarmData.put("url", endTimeURL);
 			alarmData.put("before10m", "0");
 			surveyMapper.registEndAlarm(alarmData);
 		}
@@ -309,11 +287,6 @@ public class SurveyService {
 
 		// 공통 payload 생성
 		String userId = (String) data.get("userId");
-		Map<String, String> basePayload = buildBaseAlarmPayload(userId, surveyCode);
-
-		// 최초 안내 URL
-		String directUrl = buildEncryptedRelayUrl(basePayload, currentTime);
-		data.put("url", directUrl);
 
 
 		if (data.containsKey("endDatetime")) {
@@ -332,18 +305,35 @@ public class SurveyService {
 			alarmData.put("surveyId", surveyCode);
 			alarmData.put("id", data.get("userId"));
 
+			for (Map<String, Object> participant : newParticipantsToInsert) {
+				String participantId = (String) participant.get("key"); // 또는 item.key
+				String participantUrl = SURVEY_DOMAIN+"/survey/article/?my="
+					+ participantId
+					+ "&surveyCode=" + surveyCode;
+
+				participant.put("url", participantUrl);
+			}
+
 			// 추가대상: 새 참가자
 			if (!newParticipantsToInsert.isEmpty()) {
 				Map<String, Object> insertParams = new HashMap<>(data);
 				insertParams.put("participantsList", newParticipantsToInsert);
-				System.out.println("newParticipantsToInsert = " + newParticipantsToInsert);
 				surveyMapper.registParticipants(insertParams);
 				alertSurvey(insertParams, false);
 			}
 
+
+			for (Map<String, Object> participant : participantsList) {
+				String participantId = (String) participant.get("key"); // 또는 item.key
+				String participantUrl = SURVEY_DOMAIN+"/survey/article/?my="
+					+ participantId
+					+ "&surveyCode=" + surveyCode;
+
+				participant.put("url", participantUrl);
+			}
 			// 1. 마감 10분 전 URL + 알림 등록
-			String tenMinutesBeforeUrl = buildEncryptedRelayUrl(basePayload, tenMinutesBeforeEndAlarmStr + "00");
-			alarmData.put("url", tenMinutesBeforeUrl);
+//			String tenMinutesBeforeUrl = buildEncryptedRelayUrl(basePayload, tenMinutesBeforeEndAlarmStr + "00");
+//			alarmData.put("url", tenMinutesBeforeUrl);
 			alarmData.put("pushTime", tenMinutesBeforeEndAlarmStr);
 			alarmData.put("subject", "미니투표 " + data.get("surveyTitle") + " 마감 10분전입니다.");
 			alarmData.put("content", "미니투표 " + data.get("surveyTitle") + " 마감 10분전입니다.");
@@ -353,8 +343,8 @@ public class SurveyService {
 			surveyMapper.registEndAlarm(alarmData);
 
 			// 2. 마감 즉시 URL + 알림 등록
-			String endTimeUrl = buildEncryptedRelayUrl(basePayload, endDatetimeAlarmStr + "00");
-			alarmData.put("url", endTimeUrl);
+//			String endTimeUrl = buildEncryptedRelayUrl(basePayload, endDatetimeAlarmStr + "00");
+//			alarmData.put("url", endTimeUrl);
 			alarmData.put("pushTime", endDatetimeAlarmStr);
 			alarmData.put("subject", "미니투표 " + data.get("surveyTitle") + "이 종료되었습니다.");
 			alarmData.put("content", "미니투표 " + data.get("surveyTitle") + "이 종료되었습니다.");
@@ -432,18 +422,23 @@ public class SurveyService {
 		String userId = (String) data.get("userId");
 		String sndName = organizationMapper.memberById(userId).getUserName();
 		String surveyCode = (String) data.get("surveyCode");
-		String url=data.get("url").toString();
 		String message = "미니투표 '" + surveyTitle + "'이 생성되었습니다.";
 
-//		AtMessengerCommunicator atmc = new AtMessengerCommunicator("192.168.100.173", 1234, 1);
-		AtMessengerCommunicator atmc = new AtMessengerCommunicator("10.0.0.177", 1234, 1);
-		for(Map<String, Object> map : participantsList) {
+		Set<String> notified = new HashSet<>();
+
+		AtMessengerCommunicator atmc = new AtMessengerCommunicator("192.168.100.173", 1234, 1);
+		for (Map<String, Object> map : participantsList) {
 			String member = (String) map.get("key");
-			atmc.addMessage(member,  userId, message,url,message,"12345");
+			if (notified.add(member)) { // 중복된 대상은 무시
+				String participantUrl = SURVEY_DOMAIN+"/survey/article/?my="
+					+ member + "&surveyCode=" + surveyCode;
+				atmc.addMessage(member, userId, message, participantUrl, message, "12345");
+			}
 		}
-		// 처음 등록일 때만 작성자 알림
-		if (isFirstRegister) {
-			atmc.addMessage(userId, userId, message, url, message, "12345");
+		if (isFirstRegister && notified.add(userId)) {
+			String selfUrl = SURVEY_DOMAIN+"/survey/article/?my="
+				+ userId + "&surveyCode=" + surveyCode;
+			atmc.addMessage(userId, userId, message, selfUrl, message, "12345");
 		}
 		atmc.send();
 	}

@@ -563,7 +563,7 @@ WHERE
 			, #{content}
 			, #{before10m}
 			, 'a'
-			, #{url}
+			, #{item.url}
 			, #{pushTime}
 			, #{pushTime}
 			, 'spo'
@@ -590,8 +590,7 @@ WHERE
 
 	<update id="updateEndAlarm" parameterType="map">
 		UPDATE MSG_ALARM
-		SET PUSH_TIME = #{pushTime},
-		    URL=#{url}
+		SET PUSH_TIME = #{pushTime}
 		WHERE MSG_ID = #{surveyId}
 		AND SURVEY_ID = #{before10m}
 	</update>
