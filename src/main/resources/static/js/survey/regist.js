@@ -946,15 +946,9 @@ function initTimepicker() {
 	makeMinute('sMinute');
 	makeMinute('eMinute');
 
+	// var date = new Date();
 	var date = new Date();
-	var hour = date.getHours();
-
-	if (hour <= 9) {
-		hour = '9';
-	} else if (hour >= 18) {
-		hour = '18';
-	}
-
+	var hour = ('0' + date.getHours()).slice(-2);
 	$('#sHour').val(hour);
 }
 function datetime(type) {
