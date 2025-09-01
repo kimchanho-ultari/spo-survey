@@ -2228,19 +2228,20 @@ function initDatepicker() {
 		var day = date.getDate();
 		var today = year + '-' + lpad((month + 1) + '', 2, '0') + '-' + lpad(day + '', 2, '0');
 		var theDay = $(this).val();
-
-		if (today == theDay) {
-			var nextDate = new Date(year, month, day);
-			nextDate.setDate(nextDate.getDate() + 1);
-			console.log(date, nextDate);
-
-			$('#eHour').prop('disabled', true);
-			$('#eMinute').prop('disabled', true);
-			$('#eHour').val('18');
-			$('#eMinute').val('00');
-		} else {
-			initTime();
-		}
+		//
+		// if (today == theDay) {
+		// 	var nextDate = new Date(year, month, day);
+		// 	nextDate.setDate(nextDate.getDate() + 1);
+		// 	console.log(date, nextDate);
+		//
+		// 	$('#eHour').prop('disabled', true);
+		// 	$('#eMinute').prop('disabled', true);
+		// 	$('#eHour').val('18');
+		// 	$('#eMinute').val('00');
+		// } else {
+		// 	initTime();
+		// }
+		initTime();
 	});
 	//var today = new Date();
 	//$("#sDate").val($.datepicker.formatDate($.datepicker.ATOM, today));
@@ -5484,7 +5485,6 @@ function saveSurvey() {
 		var contents = $('#survey_contents').val();
 		var isOpen = $('input[name=isOpen]:checked').val();
 
-		var startDatetime = datetime('s');
 
 		var endDate = $('#eDate').val();
 		var endHour = $('#eHour').val() || '09';
@@ -5492,8 +5492,10 @@ function saveSurvey() {
 		var endDatetime = endDate + ' '
 				+ ('0' + parseInt(endHour, 10)).slice(-2) + ':'
 				+ ('0' + parseInt(endMinute, 10)).slice(-2) + ':00';
-		if (new Date(endDate) <= new Date()) {
-			alert('마감일이 이미 지난 설문은 수정할 수 없습니다.');
+
+
+		if (endDatetime <= startDatetime) {
+			alert('마감일시는 시작일시 보다 이후여야 합니다.');
 			return;
 		}
 
@@ -5595,6 +5597,11 @@ function validateSaveSurvey() {
 	var eDate = $('#eDate').val();
 	var eHour = $('#eHour').val();
 
+
+
+	var now = new Date();                  // 현재 시각
+	var endDatetime = new Date(endDatetimeInit);  // 마감일시
+
 	if (title == '') {
 		alert('제목을 입력하세요.');
 		val = false;
@@ -5603,6 +5610,9 @@ function validateSaveSurvey() {
 		val = false;
 	} else if (eDate == '' || eHour == '') {
 		alert('마감일시를 지정해주세요.');
+		val = false;
+	} else if (now > endDatetime) {
+		alert('이미 마감된 설문은 수정할 수 없습니다.');
 		val = false;
 	}
 
@@ -5634,17 +5644,12 @@ function validate(list) {
 	return val;
 }
 function datetime(type) {
-	console.log("datetime 진입");
 	var date = $('#' + type + 'Date').val();
-	console.log("datetime1 진입");
 	var hour = $('#' + type + 'Hour').val();
-	console.log("datetime2 진입");
 	var minute = $('#' + type + 'Minute').val();
 
 	hour = (isEmpty(hour)) ? '09' : hour;
 	minute = (isEmpty(minute)) ? '00' : minute;
-
-	console.log("hour="+hour);
 
 	var datetime = '';
 	if (date != '') {

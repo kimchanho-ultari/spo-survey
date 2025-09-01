@@ -95,10 +95,6 @@ public class SurveyController {
 		model.addAttribute("paging", pageManager);
 		model.addAttribute("keyword", keyword);
 
-		AmCodec am= new AmCodec();
-		System.out.println("Decode"+am.DecryptSEED("lr4nTO1Ts+dw9OB9dwnsrA==Dq3Os29zsXyOjkwaSUb/ig==z5kNBQb9HdWTNAj2EocpfA==q2hHYLLBP6hOEuKeeVB4XQ==3MgwUj6ahiuOK5SWJY6N1A==QprbtOnstXAPegfL1iEKfQ=="));
-
-
 		return "survey/list";
 	}
 

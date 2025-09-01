@@ -47,13 +47,7 @@
 		var eMinute = [[${ #dates.format(survey.endDatetime, 'mm') }]];
 		var endDate = [[${#dates.format(survey.endDatetime, 'yyyy-MM-dd HH:mm:ss')}]]
 		var startDatetime = [[${#dates.format(survey.startDatetime, 'yyyy-MM-dd HH:mm:ss')}]];
-		var endDatetime = [[${#dates.format(survey.endDatetime, 'yyyy-MM-dd HH:mm:ss')}]];
-
-		function datetime(type) {
-			if (type === 's') return startDatetime;
-			if (type === 'e') return endDatetime;
-			return null;
-		}
+		var endDatetimeInit = [[${#dates.format(survey.endDatetime, 'yyyy-MM-dd HH:mm:ss')}]];
 	</script>
 </head>
 
@@ -266,7 +260,11 @@
 				</table>
 			</div>
 			<div class="result-btn-area" style="position:relative; min-height:40px;">
-				<button class="button button_gray2" type="button" id="btn-vote-list">통계</button>
+				<button class="button button_gray2" type="button" id="btn-vote-list"
+								th:if="(${survey.getIsOpen()} == 'Y')
+            or (${survey.getIsOpen()} != 'Y' and ${survey.getIsWriter()} == 'Y')">
+					통계
+				</button>
 			</div>
 
 
