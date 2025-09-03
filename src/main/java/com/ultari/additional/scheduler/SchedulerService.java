@@ -46,7 +46,7 @@ public class SchedulerService {
     }
 
     @Transactional
-    @Scheduled(cron = "${ultari.scheduler.expiresurvey.delete.cron:0 * * * * *}")
+    @Scheduled(cron = "${ultari.scheduler.expiresurvey.delete.cron:0 0 0 * * *}")
     public void deleteCron (){
         log.debug("deleteCron");
 
