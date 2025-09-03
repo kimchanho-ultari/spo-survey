@@ -46,11 +46,11 @@ public class SchedulerService {
     }
 
     @Transactional
-    @Scheduled(cron = "${ultari.scheduler.expiresurvey.delete.cron:0 0 0 * * *}")
+    @Scheduled(cron = "${ultari.scheduler.expiresurvey.delete.cron:0 * * * * *}")
     public void deleteCron (){
         log.debug("deleteCron");
 
-        surveyMapper.deleteOldSurveys();
+//        surveyMapper.deleteOldSurveys();
 
         LocalDate today = LocalDate.now();
         LocalDate minusDaysAgo = today.minusDays(delDays);
@@ -59,6 +59,7 @@ public class SchedulerService {
 
         log.debug("delete days ago : {}",deleteDays);
         List<String> list = surveyMapper.findDeleteSurveyList(deleteDays);
+        log.info("delete survey list size : {}",list.size());
         for(String surveyCode : list) {
 
             log.debug("delete surveyCode : " + surveyCode);

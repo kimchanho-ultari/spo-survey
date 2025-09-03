@@ -448,7 +448,7 @@ WHERE
 	</update>
 	<select id="findDeleteSurveyList" resultType="String">
 		<![CDATA[
-		SELECT SURVEY_CODE AS surveyCode FROM SURVEY WHERE REG_DATETIME < #{deleteDays}
+		SELECT SURVEY_CODE AS surveyCode FROM SURVEY WHERE END_DATETIME < DATE_SUB(NOW(), INTERVAL 3 MONTH)
 		]]>
 	</select>
 	<delete id="deleteSurvey">
