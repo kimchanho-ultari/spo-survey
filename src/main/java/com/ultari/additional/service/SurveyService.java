@@ -55,7 +55,6 @@ public class SurveyService {
 	OrganizationMapper organizationMapper;
 
 	private static final String SURVEY_DOMAIN = "https://msgdev.spo.go.kr";
-
 	@Value("${common.api.survey-noti-domain}")
 	private String NOTI_DOMAIN;
 
@@ -127,7 +126,7 @@ public class SurveyService {
 		alertSurvey(data, true);
 
 		// 마감 알림 등록 로직
-		if (data.containsKey("endDatetime")) {
+		if (data.containsKey("endDatetime") && "Y".equals(data.get("endAlarm"))) {
 			String endDatetimeStr = (String) data.get("endDatetime");
 			formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 			LocalDateTime endDatetime = LocalDateTime.parse(endDatetimeStr, formatter);
@@ -138,8 +137,6 @@ public class SurveyService {
 			String tenMinutesBeforeEndAlarmStr = tenMinutesBeforeEnd.format(alarmFormatter);
 			String endDatetimeAlarmStr = endDatetime.format(alarmFormatter);
 
-			// 10분 전 URL (relay/relay.jsp)
-//			String tenMinutesBeforeUrl = buildEncryptedRelayUrl(basePayload, tenMinutesBeforeEndAlarmStr + "00");
 
 			List<Map<String, String>> participantsList = (List<Map<String, String>>) data.get("participantsList");
 			Map<String, String> writer = new HashMap<>();
@@ -171,14 +168,11 @@ public class SurveyService {
 			alarmData.put("participantsList", participantsList);
 			surveyMapper.registEndAlarm(alarmData);
 
-			// 마감 즉시 URL (relay/relay.jsp)
-//			String endTimeURL = buildEncryptedRelayUrl(basePayload, endDatetimeAlarmStr + "00");
 
 			// 2. 마감 즉시 알림 등록
 			alarmData.put("pushTime", endDatetimeAlarmStr);
 			alarmData.put("subject", "미니투표 " + data.get("surveyTitle") + "이 종료되었습니다.");
 			alarmData.put("content", "미니투표 " + data.get("surveyTitle") + "이 종료되었습니다.");
-//			alarmData.put("url", endTimeURL);
 			alarmData.put("before10m", "0");
 			surveyMapper.registEndAlarm(alarmData);
 		}

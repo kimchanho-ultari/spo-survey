@@ -5569,6 +5569,7 @@ function removeSurvey() {
 		var obj = {};
 		var data = {};
 		data.surveyCode = surveyCode;
+		data.surveyTitle = $('#survey_title').val();
 
 		obj.url = '/survey/removeSurvey';
 		obj.data = data;

@@ -267,8 +267,6 @@ public class AtMessengerCommunicator extends Thread
 				sc.getOutputStream().write((sndMsg.toString() + "\n").getBytes("UTF-8"));
 
 				//if ( !getMessage(br, "ok") ) throw new Exception("Cannot send message");
-				System.out.println(getMessage(br, "ok"));
-				System.out.println("registAlarm");
 			}
 		}
 		catch(Exception e)

@@ -22,20 +22,14 @@ public class ReactionController {
     @PostMapping("contentreaction")
     @ResponseBody
     public String contentreaction(HttpSession session, @RequestParam("contentId") String contentId) {
-        log.debug(contentId);
         Account account = (Account) session.getAttribute("account");
         String key = account.getKey();
 
-        log.info(key);
-
         try{
-            log.debug(key);
             if (key == null) throw new AuthenticationException("INVALID");
             JSONArray arr = reactionService.getContentReaction(contentId);
-            log.debug(arr.toString());
             return arr.toString();
         } catch (Exception ae){
-            log.error("",ae);
             return "not";
         }
     }
@@ -43,25 +37,18 @@ public class ReactionController {
     @PostMapping("contentreaction/{key}/list")
     @ResponseBody
     public String contentreactionByKey(HttpSession session, @PathVariable("key") String reactionKey, @RequestParam("contentId") String contentId) {
-        log.debug(contentId);
 
         Account account = (Account) session.getAttribute("account");
         String key = account.getKey();
-
-        log.info(key);
-
         try{
-            log.debug(key);
             if (key == null) throw new AuthenticationException("INVALID");
 
             JSONArray arr = new JSONArray();
 
             if(reactionKey.equals("total")) arr = reactionService.getContentReactionTotalList(contentId, reactionKey);
             else arr = reactionService.getContentReactionList(contentId, reactionKey);
-            log.debug(arr.toString());
             return arr.toString();
         } catch (Exception ae){
-            log.error("",ae);
             return "not";
         }
     }

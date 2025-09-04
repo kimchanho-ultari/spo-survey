@@ -26,16 +26,11 @@ public class ReplyController {
     @PostMapping("contentreply/list")
     @ResponseBody
     public String contentReplyList(HttpSession session, @RequestParam("contentId") String contentId) throws Exception {
-        log.debug(contentId);
         Account account = (Account) session.getAttribute("account");
         String key = account.getKey();
-
-        log.info(key);
-
         JSONObject json = new JSONObject();
         JSONArray arr = replyService.getReplyList(contentId,key);
         json.put("list",arr);
-        log.debug(json.toString());
         return json.toString();
     }
 

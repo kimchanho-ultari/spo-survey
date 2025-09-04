@@ -78,8 +78,6 @@ public class SurveyController {
 		Account account = (Account) session.getAttribute("account");
 		String key = account.getKey();
 
-		log.info(key);
-
 		Map<String, Object> data = new HashMap<>();
 		data.put("userId", key);
 		data.put("keyword", keyword);
@@ -102,8 +100,6 @@ public class SurveyController {
 	public String registForm(HttpSession session) throws Exception {
 		Account account = (Account) session.getAttribute("account");
 		String key = account.getKey();
-
-		log.info(key);
 
 		return "survey/regist";
 	}
@@ -134,19 +130,13 @@ public class SurveyController {
 	// 공통 처리 메서드
 	private String doRegistBuddy(String my, String buddyId, HttpSession session, Model model) throws Exception {
 		// 1. SSO 인증
-		Account account = (Account) session.getAttribute("account");
+		Account account = accountService.memberByKey(my);
 		if (account == null) {
-			account = accountService.memberByKey(my);
-			if (account == null) {
-				return "redirect:/invalid";
-			}
-			session.setAttribute("account", account);
+			return "redirect:/invalid";
 		}
-		String key = account.getKey();
+		session.setAttribute("account", account);
 
-		// 2. 기존 로직
-		log.info("Account Key: {}", key);
-		log.info("my={}, buddyid={}", my, buddyId);
+		String key = account.getKey();
 
 		model.addAttribute("my", my);
 
@@ -172,7 +162,7 @@ public class SurveyController {
 		Account account = (Account) session.getAttribute("account");
 		String key = account.getKey();
 
-		log.info(key);
+		log.info("registSurvey 요청온 데이터 = "+ data.toString()+"\n"+ "regist 요청한 userId =  "+ key);
 
 		data.put("userId", key);
 		data.put("initUser", 1);
@@ -195,8 +185,6 @@ public class SurveyController {
 		Account account = (Account) session.getAttribute("account");
 		String userId = account.getKey();
 
-		log.info(userId);
-
 		Map<String, Object> data = new HashMap<>();
 		data.put("surveyCode", surveyCode);
 		data.put("userId", userId);
@@ -216,14 +204,12 @@ public class SurveyController {
 		@RequestParam("my") String my,
 		HttpSession session,
 		Model model) throws Exception {
-		Account account = (Account) session.getAttribute("account");
+		Account account = accountService.memberByKey(my);
 		if (account == null) {
-			account = accountService.memberByKey(my);
-			if (account == null) {
-				return "redirect:/invalid";
-			}
-			session.setAttribute("account", account);
+			return "redirect:/invalid";
 		}
+		session.setAttribute("account", account);
+
 		return "redirect:/survey/article/" + surveyCode;
 	}
 
@@ -239,7 +225,7 @@ public class SurveyController {
 		String surveyCode = (String) data.get("surveyCode");
 		String surveyTitle = (String) data.get("surveyTitle");
 
-		log.info("userId=" + key + ", surveyCode=" + surveyCode + ", surveyTitle=" + surveyTitle);
+		log.info("saveSurvey 요청온 데이터 = "+ data.toString()+ "\n"+"save 요청한 userId = "+ key);
 
 		try {
 			surveyService.saveSurvey(data);
@@ -266,10 +252,8 @@ public class SurveyController {
 
 		Account account = (Account) session.getAttribute("account");
 		String key = account.getKey();
-		String surveyCode = (String) data.get("surveyCode");
-		String surveyTitle = (String) data.get("surveyTitle");
 
-		log.info("userId=" + key + ", surveyCode=" + surveyCode + ", surveyTitle=" + surveyTitle);
+		log.info("remove 요청온  survey의 data = "+ data.toString() + "\n"+ "remove 요청한 userId = "+ key);
 
 		try {
 			surveyService.removeSurvey(data);
@@ -293,7 +277,7 @@ public class SurveyController {
 		String surveyCode = (String) data.get("surveyCode");
 		data.put("userId", key);
 
-		log.info("userId=" + key + ", surveyCode=" + surveyCode);
+		log.info("submit 요청온 데이터 = " + data.toString() + "\n"+ "submit 요청한 userId = " + key);
 
 		try {
 			surveyService.submitSurvey(data);
@@ -391,22 +375,6 @@ public class SurveyController {
 		Map<String, Object> map = surveyService.export(data);
 		log.debug(map.toString());
 		return new ModelAndView(xlsxView, map);
-	}
-
-	@PostMapping("/notitest")
-	@ResponseBody
-	public String helloWorld(
-		HttpSession session,
-		Model model) throws Exception {
-		Account account = (Account) session.getAttribute("account");
-		if (account == null) {
-			account = accountService.memberByKey("ultari01");
-			if (account == null) {
-				return "redirect:/invalid";
-			}
-			session.setAttribute("account", account);
-		}
-		return "Hello World";
 	}
 
 }

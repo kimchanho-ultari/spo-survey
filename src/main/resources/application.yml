@@ -17,7 +17,7 @@ spring:
 mybatis:
   type-aliases-package: com.ultari
 
-logging.level.com.ultari.additional: debug
+logging.level.com.ultari.additional: info
 
 #계정 암호화용 (현재 사용 X)
 common:
