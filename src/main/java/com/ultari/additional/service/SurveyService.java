@@ -54,7 +54,9 @@ public class SurveyService {
 	@Autowired
 	OrganizationMapper organizationMapper;
 
-	private static final String SURVEY_DOMAIN = "https://msgdev.spo.go.kr";
+//	private static final String SURVEY_DOMAIN = "https://msgdev.spo.go.kr";
+	@Value("${survey.domain}")
+	private String SURVEY_DOMAIN;
 	@Value("${common.api.survey-noti-domain}")
 	private String NOTI_DOMAIN;
 
@@ -409,6 +411,15 @@ public class SurveyService {
 		data.put("questionItemList", questionItemList);
 	}
 
+	@Value("${messenger.host}")
+	private String host;
+
+	@Value("${messenger.port}")
+	private int port;
+
+	@Value("${messenger.channel}")
+	private int channel;
+
 	@Transactional
 	public void alertSurvey(Map<String, Object> data, boolean isFirstRegister) throws Exception {
 		List<Map<String, Object>> participantsList = (List<Map<String, Object>>) data.get("participantsList");
@@ -420,7 +431,8 @@ public class SurveyService {
 
 		Set<String> notified = new HashSet<>();
 
-		AtMessengerCommunicator atmc = new AtMessengerCommunicator("192.168.100.173", 1234, 1);
+//		AtMessengerCommunicator atmc = new AtMessengerCommunicator("192.168.100.173", 1234, 1);
+		AtMessengerCommunicator atmc = new AtMessengerCommunicator(host, port, channel);
 		for (Map<String, Object> map : participantsList) {
 			String member = (String) map.get("key");
 			if (notified.add(member)) { // 중복된 대상은 무시

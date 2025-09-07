@@ -49,3 +49,12 @@ rest-template:
   org-sync-url: http://127.0.0.1:18002/O/?M=orgSync
 
 
+survey:
+  domain: "https://msgdev.spo.go.kr"
+
+messenger:
+  host: "192.168.100.173"
+  port: 1234
+  channel: 1
+
+
