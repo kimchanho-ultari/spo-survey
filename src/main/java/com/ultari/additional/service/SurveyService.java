@@ -428,25 +428,28 @@ public class SurveyService {
 		String sndName = organizationMapper.memberById(userId).getUserName();
 		String surveyCode = (String) data.get("surveyCode");
 		String message = "미니투표 '" + surveyTitle + "'이 생성되었습니다.";
+		String selfUrl = SURVEY_DOMAIN+"/survey/article/?my="
+			+ userId + "&surveyCode=" + surveyCode;
 
 		Set<String> notified = new HashSet<>();
 
-//		AtMessengerCommunicator atmc = new AtMessengerCommunicator("192.168.100.173", 1234, 1);
-		AtMessengerCommunicator atmc = new AtMessengerCommunicator(host, port, channel);
+
 		for (Map<String, Object> map : participantsList) {
+			AtMessengerCommunicator atmc = new AtMessengerCommunicator(host, port, channel);
 			String member = (String) map.get("key");
 			if (notified.add(member)) { // 중복된 대상은 무시
 				String participantUrl = SURVEY_DOMAIN+"/survey/article/?my="
 					+ member + "&surveyCode=" + surveyCode;
 				atmc.addMessage(member, userId, message, participantUrl, message, "12345");
 			}
+			atmc.send();
 		}
 		if (isFirstRegister && notified.add(userId)) {
-			String selfUrl = SURVEY_DOMAIN+"/survey/article/?my="
-				+ userId + "&surveyCode=" + surveyCode;
+			AtMessengerCommunicator atmc = new AtMessengerCommunicator(host, port, channel);
 			atmc.addMessage(userId, userId, message, selfUrl, message, "12345");
+			atmc.send();
 		}
-		atmc.send();
+
 	}
 
 	private void collectAdditionalInformation(Survey survey, String userId) {
