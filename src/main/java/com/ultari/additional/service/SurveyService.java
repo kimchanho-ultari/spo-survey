@@ -168,7 +168,9 @@ public class SurveyService {
 			// 1. 마감 10분 전 알림 등록
 			alarmData.put("pushTime", tenMinutesBeforeEndAlarmStr);
 			alarmData.put("participantsList", participantsList);
-			surveyMapper.registEndAlarm(alarmData);
+			if(now.isBefore(tenMinutesBeforeEnd)) {
+				surveyMapper.registEndAlarm(alarmData);
+			}
 
 
 			// 2. 마감 즉시 알림 등록
@@ -295,6 +297,8 @@ public class SurveyService {
 			String tenMinutesBeforeEndAlarmStr = tenMinutesBeforeEnd.format(alarmFormatter);
 			String endDatetimeAlarmStr = endDatetime.format(alarmFormatter);
 
+			surveyMapper.removeAlarm(data);
+
 
 			Map<String, Object> alarmData = new HashMap<>();
 			alarmData.put("msgId", java.util.UUID.randomUUID().toString());
@@ -310,7 +314,7 @@ public class SurveyService {
 				participant.put("url", participantUrl);
 			}
 
-			// 추가대상: 새 참가자
+			// 새 참가자는 생성 알림을 즉시 보냄
 			if (!newParticipantsToInsert.isEmpty()) {
 				Map<String, Object> insertParams = new HashMap<>(data);
 				insertParams.put("participantsList", newParticipantsToInsert);
@@ -320,32 +324,27 @@ public class SurveyService {
 
 
 			for (Map<String, Object> participant : participantsList) {
-				String participantId = (String) participant.get("key"); // 또는 item.key
+				String participantId = (String) participant.get("key");
 				String participantUrl = SURVEY_DOMAIN+"/survey/article/?my="
 					+ participantId
 					+ "&surveyCode=" + surveyCode;
 
 				participant.put("url", participantUrl);
 			}
-			// 1. 마감 10분 전 URL + 알림 등록
-//			String tenMinutesBeforeUrl = buildEncryptedRelayUrl(basePayload, tenMinutesBeforeEndAlarmStr + "00");
-//			alarmData.put("url", tenMinutesBeforeUrl);
+			//10분전 알림 등록
 			alarmData.put("pushTime", tenMinutesBeforeEndAlarmStr);
 			alarmData.put("subject", "미니투표 " + data.get("surveyTitle") + " 마감 10분전입니다.");
 			alarmData.put("content", "미니투표 " + data.get("surveyTitle") + " 마감 10분전입니다.");
 			alarmData.put("participantsList", participantsList);
 			alarmData.put("before10m", "1");
-			surveyMapper.updateEndAlarm(alarmData);
-			surveyMapper.registEndAlarm(alarmData);
+			if(now.isBefore(tenMinutesBeforeEnd)) {
+				surveyMapper.registEndAlarm(alarmData);
+			}
 
-			// 2. 마감 즉시 URL + 알림 등록
-//			String endTimeUrl = buildEncryptedRelayUrl(basePayload, endDatetimeAlarmStr + "00");
-//			alarmData.put("url", endTimeUrl);
 			alarmData.put("pushTime", endDatetimeAlarmStr);
 			alarmData.put("subject", "미니투표 " + data.get("surveyTitle") + "이 종료되었습니다.");
 			alarmData.put("content", "미니투표 " + data.get("surveyTitle") + "이 종료되었습니다.");
 			alarmData.put("before10m", "0");
-			surveyMapper.updateEndAlarm(alarmData);
 			surveyMapper.registEndAlarm(alarmData);
 		}
 	}
