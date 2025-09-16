@@ -9,6 +9,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -357,6 +358,23 @@ public class SurveyService {
 	@SuppressWarnings({ "unchecked" })
 	@Transactional
 	public void submitSurvey(Map<String, Object> data) throws Exception {
+		Survey survey = surveyMapper.survey(data);
+		log.info("submitSurvey survey: {}", survey);
+
+		LocalDateTime now = LocalDateTime.now();
+		ZoneId zone = ZoneId.systemDefault();
+
+		// Date → LocalDateTime 변환
+		LocalDateTime startDatetime = survey.getStartDatetime().toInstant().atZone(zone).toLocalDateTime();
+		LocalDateTime endDatetime   = survey.getEndDatetime().toInstant().atZone(zone).toLocalDateTime();
+		if (now.isBefore(startDatetime)) {
+			throw new IllegalStateException("아직 투표가 시작되지 않았습니다.");
+		}
+		if (now.isAfter(endDatetime)) {
+			throw new IllegalStateException("이미 마감된 투표입니다.");
+		}
+
+
 		surveyMapper.submitSurvey(data);
 		surveyMapper.submitSurveyMember(data);
 		List<Map<String, Object>> desc = (List<Map<String, Object>>)data.get("descList");

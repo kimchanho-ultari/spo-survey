@@ -272,6 +272,7 @@ public class SurveyController {
 	@ResponseBody
 	public Map<String, Object> submitSurvey(@RequestBody Map<String, Object> data, HttpSession session) throws Exception {
 		String code = "ok";
+		String message = "등록 성공";
 		Account account = (Account) session.getAttribute("account");
 		String key = account.getKey();
 		String surveyCode = (String) data.get("surveyCode");
@@ -281,13 +282,19 @@ public class SurveyController {
 
 		try {
 			surveyService.submitSurvey(data);
-		} catch(Exception e) {
-			log.error("", e);
+		} catch (IllegalStateException e) {
 			code = "fail";
+			message = e.getMessage();
+			log.warn("비즈니스 예외 발생: {}", e.getMessage());
+		} catch (Exception e) {
+			code = "fail";
+			message = "서버 오류가 발생했습니다.";
+			log.error("Unexpected error", e);
 		}
 
 		Map<String, Object> map = new HashMap<>();
 		map.put("code", code);
+		map.put("message", message);
 
 		return map;
 	}

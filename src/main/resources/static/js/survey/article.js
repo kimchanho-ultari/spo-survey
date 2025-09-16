@@ -2316,11 +2316,28 @@ function initSurvey() {
 function appendSurvey() {
 	$('#question_area').appendSurvey();
 }
+function parseDate(str) {
+	// "2025-09-15 17:00:00" → "2025-09-15T17:00:00"
+	return new Date(str.replace(" ", "T"));
+}
 function chkSubmitBtn() {
 	const now = new Date();
-	const end = new Date(datetime('e'));
+	end = new Date(datetime('e'));
+	starttime= parseDate(startDatetime);
 
+	if(isWriter == 'N') {
+		end=(parseDate(endDate));
+	}
 
+	console.log(starttime)
+	if(starttime>now){
+		$('#btnSubmitSurvey')
+		.removeClass('button_survey')
+		.addClass('button_survey_disabled')
+		.prop('disabled', true)
+		.text('투표 시작 전');
+		return; // 여기서 함수 종료
+	}
 	// 제출 마감 시간 지난 경우
 	if (end < now) {
 		$('#btnSubmitSurvey')
@@ -2551,12 +2568,14 @@ function initSurveyResult() {
 
 		function submitSurveyHandlerMobile(data) {
 			var code = data.code;
+			var message = data.message || '적용에 실패하였습니다. 잠시후 다시 시도해주세요.';
+			// 백엔드에서 message 없을 때 기본값
 
-			if (code == 'fail') {
+			if (code === 'fail') {
 				showAlert({
-					message: '적용에 실패하였습니다. 잠시후 다시 시도해주세요.'
+					message: message
 				});
-				return
+				return;
 			} else {
 				location.reload();
 			}
@@ -4581,7 +4600,11 @@ function initSurveyResult() {
 		}
 		function chkSubmitBtn() {
 			const now = new Date();
-			const end = new Date(datetime('e'));
+			end = new Date(datetime('e'));
+
+			if(isWriter == 'N') {
+				end=endDate;
+			}
 
 			console.log(now);
 			console.log(end);
@@ -4700,8 +4723,9 @@ function initSurveyResult() {
 		function surveyItemResultMemberHandler(data) {
 			console.log(data);
 			var code = data.code;
+			var message = data.message || '적용에 실패하였습니다. 잠시후 다시 시도해주세요.';
 			if (code == 'fail') {
-				alert('적용에 실패하였습니다. 잠시후 다시 시도해주세요.');
+				alert(message);
 			} else {
 				var memberList = data.list;
 				var list = [];
@@ -4800,8 +4824,9 @@ function initSurveyResult() {
 		}
 		function saveSurveyHandler(data) {
 			var code = data.code;
+			var message = data.message || '적용에 실패하였습니다. 잠시후 다시 시도해주세요.';
 			if (code == 'fail') {
-				alert('적용에 실패하였습니다. 잠시후 다시 시도해주세요.');
+				alert(message);
 			} else {
 				alert('정상 처리되었습니다.');
 
@@ -4825,8 +4850,9 @@ function initSurveyResult() {
 		}
 		function removeSurveyHandler(data) {
 			var code = data.code;
+			var message = data.message || '적용에 실패하였습니다. 잠시후 다시 시도해주세요.';
 			if (code == 'fail') {
-				alert('적용에 실패하였습니다. 잠시후 다시 시도해주세요.');
+				alert(message);
 			} else {
 				alert('정상 처리되었습니다.');
 
@@ -5271,9 +5297,10 @@ function initSurveyResult() {
 		}
 		function submitSurveyHandler(data) {
 			var code = data.code;
+			var message = data.message || '적용에 실패하였습니다. 잠시후 다시 시도해주세요.';
 
 			if (code == 'fail') {
-				alert('적용에 실패하였습니다. 잠시후 다시 시도해주세요.');
+				alert(message);
 			} else {
 				alert('정상 처리되었습니다.');
 				location.reload();
@@ -5445,8 +5472,9 @@ function surveyItemResultMember() {
 function surveyItemResultMemberHandler(data) {
 	console.log(data);
 	var code = data.code;
+	var message = data.message || '적용에 실패하였습니다. 잠시후 다시 시도해주세요.';
 	if (code == 'fail') {
-		alert('적용에 실패하였습니다. 잠시후 다시 시도해주세요.');
+		alert(message);
 	} else {
 		var memberList = data.list;
 		var list = [];
@@ -6036,9 +6064,10 @@ function submitSurvey() {
 }
 function submitSurveyHandler(data) {
 	var code = data.code;
+	var message = data.message || '적용에 실패하였습니다. 잠시후 다시 시도해주세요.';
 
 	if (code == 'fail') {
-		alert('적용에 실패하였습니다. 잠시후 다시 시도해주세요.');
+		alert(message);
 	} else {
 		alert('정상 처리되었습니다.');
 		location.reload();
