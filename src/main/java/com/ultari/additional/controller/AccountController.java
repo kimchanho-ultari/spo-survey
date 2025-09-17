@@ -10,6 +10,9 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
@@ -20,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.ultari.additional.domain.account.Account;
@@ -46,6 +50,8 @@ public class AccountController {
 	private String DECRYPT_METHOD;
 	@Value("${common.account.encrypt.use-wrapping-base64}")
 	private boolean USE_WRAPPING_BASE64;
+	@Value("${dev.sso.enabled:false}")
+	private boolean devSsoEnabled;
 
 	@PostMapping(value = "/sso", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public String ssoJson(@RequestBody SsoRequest req, HttpSession session,
@@ -134,6 +140,9 @@ public class AccountController {
 		RedirectAttributes attr,
 		HttpSession session, @Nullable String surveyCode,HttpServletRequest request) throws Exception {
 
+		if (!devSsoEnabled) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+		}
 		request.getQueryString();
 		request.getParameter("surveyCode");
 		log.debug("systemCode=" + systemCode + ", key=" + key);

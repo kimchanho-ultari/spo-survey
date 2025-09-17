@@ -2292,6 +2292,9 @@ function initTree(obj) {
 function initSurvey() {
 	$('input:radio[name="isOpen"]:radio').prop('checked', false);
 	$('input:radio[name="isOpen"]:radio[value="' + isOpen + '"]').prop('checked', true);
+	$('input:radio[name="endAlarm"]:radio').prop('checked', false);
+	$('input:radio[name="endAlarm"]:radio[value="' + endAlarm + '"]').prop('checked', true);
+	console.log("end Alarm ==========", endAlarm)
 	var len = surveyResult.length;
 
 	if (isWriter == 'N') {						// 참여자
@@ -4574,6 +4577,8 @@ function initSurveyResult() {
 		function initSurvey() {
 			$('input:radio[name="isOpen"]:radio').prop('checked', false);
 			$('input:radio[name="isOpen"]:radio[value="' + isOpen + '"]').prop('checked', true);
+			$('input:radio[name="endAlarm"]:radio').prop('checked', false);
+			$('input:radio[name="endAlarm"]:radio[value="' + endAlarm + '"]').prop('checked', true);
 			var len = surveyResult.length;
 
 			if (isWriter == 'N') {						// 참여자
@@ -4795,6 +4800,7 @@ function initSurveyResult() {
 				var title = $('#survey_title').val();
 				var contents = $('#survey_contents').val();
 				var isOpen = $('input[name=isOpen]:checked').val();
+				var endAlarm = $('input[name=endAlarm]:checked').val();
 
 				var startDatetime = datetime('s');
 				var endDatetime = datetime('e');
@@ -4808,6 +4814,7 @@ function initSurveyResult() {
 				data.questionList = questionList;
 				data.participantsList = tmpParticipants;
 				data.isOpen = isOpen;
+				data.endAlarm = endAlarm;
 
 				data.type = 'save';
 				data.surveyCode = surveyCode;
@@ -5555,6 +5562,7 @@ function registSurvey() {
 		var title = $('#survey_title').val();
 		var contents = $('#survey_contents').val();
 		var isOpen = $('input[name=isOpen]:checked').val();
+		var endAlarm = $('input[name=endAlarm]:checked').val();
 
 		var startDatetime = datetime('s');
 		var endDatetime = datetime('e');
@@ -5568,6 +5576,7 @@ function registSurvey() {
 		data.questionList = questionList;
 		data.participantsList = tmpParticipants;
 		data.isOpen = isOpen;
+		data.endAlarm = endAlarm;
 
 		data.type = 'save';
 		data.surveyCode = surveyCode;

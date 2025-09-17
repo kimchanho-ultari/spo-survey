@@ -22,6 +22,7 @@ public class Survey {
 	private String isWriter;					// (본인이) 설문 작성자인지 여부
 	
 	private String isOpen;						// 설문 공개 여부 (Y/N)
+	private String endAlarm;                    // 종료알람 여부
 	
 	private int totalComplete;					// 설문 완료자 수 
 	

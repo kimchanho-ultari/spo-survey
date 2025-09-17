@@ -13,6 +13,7 @@
 		<!-- <result property="status" column="STATUS"/> -->
 		<result property="status" column="IS_COMPLETE"/>
 		<result property="isOpen" column="IS_OPEN"/>
+		<result property="endAlarm" column="END_ALARM"/>
 		<collection property="totalComplete" ofType="int" column="SURVEY_CODE" select="totalComplete"/>
 	</resultMap>
 	<resultMap type="Survey" id="survey">
@@ -27,6 +28,7 @@
 		<!-- <result property="status" column="STATUS"/> -->
 		<result property="status" column="IS_COMPLETE"/>
 		<result property="isOpen" column="IS_OPEN"/>
+		<result property="endAlarm" column="END_ALARM"/>
 	</resultMap>
 	<resultMap type="SurveyMember" id="surveyMember">
 		<id property="key" column="USER_ID"/>
@@ -247,7 +249,8 @@ SELECT
 	A.IS_COMPLETE,
 	A.USER_ID,
 	B.USER_NAME,
-	A.IS_OPEN
+	A.IS_OPEN,
+	A.END_ALARM
 FROM SURVEY_VW A
 LEFT OUTER JOIN MSG_USER_VW B ON A.USER_ID=B.USER_ID
 WHERE

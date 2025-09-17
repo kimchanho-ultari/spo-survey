@@ -126,55 +126,70 @@ public class SurveyService {
 
 		String directUrl = SURVEY_DOMAIN+"/survey/article/?my="+userId+"&"+"surveyCode="+surveyCode;
 		data.put("url", directUrl);
-		alertSurvey(data, true);
+//		alertSurvey(data, true);
+
+
+
+		formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		String startDatetimeStr=(String)data.get("startDatetime");
+		LocalDateTime startDatetime = LocalDateTime.parse(startDatetimeStr, formatter);
+		if (startDatetime.isBefore(now)) {
+			startDatetime = now.plusMinutes(1);
+		}
+		DateTimeFormatter alarmFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+		String startDatetimeAlarmStr=startDatetime.format(alarmFormatter);
+
+		List<Map<String, String>> participantsList = (List<Map<String, String>>) data.get("participantsList");
+		Map<String, String> writer = new HashMap<>();
+		writer.put("key", userId);       // DB의 ID 컬럼에 들어갈 값
+		participantsList.add(writer);
+
+		for (Map<String, String> participant : participantsList) {
+			String participantId = (String) participant.get("key"); // 또는 item.key
+			String participantUrl = SURVEY_DOMAIN+"/survey/article/?my="
+				+ participantId
+				+ "&surveyCode=" + surveyCode;
+
+			participant.put("url", participantUrl);
+		}
+
+		Map<String, Object> alarmData = new HashMap<>();
+		alarmData.put("msgId", java.util.UUID.randomUUID().toString());
+		alarmData.put("surveyId", data.get("surveyCode"));
+		alarmData.put("id", userId);
+		alarmData.put("participantsList", participantsList);
+
+		//시작알림등록
+		alarmData.put("subject", "미니투표"+data.get("surveyTitle") + "이 생성되었습니다.");
+		alarmData.put("content", "미니투표"+data.get("surveyTitle") + "이 생성되었습니다.");
+		alarmData.put("before10m", "1");
+		alarmData.put("pushTime", startDatetimeAlarmStr);
+		surveyMapper.removeAlarm(data);
+		surveyMapper.registEndAlarm(alarmData);
 
 		// 마감 알림 등록 로직
 		if (data.containsKey("endDatetime") && "Y".equals(data.get("endAlarm"))) {
 			String endDatetimeStr = (String) data.get("endDatetime");
-			formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 			LocalDateTime endDatetime = LocalDateTime.parse(endDatetimeStr, formatter);
 
 			LocalDateTime tenMinutesBeforeEnd = endDatetime.minusMinutes(10);
 
-			DateTimeFormatter alarmFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
 			String tenMinutesBeforeEndAlarmStr = tenMinutesBeforeEnd.format(alarmFormatter);
 			String endDatetimeAlarmStr = endDatetime.format(alarmFormatter);
 
 
-			List<Map<String, String>> participantsList = (List<Map<String, String>>) data.get("participantsList");
-			Map<String, String> writer = new HashMap<>();
-			writer.put("key", userId);       // DB의 ID 컬럼에 들어갈 값
-			participantsList.add(writer);
 
-			for (Map<String, String> participant : participantsList) {
-				String participantId = (String) participant.get("key"); // 또는 item.key
-				String participantUrl = SURVEY_DOMAIN+"/survey/article/?my="
-					+ participantId
-					+ "&surveyCode=" + surveyCode;
-
-				participant.put("url", participantUrl);
-			}
-
-
-
-			Map<String, Object> alarmData = new HashMap<>();
-			alarmData.put("msgId", java.util.UUID.randomUUID().toString());
-			alarmData.put("surveyId", data.get("surveyCode"));
-			alarmData.put("id", userId);
+			//마감 10분전 알림 등록
 			alarmData.put("subject", "미니투표 " + data.get("surveyTitle") + " 마감 10분전입니다.");
 			alarmData.put("content", "미니투표 " + data.get("surveyTitle") + " 마감 10분전입니다.");
-//			alarmData.put("url", tenMinutesBeforeUrl);
 			alarmData.put("before10m", "1");
-
-			// 1. 마감 10분 전 알림 등록
 			alarmData.put("pushTime", tenMinutesBeforeEndAlarmStr);
-			alarmData.put("participantsList", participantsList);
 			if(now.isBefore(tenMinutesBeforeEnd)) {
 				surveyMapper.registEndAlarm(alarmData);
 			}
 
 
-			// 2. 마감 즉시 알림 등록
+			//마감 즉시 알림 등록
 			alarmData.put("pushTime", endDatetimeAlarmStr);
 			alarmData.put("subject", "미니투표 " + data.get("surveyTitle") + "이 종료되었습니다.");
 			alarmData.put("content", "미니투표 " + data.get("surveyTitle") + "이 종료되었습니다.");
@@ -305,6 +320,7 @@ public class SurveyService {
 			alarmData.put("msgId", java.util.UUID.randomUUID().toString());
 			alarmData.put("surveyId", surveyCode);
 			alarmData.put("id", data.get("userId"));
+			alarmData.put("participantsList", participantsList);
 
 			for (Map<String, Object> participant : newParticipantsToInsert) {
 				String participantId = (String) participant.get("key"); // 또는 item.key
@@ -320,7 +336,7 @@ public class SurveyService {
 				Map<String, Object> insertParams = new HashMap<>(data);
 				insertParams.put("participantsList", newParticipantsToInsert);
 				surveyMapper.registParticipants(insertParams);
-				alertSurvey(insertParams, false);
+//				alertSurvey(insertParams, false);
 			}
 
 
@@ -332,11 +348,37 @@ public class SurveyService {
 
 				participant.put("url", participantUrl);
 			}
+			Map<String, Object> writer = new HashMap<>();
+			writer.put("key", userId);
+			String selfUrl = SURVEY_DOMAIN+"/survey/article/?my="
+				+ userId + "&surveyCode=" + surveyCode;
+			writer.put("url", selfUrl);
+			participantsList.add(writer);
+
+			formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+			String startDatetimeStr=(String)data.get("startDatetime");
+			LocalDateTime startDatetime = LocalDateTime.parse(startDatetimeStr, formatter);
+			if (startDatetime.isBefore(now)) {
+				startDatetime = now.plusMinutes(1);
+			}
+			String startDatetimeAlarmStr=startDatetime.format(alarmFormatter);
+
+			//시작알림등록
+			alarmData.put("subject", "미니투표"+data.get("surveyTitle") + "이 생성되었습니다.");
+			alarmData.put("content", "미니투표"+data.get("surveyTitle") + "이 생성되었습니다.");
+			alarmData.put("before10m", "1");
+			alarmData.put("pushTime", startDatetimeAlarmStr);
+			if (!newParticipantsToInsert.isEmpty()) {
+				alarmData.put("participantsList", newParticipantsToInsert);
+				surveyMapper.registEndAlarm(alarmData);
+			}
+
+
+			alarmData.put("participantsList", participantsList);
 			//10분전 알림 등록
 			alarmData.put("pushTime", tenMinutesBeforeEndAlarmStr);
 			alarmData.put("subject", "미니투표 " + data.get("surveyTitle") + " 마감 10분전입니다.");
 			alarmData.put("content", "미니투표 " + data.get("surveyTitle") + " 마감 10분전입니다.");
-			alarmData.put("participantsList", participantsList);
 			alarmData.put("before10m", "1");
 			if(now.isBefore(tenMinutesBeforeEnd)) {
 				surveyMapper.registEndAlarm(alarmData);

@@ -34,6 +34,7 @@
 		var status = [[${ survey.status }]];
 		var isWriter = [[${ survey.isWriter }]];
 		var isOpen = [[${ survey.isOpen }]];
+		var endAlarm = [[${ survey.endAlarm }]];
 		var isDone = [[${ survey.isDone }]];
 		var participantsList = [[${ survey.memberList }]];
 
@@ -128,7 +129,7 @@
 									<td class="td_none" style="width:140px">
 										<input type="text" id="sDate" class="datetime"
 											th:value="${#dates.format(survey.startDatetime, 'yyyy-MM-dd')}"
-											style="border:1px solid #ddd;width:80px;padding-left:8px" readonly />
+											style="border:1px solid #ddd;width:100px;padding-left:8px" readonly />
 									</td>
 									<td class="td_none">
 										<select id="sHour" class="datetime"></select> 시
@@ -158,17 +159,26 @@
 								th:text="${#dates.format(survey.endDatetime, 'yyyy-MM-dd HH:mm')}"></span>
 						</td>
 					</tr>
+					<tr th:if="${survey.getIsWriter()} == 'Y' and ${survey.getStatus()} == 'W'">
+						<th class="th_0px_gray">투표 종료 알람 여부</th>
+						<td colspan="3">
+							<label><input type="radio" name="endAlarm" value="Y"
+														style="width:15px;height:15px;vertical-align:bottom" checked="checked"> 알림 받음</label>
+							<label style="margin-left:20px"><input type="radio" name="endAlarm" value="N"
+																										 style="width:15px;height:15px;vertical-align:bottom"> 알림 받지 않음</label>
+						</td>
+					</tr>
 					<tr>
 						<th class="th_0px_gray">현황 공개 여부</th>
 						<td colspan="2">
-							<div th:if="${survey.getIsWriter()} == 'Y' and ${survey.getStatus()} == 'N'">
+							<div th:if="${survey.getIsWriter()} == 'Y' and (${survey.getStatus()} == 'N' or ${survey.getStatus()} == 'W')" >
 								<label style=""><input type="radio" name="isOpen" value="Y"
 										style="width:15px;height:15px;vertical-align:bottom" checked="checked">
 									공개</label>
 								<label style="margin-left:20px"><input type="radio" name="isOpen" value="N"
 										style="width:15px;height:15px;vertical-align:bottom"> 비공개</label>
 							</div>
-							<div th:if="${survey.getIsWriter()} != 'Y' or (${survey.getIsWriter()} == 'Y' and ${survey.getStatus()} != 'N')">
+							<div th:if="${survey.getIsWriter()} != 'Y' or (${survey.getIsWriter()} == 'Y' and ${survey.getStatus()} != 'N') and ${survey.getStatus()} != 'W'">
 								<span th:if="${survey.getIsOpen() } == 'Y' or ${survey.getIsOpen() } == null">공개</span>
 								<span th:if="${survey.getIsOpen()} == 'N'">비공개</span>
 							</div>
@@ -259,7 +269,7 @@
 					</tr>
 				</table>
 			</div>
-			<div class="result-btn-area" style="position:relative; min-height:40px;">
+			<div class="result-btn-area" style="position:relative; min-height:40px;" th:if="${survey.status != 'W'}">
 				<button class="button button_gray2" type="button" id="btn-vote-list"
 								th:if="(${survey.getIsOpen()} == 'Y')
             or (${survey.getIsOpen()} != 'Y' and ${survey.getIsWriter()} == 'Y')">
