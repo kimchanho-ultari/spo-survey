@@ -1531,6 +1531,9 @@ function itemListModalPc() {
                 <div class="modal-tab-pc">
                     <button id="item-pc" class="tab-pc tab-on">항목별</button>
                     <button id="non-pc" class="tab-pc">미참여</button>
+                    <div class="modal-header-top">
+            					<button class="modal-close-btn">X</button>
+        						</div>
                 </div>
     `;
 
@@ -1599,6 +1602,10 @@ function itemListModalPc() {
     `;
 
 	$(".item-user-pc").empty().append(html).css('display', 'block');
+
+	$('.modal-close-btn').off('click').on('click', function () {
+		$('.item-user-pc').hide();  // 모달 닫기
+	});
 
 	$('.tab-pc').off('click').on('click', function () {
 		$('.tab-pc').removeClass('.tab-on');
@@ -3855,7 +3862,6 @@ function initSurveyResult() {
         </div>
     `;
 
-			$(".item-user-pc").empty().append(html).css('display', 'block');
 
 			$('.tab-pc').off('click').on('click', function () {
 				$('.tab-pc').removeClass('.tab-on');

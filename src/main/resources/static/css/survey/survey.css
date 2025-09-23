@@ -2110,6 +2110,9 @@ A.link_adress_list:hover {
 
 .modal-tab-pc {
     display: flex;
+    justify-content: space-between; /* 좌: 탭들 / 우: 닫기버튼 */
+    align-items: center;
+    position: relative;
 }
 
 .tab-on {
@@ -2312,4 +2315,24 @@ A.link_adress_list:hover {
 
 .ui-dialog {
     top: 100px !important;
+}
+
+.modal-close-btn {
+    background: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 28px;
+    height: 28px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    line-height: 26px;
+    text-align: center;
+    margin-left: 10px;
+}
+
+.modal-close-btn:hover {
+    background: #e0e0e0;  /* hover 시 진하게 */
+    color: #000;
 }
