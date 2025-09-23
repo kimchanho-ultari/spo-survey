@@ -1,9 +1,10 @@
 package com.ultari.additional.domain.account;
 
+import java.io.Serializable;
 import lombok.Data;
 
 @Data
-public class Account {
+public class Account implements Serializable {
 	private String key;
 	private String title;
 	private String password;
