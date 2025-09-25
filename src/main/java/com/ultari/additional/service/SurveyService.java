@@ -160,8 +160,8 @@ public class SurveyService {
 		alarmData.put("participantsList", participantsList);
 
 		//시작알림등록
-		alarmData.put("subject", "미니투표"+data.get("surveyTitle") + "이 생성되었습니다.");
-		alarmData.put("content", "미니투표"+data.get("surveyTitle") + "이 생성되었습니다.");
+		alarmData.put("subject", "미니투표 "+data.get("surveyTitle") + "이 생성되었습니다.");
+		alarmData.put("content", "미니투표 "+data.get("surveyTitle") + "이 생성되었습니다.");
 		alarmData.put("before10m", "1");
 		alarmData.put("pushTime", startDatetimeAlarmStr);
 		surveyMapper.removeAlarm(data);
