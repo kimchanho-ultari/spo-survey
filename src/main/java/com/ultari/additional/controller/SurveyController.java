@@ -192,7 +192,7 @@ public class SurveyController {
 		Map<String, Object> map = surveyService.survey(data);
 
 		if (map == null) {
-			redirectAttributes.addFlashAttribute("errorMessage", "해당 설문이 삭제되었습니다.");
+			redirectAttributes.addFlashAttribute("errorMessage", "해당 투표가 삭제되었습니다.");
 			return "redirect:/survey/";
 		}
 
