@@ -203,6 +203,10 @@ public class SurveyService {
 
 		Survey survey = surveyMapper.survey(data);
 
+		if (survey == null) {
+			return null; // 컨트롤러에서 null 체크 가능
+		}
+
 		String surveyCode = survey.getSurveyCode();
 		List<SurveyMember> members = surveyMapper.surveyMemberListBySurveyCodes(Collections.singletonList(surveyCode));
 

@@ -181,7 +181,7 @@ public class SurveyController {
 	}
 
 	@GetMapping("/article/{surveyCode}")
-	public String articleForm(@PathVariable String surveyCode, HttpSession session, Model model) throws Exception {
+	public String articleForm(@PathVariable String surveyCode, HttpSession session, Model model, RedirectAttributes redirectAttributes) throws Exception {
 		Account account = (Account) session.getAttribute("account");
 		String userId = account.getKey();
 
@@ -190,6 +190,11 @@ public class SurveyController {
 		data.put("userId", userId);
 
 		Map<String, Object> map = surveyService.survey(data);
+
+		if (map == null) {
+			redirectAttributes.addFlashAttribute("errorMessage", "해당 설문이 삭제되었습니다.");
+			return "redirect:/survey/";
+		}
 
 		model.addAttribute("survey", map.get("survey"));
 		model.addAttribute("surveyQuestionList", map.get("surveyQuestionList"));

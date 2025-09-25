@@ -15,6 +15,9 @@
 	<script type="text/javascript" th:src="@{/js/jquery/jquery-3.1.1.min.js}"></script>
 	<script type="text/javascript" th:src="@{/js/common.js}"></script>
 	<script type="text/javascript" th:src="@{/js/survey/list.js}"></script>
+	<script th:if="${errorMessage != null}" th:inline="javascript">
+		alert([[${errorMessage}]] + "");
+	</script>
 </head>
 
 <body>
